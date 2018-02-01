@@ -1,3 +1,11 @@
+/**
+ * Main file for initializing and executing a ray tracing render of a 3D scene
+ */
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 // Include standard headers
 #include <stdio.h>
 #include <stdint>

@@ -6,6 +6,13 @@
  * Author: ekliot
  */
 
+#ifndef _CAMERA_H_
+#define _CAMERA_H_
+
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 #include <glm/vec3.hpp>
 #include <PPlane.h>
 
@@ -40,4 +47,6 @@ public:
 
     void render( uint8_t *px_buf );
 
-}
+};
+
+#endif
