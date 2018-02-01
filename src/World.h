@@ -20,14 +20,14 @@
 #include "Object.h"
 
 class World {
+    
+private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object> objects;
 
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
-
-private:
 
     /**
      * Transforms an object in the scene in place
