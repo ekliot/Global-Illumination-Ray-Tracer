@@ -8,7 +8,7 @@
 
 // Include standard headers
 #include <stdio.h>
-#include <stdint>
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "Camera.h"
@@ -24,14 +24,14 @@ int w_width  = 640;
 int w_height = 480;
 
 // a pixel buffer of the window dimensions
-uint8_t * pixels[w_width*w_height];
+uint8_t * pixels[(w_width*w_height)*4];
 
 /**
  * Build the world scene and camera, then render the camera
  * into a pixel buffer
  */
 void init() {
-    World *world = new World( /* CONSTRUCTOR ARGS */ );
+    World *world = new World();
 
     // add objects to the world
 

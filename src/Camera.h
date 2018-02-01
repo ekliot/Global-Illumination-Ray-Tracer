@@ -13,6 +13,8 @@
 #include <windows.h>
 #endif
 
+#include <stdint.h>
+
 #include <glm/vec3.hpp>
 #include <PPlane.h>
 
