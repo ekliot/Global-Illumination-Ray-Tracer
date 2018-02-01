@@ -1,81 +1,47 @@
 // Include standard headers
 #include <stdio.h>
+#include <stdint>
 #include <stdlib.h>
 
-// Include GLFW
-#include <glfw3.h>
+#include "Camera.h"
+#include "PPlane.h"
+#include "World.h"
 
-// Include GLM
-#include <glm/glm.hpp>
+// Include GLM vector
+#include <glm/vec3.hpp>
 using namespace glm;
-
-GLFWwindow* window;
 
 // dimensions of drawing window
 int w_width  = 640;
 int w_height = 480;
 
+// a pixel buffer of the window dimensions
+uint8_t * pixels[w_width*w_height];
+
+/**
+ * Build the world scene and camera, then render the camera
+ * into a pixel buffer
+ */
 void init() {
-    // make pixel buffer with tracer
-    // setup OpenGL
-}
+    World *world = new World( /* CONSTRUCTOR ARGS */ );
 
-void display() {
-    // clear the frame buffer
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-}
+    // add objects to the world
 
-void keyboard( GLFWwindow *window, int key, int scan, int action, int modes ) {
-    switch( key ) {
-        case GLFW_KEY_ESCAPE:
-        case GLFW_KEY_Q:
-            glfwSetWindowShouldClose( window, 1 );
-            break;
-    }
-}
+    Camera cam  = new Camera(
+        world,
+        vec3( 1.0f, 2.53f -7.38f ), // pos TODO this is in world coords, should it be translated somehow?
+        vec3( 0.0f ), // lookat TODO figure this one out
+        vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+        { w_width, w_height, 1.0f } // TODO wtf should the focal length be?
+    );
 
-void glfwError( int code, const char *desc ) {
-    cerr << "GLFW error " << code << ": " << desc << endl;
-    // exit( 2 );
+    cam.render( pixels );
 }
 
 int main( void ) {
 
-    // establish 
-    glfwSetErrorCallback( glfwError );
-
-    // initialise GLFW
-    if ( !glfwInit() ) {
-        std::cerr << "Failed to initialize GLFW" << endl;
-        return -1;
-    }
-
-    // open a window and create its OpenGL context
-    window = glfwCreateWindow( w_width, w_height, "wassup B", NULL, NULL);
-    if ( !window ) {
-        std::cerr << "GLFW FAILED" << endl;
-        glfwTerminate();
-        return -1;
-    }
-    // this sets the OpenGL context to our window
-    glfwMakeContextCurrent( window );
-
-    // this defines how keyboard events are handled for our window
-    glfwSetKeyCallback( window, keyboard );
-
     // initialize the stuff we need for our rendering
     init();
-
-    // loop until told to exit
-    while( !glfwWindowShouldClose(window) ) {
-        display();
-        glfwSwapBuffers( window );
-        glfwWaitEvents();
-    }
-
-    // kill everything
-    glfwDestroyWindow( window );
-    glfwTerminate();
 
     return 0;
 }
