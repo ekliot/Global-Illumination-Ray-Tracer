@@ -19,14 +19,14 @@ World::World() {}
 
 World::~World() {}
 
-void add( Object obj ) {
+void World::add( Object obj ) {
     //
 }
 
-void transform_all_to_ccoord( mat4 tmat ) {
+void World::transform_all_to_ccoord( mat4 tmat ) {
     //
 }
 
-vec3 get_intersect( Ray r ) {
+vec3 World::get_intersect( Ray r ) {
     //
 }

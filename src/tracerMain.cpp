@@ -11,12 +11,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// Include GLM vector
+#include <glm/vec3.hpp>
+
+#include <SFML/Window.hpp>
+
 #include "Camera.h"
 #include "PPlane.h"
 #include "World.h"
-
-// Include GLM vector
-#include <glm/vec3.hpp>
 using namespace glm;
 
 // dimensions of drawing window
@@ -35,21 +37,23 @@ void init() {
 
     // add objects to the world
 
-    Camera cam  = new Camera(
-        world,
-        vec3( 1.0f, 2.53f -7.38f ), // pos TODO this is in world coords, should it be translated somehow?
-        vec3( 0.0f ), // lookat TODO figure this one out
-        vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
-        { w_width, w_height, 1.0f } // TODO wtf should the focal length be?
-    );
+    // Camera cam  = new Camera(
+    //     world,
+    //     vec3( 1.0f, 2.53f -7.38f ), // pos TODO this is in world coords, should it be translated somehow?
+    //     vec3( 0.0f ), // lookat TODO figure this one out
+    //     vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+    //     { w_width, w_height, 1.0f } // TODO wtf should the focal length be?
+    // );
 
-    cam.render( pixels );
+    // cam.render( pixels );
 }
 
 int main( void ) {
 
     // initialize the stuff we need for our rendering
     init();
+
+    sf::Window window( sf::VideoMode( w_width, w_height ), "Ray Tracer" );
 
     return 0;
 }
