@@ -1,8 +1,15 @@
 
-#include"Ray.h";
+#include "Ray.h";
+#include "Material.h";
 
 class Object
 {
-	virtual float intersection(Ray ray);
+	private:
+		Material material;
+
+	public :
+		Object(Material mat);
+		virtual float intersection(Ray ray);
+		Material getMaterial();
 
 };

@@ -7,6 +7,7 @@
 #include <glm/vec3.hpp>
 #include <glm/glm.hpp>
 #include "Object.h"
+#include "Material.h"
 
 using namespace glm;
 
@@ -15,7 +16,7 @@ class Triangle :Object
 	float u,v;
 	vec3 a, b, c;
 
-	Triangle(vec3 a, vec3 b, vec3 c){
+	Triangle(vec3 a, vec3 b, vec3 c, Material mat): Object(mat){
 		this->a = a;
 		this->b = b;
 		this->c = c;
