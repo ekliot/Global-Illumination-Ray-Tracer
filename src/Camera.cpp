@@ -15,7 +15,7 @@ Camera::Camera( World *w, vec3 p,    vec3 l, vec3 up, PPlane pp ) : \
     // constructor body
 }
 
-void render( uint8_t *px_buf ) {
+void Camera::render( uint8_t *px_buf ) {
     // trace and put stuff into the pixel buffer
     return NULL;
 }

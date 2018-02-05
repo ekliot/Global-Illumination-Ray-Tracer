@@ -9,6 +9,8 @@
 #ifndef _PPLANE_H_
 #define _PPLANE_H_
 
+#include <stdint.h>
+
 typedef struct st_PPlane {
     uint_t w; // width
     uint_t h; // height
