@@ -21,9 +21,9 @@ class Object
 			this->mat = material;
 		}
 
-		virtual float intersection(Ray ray) = 0;
-
-		virtual void transform(mat4 matrix) = 0;
+		float intersection(Ray ray) { return -1; };
+		
+		void transform(mat4 matrix) {};
 
 		Material getMaterial()
 		{

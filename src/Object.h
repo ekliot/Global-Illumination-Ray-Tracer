@@ -13,8 +13,8 @@ class Object
 
 	public :
 		Object(Material mat);
-		virtual float intersection(Ray ray);
-		virtual void transform(mat4 matrix);
+		float intersection(Ray ray);
+		void transform(mat4 matrix);
 		Material getMaterial();
 
 

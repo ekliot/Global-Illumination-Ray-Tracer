@@ -25,7 +25,6 @@ World::~World() {}
 
 std::vector<Object> objects;
 
-
 void World::add( Object obj ) {
 	objects.push_back(obj);
     //
@@ -39,3 +38,4 @@ vec3 World::get_intersect( Ray r ) {
 	return vec3(0, 0, 0);
     //
 }
+
