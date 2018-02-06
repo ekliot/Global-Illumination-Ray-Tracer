@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #ifdef _WIN32
-#include "stdafx.h"
+#include "../../stdafx.h"
 #include <windows.h>
 #endif
 
@@ -77,5 +77,9 @@ class Triangle :Object
 		return -1;
 	}
 
+	void transform(mat4 matrix)
+	{
+		//this->a = 
+	}
 
 };

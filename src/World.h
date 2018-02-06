@@ -8,7 +8,7 @@
 
 #ifndef _WORLD_H
 #define _WORLD_H
-#include "stdafx.h"
+#include "../../stdafx.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
@@ -16,9 +16,11 @@
 
 #include <vector>
 #include <glm/vec3.hpp>
-#include <glm/mat4.hpp>
+#include <glm/matrix.hpp>
+using namespace glm;
 
 #include "Object.h"
+#include "Ray.h"
 
 class World {
     

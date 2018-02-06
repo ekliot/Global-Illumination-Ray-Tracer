@@ -3,10 +3,11 @@
 #include <windows.h>
 #endif
 
-#include <initializer_list>
-#include <vector>
 #include "Ray.h"
 #include "Material.h"
+#include <glm\matrix.hpp>
+
+using namespace glm;
 
 class Object
 {
@@ -21,6 +22,8 @@ class Object
 		}
 
 		virtual float intersection(Ray ray) = 0;
+
+		virtual void transform(mat4 matrix) = 0;
 
 		Material getMaterial()
 		{

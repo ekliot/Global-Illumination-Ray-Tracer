@@ -1,6 +1,7 @@
 
-#ifdef _WIN32
 #include "stdafx.h"
+
+#ifdef _WIN32
 #include <windows.h>
 #endif
 #include <vector>

@@ -1,6 +1,7 @@
-
-#ifdef _WIN32
 #include "stdafx.h"
+
+#include "../../stdafx.h"
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -12,7 +13,7 @@ class Sphere :Object
 		glm::vec3 point;
 		float radius;
 
-		Sphere(glm::vec3 point, float radius){
+		Sphere(glm::vec3 point, float radius, Material mat):Object(mat){
 			this->point = point;
 			this->radius = radius;
 		}

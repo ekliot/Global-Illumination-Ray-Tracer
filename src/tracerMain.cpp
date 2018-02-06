@@ -1,6 +1,7 @@
 /**
  * Main file for initializing and executing a ray tracing render of a 3D scene
  */
+#include "stdafx.h"
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
@@ -21,8 +22,8 @@
 using namespace glm;
 
 // dimensions of drawing window
-int w_width  = 640;
-int w_height = 480;
+const int w_width  = 640;
+const int w_height = 480;
 
 // a pixel buffer of the window dimensions
 uint8_t * pixels[(w_width*w_height)*4];
