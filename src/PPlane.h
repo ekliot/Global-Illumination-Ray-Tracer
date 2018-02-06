@@ -12,8 +12,8 @@
 #include <stdint.h>
 
 typedef struct st_PPlane {
-    uint_t w; // width
-    uint_t h; // height
+    uint8_t w; // width
+    uint8_t h; // height
     float foc_l; // focal length
 } PPlane;
 

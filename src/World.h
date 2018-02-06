@@ -16,12 +16,14 @@
 
 #include <vector>
 #include <glm/vec3.hpp>
-#include <glm/mat4.hpp>
+#include <glm/matrix.hpp>
+
+using namespace glm;
 
 #include "Object.h"
 
 class World {
-    
+
 private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot

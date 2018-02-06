@@ -15,6 +15,7 @@
 
 #include "Ray.h"
 #include "Object.h"
+#include "World.h"
 
 World::World() {}
 
