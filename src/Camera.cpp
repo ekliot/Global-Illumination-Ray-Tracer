@@ -5,7 +5,7 @@
  *
  * Author: ekliot
  */
-#include "stdafx.h"
+//#include "stdafx.h"
 
 #include "Camera.h"
 
