@@ -72,7 +72,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the colour intersected by a Ray
      */
-    vec3 get_intersect( Ray r );
+    vec4 get_intersect( Ray r );
 
 };
 

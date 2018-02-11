@@ -3,7 +3,7 @@
  *
  * Author: ekliot
  */
-#include "stdafx.h"
+//#include "stdafx.h"
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #include <glm\matrix.hpp>
@@ -57,7 +57,7 @@ vec4 World::get_intersect( Ray r ) {
 	{
 		return currentObject->getMaterial().getColor();
 	}
-	return NULL;
+	return background;
 
 }
 
