@@ -8,9 +8,9 @@
 
 #ifndef _WORLD_H
 #define _WORLD_H
-#include "stdafx.h"
 
 #if defined(_WIN32) || defined(_WIN64)
+#include "stdafx.h"
 #include <windows.h>
 #endif
 

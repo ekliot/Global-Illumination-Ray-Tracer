@@ -17,6 +17,8 @@
 
 #include <glm/vec3.hpp>
 
+#include "png++/png.hpp"
+#include "World.h"
 #include "PPlane.h"
 
 using namespace glm;
@@ -38,17 +40,17 @@ public:
      * @param w  :: World* :: pointer to the world the camera is rendering
      * @param p  :: vec3   :: the position of the camera
      * @param l  :: vec3   :: the lookat vector of the camera
-     * @param up :: vec3   :: the up vector of the camera
+     * @param u  :: vec3   :: the up vector of the camera
      * @param pp :: PPlane :: the projection plane for the camera
      */
-    Camera( World *w, vec3 p, vec3 l, vec3 up, PPlane pp );
+    Camera( World *w, vec3 p, vec3 l, vec3 u, PPlane pp );
 
     /**
      * Destructor
      */
     ~Camera( void );
 
-    void render( uint8_t *px_buf );
+    void render( png::image<png::rgb_pixel> negative );
 
 };
 

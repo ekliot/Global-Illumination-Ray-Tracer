@@ -1,5 +1,5 @@
+#if defined(_WIN32) || defined(_WIN64)
 #include "stdafx.h"
-#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -8,22 +8,19 @@
 #include "Ray.h"
 #include "Material.h"
 
-class Object
-{
+class Object {
 	private:
 		Material mat;
 
 	public :
 
-		Object(Material material)
-		{
+		Object( Material material ) {
 			this->mat = material;
 		}
 
-		virtual float intersection(Ray ray) = 0;
+		virtual float intersection( Ray ray ) = 0;
 
-		Material getMaterial()
-		{
+		Material getMaterial() {
 			return this->mat;
 		}
 
