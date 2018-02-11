@@ -31,11 +31,14 @@ void World::add( Object obj ) {
 }
 
 void World::transform_all_to_ccoord( mat4 tmat ) {
-    //
+	for each (Object object in objects) // Problem part
+	{
+		object.transform(tmat);
+	}
 }
 
 vec3 World::get_intersect( Ray r ) {
 	return vec3(0, 0, 0);
-    //
+    
 }
 

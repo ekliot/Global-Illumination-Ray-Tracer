@@ -79,7 +79,17 @@ class Triangle :Object
 
 	void transform(mat4 matrix)
 	{
-		//this->a = 
+		vec4 a4 = vec4(this->a.x, this->a.y, this->a.z, 1);
+		a4 = matrix * a4;
+		a = convert(a4);
+
+		vec4 b4 = vec4(this->b.x, this->b.y, this->b.z, 1);
+		b4 = matrix * b4;
+		b = convert(b4);
+
+		vec4 c4 = vec4(this->c.x, this->c.y, this->c.z, 1);
+		c4 = matrix * c4;
+		c = convert(c4);
 	}
 
 };

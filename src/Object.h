@@ -16,6 +16,7 @@ class Object
 		float intersection(Ray ray);
 		void transform(mat4 matrix);
 		Material getMaterial();
+		vec3 convert(vec4 vector);
 
 
 };
