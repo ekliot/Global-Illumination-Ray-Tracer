@@ -7,7 +7,10 @@ using namespace glm;
 
 class Material
 {
+	vec4 color;
 	public:
+		Material(vec4 color);
+		Material();
 		vec4 getColor();
 
 };

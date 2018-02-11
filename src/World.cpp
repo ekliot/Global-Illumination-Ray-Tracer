@@ -3,7 +3,7 @@
  *
  * Author: ekliot
  */
-//#include "stdafx.h"
+#include "stdafx.h"
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #include <glm\matrix.hpp>
@@ -17,6 +17,7 @@ using namespace glm;
 #include "Ray.h"
 #include "Object.h"
 #include "World.h"
+#include "Material.h"
 
 
 World::World(vec4 background) {
@@ -40,8 +41,8 @@ void World::transform_all_to_ccoord( mat4 tmat ) {
 	}
 }
 
-vec4 World::get_intersect( Ray r ) {
-	
+vec4 World::get_intersect(Ray r) {
+
 	int value = -1;
 	Object* currentObject = NULL;
 	for each (Object object in objects)
@@ -58,6 +59,4 @@ vec4 World::get_intersect( Ray r ) {
 		return currentObject->getMaterial().getColor();
 	}
 	return background;
-
 }
-

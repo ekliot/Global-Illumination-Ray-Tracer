@@ -13,7 +13,7 @@ class Ray
 		glm::vec3 direction;
 
 		Ray(glm::vec3 point, glm::vec3 direction);
-		void Normalize();
+		void normalize();
 
 };
 #endif // _RAY_H_

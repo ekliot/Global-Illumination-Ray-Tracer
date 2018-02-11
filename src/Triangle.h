@@ -19,6 +19,8 @@ class Triangle :Object
 		Triangle(vec3 a, vec3 b, vec3 c, Material mat);
 		float intersection(Ray ray);
 		void transform(mat4 matrix);
+		float getBarycentricCoords(vec3 p);
+		float intersectPlane(Ray ray);
 
 };
-endif
+#endif
