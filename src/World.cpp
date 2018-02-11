@@ -19,11 +19,14 @@ using namespace glm;
 #include "World.h"
 
 
-World::World() {}
+World::World(vec4 background) {
+	this->background = background;
+}
 
 World::~World() {}
 
 std::vector<Object> objects;
+vec4 background;
 
 void World::add( Object obj ) {
 	objects.push_back(obj);
@@ -37,8 +40,24 @@ void World::transform_all_to_ccoord( mat4 tmat ) {
 	}
 }
 
-vec3 World::get_intersect( Ray r ) {
-	return vec3(0, 0, 0);
-    
+vec4 World::get_intersect( Ray r ) {
+	
+	int value = -1;
+	Object* currentObject = NULL;
+	for each (Object object in objects)
+	{
+		int newValue = object.intersection(r);
+		if (newValue < value && newValue > 0)
+		{
+			value = newValue;
+			currentObject = &object;
+		}
+	}
+	if (currentObject != NULL)
+	{
+		return currentObject->getMaterial().getColor();
+	}
+	return NULL;
+
 }
 

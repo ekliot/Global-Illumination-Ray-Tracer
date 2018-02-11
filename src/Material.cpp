@@ -1,6 +1,5 @@
-#include "../../stdafx.h"
-#include "stdafx.h"
-
+//#include "stdafx.h"
+#include "Material.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -8,16 +7,15 @@
 
 class Material
 {
-	int* color;
-
+	vec4 color;
 	public:
 
-		Material(int* color)
+		Material(vec4 color)
 		{
 			this->color = color;
 		}
 
-		int* getColor()
+		vec4 getColor()
 		{
 			return this->color;
 		}
