@@ -1,2 +1,4 @@
 *.gch
 *.o
+src/png++/example
+src/png++/test

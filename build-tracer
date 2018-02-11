@@ -1,0 +1,4 @@
+#!/bin/bash
+
+g++ -std=c++11 -Wall -Werror -pedantic `libpng-config --cflags` -c src/tracerMain.cpp
+g++ -std=c++11 -Wall -Werror -pedantic `libpng-config --ldflags` -o tracerMain tracerMain.o
