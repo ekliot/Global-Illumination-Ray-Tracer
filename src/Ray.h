@@ -1,11 +1,16 @@
+#ifndef _RAY_H_
+#define _RAY_H_
+
 #include <glm/vec3.hpp>
+
+using namespace glm;
 
 class Ray {
 public:
-	glm::vec3 point;
-	glm::vec3 direction;
+    vec3 point;
+    vec3 direction;
 
-	Ray( glm::vec3 point, glm::vec3 direction );
-	void Normalize();
-
+    Ray( vec3 point, vec3 direction );
+    void normalize();
 };
+#endif // _RAY_H_

@@ -1,9 +1,12 @@
 #ifndef _MATERIAL_H_
 #define _MATERIAL_H_
 
-class Material {
-	public:
-		int* getColor();
-};
+#include <glm/vec4.hpp>
+
+using namespace glm;
+
+typedef struct st_Material {
+    vec4 color;
+} Material;
 
 #endif

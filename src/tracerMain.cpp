@@ -2,6 +2,7 @@
  * Main file for initializing and executing a ray tracing render of a 3D scene
  */
 #if defined(_WIN32) || defined(_WIN64)
+#include "stdafx.h"
 #include <windows.h>
 #endif
 

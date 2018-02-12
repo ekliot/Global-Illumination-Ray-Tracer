@@ -3,25 +3,25 @@
 #include <windows.h>
 #endif
 
-#include <initializer_list>
-#include <vector>
+#include "Object.h"
 #include "Ray.h"
 #include "Material.h"
+#include <glm/matrix.hpp>
+#include "Object.h"
 
-class Object {
-	private:
-		Material mat;
+using namespace glm;
 
-	public :
 
-		Object( Material material ) {
-			this->mat = material;
-		}
+Object::Object(Material material) : material(m) {}
 
-		virtual float intersection( Ray ray ) = 0;
+float Object::intersection( Ray ray ){ return -1; };
 
-		Material getMaterial() {
-			return this->mat;
-		}
+void Object::transform( mat4 matrix ) {};
 
-};
+Material Object::getMaterial() {
+    return this->material;
+}
+
+vec3 Object::convert( vec4 vec ) {
+    return vec3( vec.x / vec.w, vec.y / vec.w, vec.z / vec.w );
+}

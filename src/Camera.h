@@ -6,6 +6,7 @@
  * Author: ekliot
  */
 
+
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
@@ -18,14 +19,14 @@
 #include <glm/vec3.hpp>
 
 #include "png++/png.hpp"
-#include "World.h"
 #include "PPlane.h"
+#include "World.h"
 
 using namespace glm;
 
 class Camera {
 
-    World *world;
+    World* world;
 
     vec3 pos;
     vec3 lookat;
