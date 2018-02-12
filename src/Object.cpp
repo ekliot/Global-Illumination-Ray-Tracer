@@ -3,20 +3,18 @@
 #include <windows.h>
 #endif
 
-#include "Object.h"
-#include "Ray.h"
-#include "Material.h"
 #include <glm/matrix.hpp>
+
 #include "Object.h"
 
 using namespace glm;
 
 
-Object::Object(Material material) : material(m) {}
+Object::Object( Material m ) : material(m) {}
 
-float Object::intersection( Ray ray ){ return -1; };
+float Object::intersection( Ray ray ){ return -1; }
 
-void Object::transform( mat4 matrix ) {};
+void Object::transform( mat4 matrix ) {}
 
 Material Object::getMaterial() {
     return this->material;

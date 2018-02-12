@@ -12,9 +12,10 @@
 #include <stdint.h>
 
 typedef struct st_PPlane {
-    uint8_t w; // width
-    uint8_t h; // height
+    int w; // width
+    int h; // height
     float foc_l; // focal length
+    float ratio; // pixel:world_unit ratio
 } PPlane;
 
 #endif

@@ -11,13 +11,7 @@
 
 using namespace glm;
 
-
-
-Triangle::Triangle(vec3 a, vec3 b, vec3 c, Material mat): Object(mat){
-    this->a = a;
-    this->b = b;
-    this->c = c;
-}
+Triangle::Triangle( vec3 _a, vec3 _b, vec3 _c, Material mat ) : Object(mat), a(_a), b(_b), c(_c) {}
 
 // Compute barycentric coordinates (u, v, w) for
 // point p with respect to triangle (a, b, c)
@@ -48,37 +42,37 @@ float Triangle::intersectPlane( Ray ray ) {
 
     // assuming vectors are all normalized
     float denom = dot(n, ray.direction);
-    if (denom > 1e-6) {
-        vec3 p0l0 = p0 - ray.point;
-        float t = dot(p0l0, n) / denom;
-        if (t >= 0) {
+    if ( denom > 1e-6 ) {
+        vec3 p0l0 = p0 - ray.origin;
+        float t = dot( p0l0, n ) / denom;
+        if ( t >= 0 ) {
             return t;
         }
     }
     return -1;
 }
 
-float Triangle::intersection(Ray ray) {
+float Triangle::intersection( Ray ray ) {
 
-    float mag = intersectPlane(ray);
-    if (mag != -1)
-    {
+    float mag = intersectPlane( ray );
+
+    if ( mag != -1 ) {
         vec3 point = ray.direction * mag;
         float u = getBarycentricCoords(point);
-        if (u >= 0 && u <= 1)
-        {
+        if (u >= 0 && u <= 1) {
             return mag;
         }
     }
+
     return -1;
 }
 
 void Triangle::transform( mat4 matrix ) {
-    vec4 a4 = vec4(this->a.x, this->a.y, this->a.z, 1);
+    vec4 a4 = vec4( this->a.x, this->a.y, this->a.z, 1 );
     a4 = matrix * a4;
-    a = convert(a4);
+    a = convert( a4 );
 
-    vec4 b4 = vec4(this->b.x, this->b.y, this->b.z, 1);
+    vec4 b4 = vec4( this->b.x, this->b.y, this->b.z, 1 );
     b4 = matrix * b4;
     b = convert(b4);
 

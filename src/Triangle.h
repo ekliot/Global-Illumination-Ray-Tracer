@@ -15,23 +15,17 @@ private:
     vec3 b;
     vec3 c;
 
-<<<<<<< HEAD
 public:
-    Triangle( vec3 a, vec3 b, vec3 c, Material mat );
-    float intersection( Ray ray );
-    float getBarycentricCoords( vec3 p );
+    Triangle(vec3 a, vec3 b, vec3 c, Material mat);
+
+    float intersection(Ray ray);
+
+    void transform(mat4 matrix);
+
+    float getBarycentricCoords(vec3 p);
+
+    float intersectPlane(Ray ray);
 
 };
 
-#endif
-=======
-    public:
-        Triangle(vec3 a, vec3 b, vec3 c, Material mat);
-        float intersection(Ray ray);
-        void transform(mat4 matrix);
-        float getBarycentricCoords(vec3 p);
-        float intersectPlane(Ray ray);
-
-};
-#endif
->>>>>>> master
+#endif // _TRIANGLE_H_

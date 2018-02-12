@@ -11,6 +11,7 @@
 #define _CAMERA_H_
 
 #if defined(_WIN32) || defined(_WIN64)
+#include "stdafx.h"
 #include <windows.h>
 #endif
 
@@ -19,10 +20,12 @@
 #include <glm/vec3.hpp>
 
 #include "png++/png.hpp"
+
 #include "PPlane.h"
 #include "World.h"
 
-using namespace glm;
+using namespace png;
+using glm::vec3;
 
 class Camera {
 
@@ -51,7 +54,7 @@ public:
      */
     ~Camera( void );
 
-    void render( png::image<png::rgb_pixel> negative );
+    image<rgb_pixel> render( image<rgb_pixel> negative );
 
 };
 

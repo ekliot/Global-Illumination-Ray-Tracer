@@ -3,60 +3,47 @@
  *
  * Author: ekliot
  */
-//#include "stdafx.h"
 #if defined(_WIN32) || defined(_WIN64)
+#include "stdafx.h"
 #include <windows.h>
-#include <glm\matrix.hpp>
 #endif
 
 #include <vector>
-#include <glm/vec3.hpp>
-using namespace glm;
-//#include <glm/mat4.hpp>
 
-#include "Ray.h"
-#include "Object.h"
+#include <glm/vec3.hpp>
+#include <glm/matrix.hpp>
+
+using namespace glm;
+
 #include "World.h"
 #include "Material.h"
 
-
-World::World(vec4 background) {
-    this->background = background;
-}
+World::World( vec4 bg ) : background(bg) {}
 
 World::~World() {}
 
-std::vector<Object> objects;
-vec4 background;
-
 void World::add( Object obj ) {
     objects.push_back(obj);
-    //
 }
 
 void World::transform_all_to_ccoord( mat4 tmat ) {
-    for each (Object object in objects) // Problem part
-    {
-        object.transform(tmat);
+    for ( Object obj : objects ) {
+        obj.transform( tmat );
     }
 }
 
 vec4 World::get_intersect(Ray r) {
-
     int value = -1;
     Object* currentObject = NULL;
-    for each (Object object in objects)
-    {
-        int newValue = object.intersection(r);
-        if (newValue < value && newValue > 0)
-        {
+    for ( Object obj : objects ) {
+        int newValue = obj.intersection(r);
+        if ( newValue < value && newValue > 0 ) {
             value = newValue;
-            currentObject = &object;
+            currentObject = &obj;
         }
     }
-    if (currentObject != NULL)
-    {
-        return currentObject->getMaterial().getColor();
+    if ( currentObject != NULL ) {
+        return currentObject->getMaterial().color;
     }
     return background;
 }

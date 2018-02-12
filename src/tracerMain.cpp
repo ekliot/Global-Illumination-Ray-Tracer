@@ -17,23 +17,37 @@
 #include <glm/vec3.hpp>
 
 #include "png++/png.hpp"
-// #include "Camera.h"
-// #include "PPlane.h"
-// #include "World.h"
+#include "Camera.h"
+#include "PPlane.h"
+#include "World.h"
 using namespace glm;
 
 // dimensions of drawing window
 const int I_WIDTH  = 640;
 const int I_HEIGHT = 480;
 
+void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
+    negative.write( filename );
+}
+
 /**
  * Build the world scene and camera, then render the camera
  * into a pixel buffer
  */
 void init() {
-    // World *world = new World();
+    World *world = new World(
+        vec4( 0.0f )
+    );
 
     // add objects to the world
+
+    Camera *cam = new Camera(
+        world,
+        vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
+        vec3( 0.0f ), // lookat TODO figure this one out
+        vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+        { I_WIDTH, I_HEIGHT, 1.0f, 1.0f } // TODO wtf should the focal length be?
+    );
 
     // Camera cam  = new Camera(
     //     world,
@@ -45,9 +59,9 @@ void init() {
 
     png::image<png::rgb_pixel> negative(I_WIDTH, I_HEIGHT);
 
-    // cam.render( negative );
+    cam->render( negative );
 
-    negative.write("out.png");
+    photo_print( negative, "out.png" );
 }
 
 int main( void ) {
