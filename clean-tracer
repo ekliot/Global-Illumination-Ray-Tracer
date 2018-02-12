@@ -1,0 +1,4 @@
+#!/bin/bash
+
+rm -rf src/*.o
+rm -rf src/*.gch
