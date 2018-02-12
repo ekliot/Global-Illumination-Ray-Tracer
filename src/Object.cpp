@@ -1,30 +1,33 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#include <initializer_list>
-#include <vector>
+#include "Object.h"
 #include "Ray.h"
 #include "Material.h"
+#include <glm\matrix.hpp>
+#include "Object.h"
 
-class Object
+using namespace glm;
+
+
+Object::Object(Material material)
 {
-	private:
-		Material mat;
+	this->material = material;
+}
 
-	public :
+float Object::intersection(Ray ray) { return -1; };
+		
+void Object::transform(mat4 matrix) {};
 
-		Object(Material material)
-		{
-			this->mat = material;
-		}
+Material Object::getMaterial()
+{
+	return this->material;
+}
 
-		virtual float intersection(Ray ray) = 0;
+vec3 Object::convert(vec4 vec)
+{
+	return vec3(vec.x / vec.w, vec.y / vec.w, vec.z / vec.w);
+}
 
-		Material getMaterial()
-		{
-			return this->mat;
-		}
-
-};

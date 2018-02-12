@@ -8,9 +8,9 @@
 
 #ifndef _WORLD_H
 #define _WORLD_H
-#include "stdafx.h"
 
 #if defined(_WIN32) || defined(_WIN64)
+#include "stdafx.h"
 #include <windows.h>
 #endif
 
@@ -21,6 +21,7 @@
 using namespace glm;
 
 #include "Object.h"
+#include "Ray.h"
 
 class World {
 
@@ -28,6 +29,8 @@ private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object> objects;
+
+    vec4 background;
 
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
@@ -44,7 +47,7 @@ public:
     /**
      * Constructor
      */
-    World( void );
+    World( vec4 background );
 
     /**
      * Destructor
@@ -70,7 +73,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the colour intersected by a Ray
      */
-    vec3 get_intersect( Ray r );
+    vec4 get_intersect( Ray r );
 
 };
 

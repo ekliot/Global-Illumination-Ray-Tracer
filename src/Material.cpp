@@ -1,23 +1,28 @@
+//#include "stdafx.h"
 
 #ifdef _WIN32
-#include "stdafx.h"
 #include <windows.h>
 #endif
 
-class Material
+#include <glm\vec4.hpp>;
+using namespace glm;
+
+#include "Material.h";
+
+	
+
+Material::Material(vec4 color)
 {
-	int* color;
+	this->color = color;
+}
 
-	public:
+Material::Material()
+{
+	this->color = vec4(255,255,255,255);
+}
 
-		Material(int* color)
-		{
-			this->color = color;
-		}
+vec4 Material::getColor()
+{
+	return this->color;
+}
 
-		int* getColor()
-		{
-			return this->color;
-		}
-
-};
