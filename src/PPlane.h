@@ -15,6 +15,7 @@ typedef struct st_PPlane {
     int w; // width
     int h; // height
     float foc_l; // focal length
+    float ratio; // pixel:world_unit ratio
 } PPlane;
 
 #endif
