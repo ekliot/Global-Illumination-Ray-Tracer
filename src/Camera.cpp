@@ -52,10 +52,10 @@ void Camera::render( image<rgb_pixel> *negative ) {
             dir_x = start_x + x * px_w + px_w/2;
             dir_y = start_y - y * px_h + px_h/2;
             dir_z = plane.foc_l;
-            std::cout << "{" << dir_x << ":" << dir_y << ":" << dir_z  << "} -> ";
+            // std::cout << "{" << dir_x << ":" << dir_y << ":" << dir_z  << "} -> ";
             ray_dir = vec3( dir_x, dir_y, dir_z );
             ray = new Ray( &ray_ori, &ray_dir );
-            std::cout << "{" << ray->direction->x << ":" << ray->direction->y << ":" << ray->direction->z << "} -> [" << x << "," << y << "]" << '\n';
+            // std::cout << "{" << ray->direction->x << ":" << ray->direction->y << ":" << ray->direction->z << "} -> [" << x << "," << y << "]" << '\n';
 
             colour = world->get_intersect( ray );
             negative->get_row(y)[x] = rgb_pixel( int( colour.x*255 ), int( colour.y*255 ), int( colour.z*255 ) );

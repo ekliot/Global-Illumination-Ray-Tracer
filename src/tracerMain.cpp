@@ -21,11 +21,12 @@
 #include "PPlane.h"
 #include "World.h"
 #include "Triangle.h"
+#include "Sphere.h"
 using namespace glm;
 
 // dimensions of drawing window
-const int I_WIDTH  = 960;
-const int I_HEIGHT = 540;
+const int I_WIDTH  = 1920;
+const int I_HEIGHT = 1080;
 
 void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
     negative.write( filename );
@@ -40,23 +41,29 @@ void init() {
         vec4( 1.0f )
     );
 
-    vec3 tri_a = vec3( 0.0f, 0.5f, 2.0f );
-    vec3 tri_b = vec3( 0.0f, 0.0f, 2.0f );
-    vec3 tri_c = vec3( 0.5f, 0.0f, 2.0f );
-    Material tri_mat = {vec4( 0.0f )};
+    // vec3 tri_a = vec3( 0.0f, 0.5f, 2.0f );
+    // vec3 tri_b = vec3( 0.0f, 0.0f, 2.0f );
+    // vec3 tri_c = vec3( 0.5f, 0.0f, 2.0f );
+    // Material tri_mat = {vec4( 0.0f )};
+    //
+    // // add objects to the world
+    // Triangle* tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
 
-    // add objects to the world
-    Triangle *tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
+    vec3 sphere_p = vec3( 0.0f, 0.0f, 2.0f );
+    float sphere_r = 1.0f;
+    Material sphere_mat = {vec4( 0.0f )};
 
-    world->add( tri );
+    Sphere* sphere = new Sphere( &sphere_p, &sphere_r, &sphere_mat );
+
+    // world->add( tri );
+    world->add( sphere );
 
     Camera *cam1 = new Camera(
         world,
         vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
         vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
         vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
-        { 1.0f, 1.0f, 1.0f } // TODO wtf should the focal length be?
-        // { 1.92f, 1.08f, 200.0f } // TODO wtf should the focal length be?
+        { 1.92f, 1.08f, 1.0f } // TODO wtf should the focal length be?
     );
 
     // Camera *cam2 = new Camera(
