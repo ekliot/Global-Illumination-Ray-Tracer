@@ -7,6 +7,8 @@
 #include <windows.h>
 #endif
 
+#include <iostream>
+
 #include <vector>
 #include <math.h>
 
@@ -23,5 +25,6 @@ void Ray::normalize(){
     double magnitude = sqrt(direction.x * direction.x
         + direction.y*direction.y
         + direction.z*direction.z);
-    direction = vec3(direction.x / magnitude, direction.y / magnitude, direction.z / magnitude);
+    std::cout << "magnitude: " << magnitude << '\n';
+    this->direction = vec3(direction.x / magnitude, direction.y / magnitude, direction.z / magnitude);
 }

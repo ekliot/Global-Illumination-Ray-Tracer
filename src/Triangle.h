@@ -9,7 +9,7 @@
 
 using namespace glm;
 
-class Triangle : Object {
+class Triangle : public Object {
 private:
     vec3 a;
     vec3 b;

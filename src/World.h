@@ -57,7 +57,7 @@ public:
     /**
      * Adds an object to the scene
      */
-    void add( Object obj );
+    void add( Object *obj );
 
     /**
      * Transforms all objects in the scene to camera coordinates
@@ -73,7 +73,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the colour intersected by a Ray
      */
-    vec4 get_intersect( Ray r );
+    vec4 get_intersect( Ray *r );
 
 };
 

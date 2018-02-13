@@ -15,7 +15,7 @@ protected:
 public:
     Object( Material mat );
 
-    float intersection( Ray ray );
+    float intersection( Ray *ray );
 
     void transform( mat4 matrix );
 

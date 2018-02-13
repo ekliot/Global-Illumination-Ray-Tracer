@@ -20,6 +20,7 @@
 #include "Camera.h"
 #include "PPlane.h"
 #include "World.h"
+#include "Triangle.h"
 using namespace glm;
 
 // dimensions of drawing window
@@ -36,10 +37,18 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  */
 void init() {
     World *world = new World(
-        vec4( 0.0f )
+        vec4( 1.0f )
     );
 
     // add objects to the world
+    Triangle *tri = new Triangle(
+        vec3( 0.0f, 3.0f, 5.0f ),
+        vec3( 0.0f, 0.0f, 5.0f ),
+        vec3( 3.0f, 0.0f, 1.0f ),
+        {vec4( 0.0f )}
+    );
+
+    world->add( tri );
 
     Camera *cam = new Camera(
         world,
@@ -59,7 +68,7 @@ void init() {
 
     png::image<png::rgb_pixel> negative(I_WIDTH, I_HEIGHT);
 
-    cam->render( negative );
+    cam->render( &negative );
 
     photo_print( negative, "out.png" );
 }
@@ -68,8 +77,6 @@ int main( void ) {
 
     // initialize the stuff we need for our rendering
     init();
-
-    std::cout << "/* message */" << '\n';
 
     return 0;
 }

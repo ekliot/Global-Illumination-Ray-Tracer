@@ -12,12 +12,12 @@ using namespace glm;
 
 Object::Object( Material m ) : material(m) {}
 
-float Object::intersection( Ray ray ){ return -1; }
+float Object::intersection( Ray *ray ){ return -1; }
 
 void Object::transform( mat4 matrix ) {}
 
 Material Object::getMaterial() {
-    return this->material;
+    return material;
 }
 
 vec3 Object::convert( vec4 vec ) {

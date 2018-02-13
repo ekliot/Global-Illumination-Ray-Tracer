@@ -22,8 +22,8 @@ World::World( vec4 bg ) : background(bg) {}
 
 World::~World() {}
 
-void World::add( Object obj ) {
-    objects.push_back(obj);
+void World::add( Object *obj ) {
+    objects.push_back( *obj );
 }
 
 void World::transform_all_to_ccoord( mat4 tmat ) {
@@ -32,11 +32,11 @@ void World::transform_all_to_ccoord( mat4 tmat ) {
     }
 }
 
-vec4 World::get_intersect(Ray r) {
+vec4 World::get_intersect( Ray *r ) {
     int value = -1;
     Object* currentObject = NULL;
     for ( Object obj : objects ) {
-        int newValue = obj.intersection(r);
+        int newValue = obj.intersection( r );
         if ( newValue < value && newValue > 0 ) {
             value = newValue;
             currentObject = &obj;
@@ -45,5 +45,6 @@ vec4 World::get_intersect(Ray r) {
     if ( currentObject != NULL ) {
         return currentObject->getMaterial().color;
     }
+
     return background;
 }

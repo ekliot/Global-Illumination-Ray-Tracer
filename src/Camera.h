@@ -54,7 +54,7 @@ public:
      */
     ~Camera( void );
 
-    image<rgb_pixel> render( image<rgb_pixel> negative );
+    void render( image<rgb_pixel> *negative );
 
 };
 
