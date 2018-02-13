@@ -26,7 +26,7 @@ void Camera::render( image<rgb_pixel> *negative ) {
         for ( size_t x = 0; x < negative->get_width(); ++x ) {
             ray_ori = pos;
             ray_dir = vec3( x*plane.ratio, y*plane.ratio, plane.foc_l );
-            ray = new Ray( ray_ori, ray_dir );
+            ray = new Ray( &ray_ori, &ray_dir );
             std::cout << "spawning ray with dir: {" << ray_dir.x << "," << ray_dir.y << "," << ray_dir.z << "}" << '\n';
             colour = world->get_intersect( ray );
             std::cout << "putting colour: " << colour.x*255 << "/" << colour.y*255 << "/" << colour.z*255 << '\n';

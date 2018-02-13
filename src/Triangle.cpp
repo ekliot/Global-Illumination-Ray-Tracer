@@ -11,14 +11,14 @@
 
 using namespace glm;
 
-Triangle::Triangle( vec3 _a, vec3 _b, vec3 _c, Material mat ) : Object(mat), a(_a), b(_b), c(_c) {}
+Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, Material* mat ) : Object(mat), a(_a), b(_b), c(_c) {}
 
 // Compute barycentric coordinates (u, v, w) for
 // point p with respect to triangle (a, b, c)
 float Triangle::getBarycentricCoords(vec3 p) {
-    vec3 v0 = b - a;
-    vec3 v1 = c - a;
-    vec3 v2 = p - a;
+    vec3 v0 = *(b) - *(a);
+    vec3 v1 = *(c) - *(a);
+    vec3 v2 = p - *(a);
 
     float d00 = dot(v0, v0);
     float d01 = dot(v0, v1);
@@ -34,17 +34,19 @@ float Triangle::getBarycentricCoords(vec3 p) {
 }
 
 float Triangle::intersectPlane( Ray ray ) {
-    vec3 ab = b - a;
-    vec3 ac = c - a;
+    vec3 ab = *(b) - *(a);
+    vec3 ac = *(c) - *(a);
     // no need to normalize
     vec3 n =  cross(ab,ac); // N
-    vec3 p0 = a;
+    vec3 p0 = *(a);
+
+	vec3 nn = normalize(n);
 
     // assuming vectors are all normalized
-    float denom = dot(n, ray.direction);
+    float denom = dot(nn, *(ray.direction));
     if ( denom > 1e-6 ) {
-        vec3 p0l0 = p0 - ray.origin;
-        float t = dot( p0l0, n ) / denom;
+        vec3 p0l0 = p0 - *(ray.origin);
+        float t = dot( p0l0, nn) / denom;
         if ( t >= 0 ) {
             return t;
         }
@@ -57,7 +59,7 @@ float Triangle::intersection( Ray ray ) {
     float mag = intersectPlane( ray );
 
     if ( mag != -1 ) {
-        vec3 point = ray.direction * mag;
+        vec3 point = *(ray.direction) * mag;
         float u = getBarycentricCoords(point);
         if (u >= 0 && u <= 1) {
             return mag;
@@ -68,15 +70,15 @@ float Triangle::intersection( Ray ray ) {
 }
 
 void Triangle::transform( mat4 matrix ) {
-    vec4 a4 = vec4( a.x, a.y, a.z, 1 );
+    vec4 a4 = vec4( a->x, a->y, a->z, 1 );
     a4 = matrix * a4;
-    a = convert( a4 );
+    *a = convert(a4);
 
-    vec4 b4 = vec4( b.x, b.y, b.z, 1 );
+    vec4 b4 = vec4( b->x, b->y, b->z, 1 );
     b4 = matrix * b4;
-    b = convert(b4);
+    *b = convert(b4);
 
-    vec4 c4 = vec4(c.x, c.y, c.z, 1);
+    vec4 c4 = vec4(c->x, c->y, c->z, 1);
     c4 = matrix * c4;
-    c = convert(c4);
+    *c = convert(c4);
 }

@@ -10,10 +10,10 @@ using namespace glm;
 
 class Object {
 protected:
-    Material material;
+    Material* material;
 
 public:
-    Object( Material mat );
+    Object( Material* mat );
 
     float intersection( Ray *ray );
 
