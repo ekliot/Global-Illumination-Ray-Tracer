@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
@@ -11,6 +12,7 @@ using glm::vec3;
 using glm::vec4;
 
 #include "Sphere.h"
+
 
 Sphere::Sphere( vec3* p, float* r, Material* mat ) : Object(mat), point(p), radius(r) {}
 
@@ -82,3 +84,4 @@ vec3 Sphere::extractScale(const mat4 &m) {
                  length2( vec3( m[1] ) ),
                  length2( vec3( m[2] ) ) );
 }
+

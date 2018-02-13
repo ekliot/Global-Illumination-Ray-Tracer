@@ -1,5 +1,6 @@
-#if defined(_WIN32) || defined(_WIN64)
 #include "stdafx.h"
+
+#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
 
@@ -19,7 +20,28 @@ Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, Material* mat ) : Object(mat),
 // Compute barycentric coordinates (u, v, w) for
 // point p with respect to triangle (a, b, c)
 float Triangle::getBarycentricCoords(vec3 p) {
-    vec3 v0 = *(b) - *(a);
+	vec3 ab = *(b)-*(a);
+	vec3 ac = *(c)-*(a);
+	// no need to normalize
+	vec3 n = cross(ab, ac); // normal vector to the plane
+	vec3 center = *(a); // a known point on the plane
+
+	vec3 nn = normalize(n);
+
+	vec3 bary;
+
+	// The area of a triangle is 
+	float areaABC = dot(nn, cross((*(b) - *(a)), (*(c) - *(a))));
+	float areaPBC = dot(nn, cross((*(b) - p), (*(c) - p)));
+	float areaPCA = dot(n, cross((*(c) - p), (*(a) - p)));
+
+	bary.x = areaPBC / areaABC; // alpha
+	bary.y = areaPCA / areaABC; // beta
+	bary.z = 1.0f - bary.x - bary.y;
+
+	return bary.z;
+	/*
+	vec3 v0 = *(b) - *(a);
     vec3 v1 = *(c) - *(a);
     vec3 v2 = p - *(a);
 
@@ -34,6 +56,7 @@ float Triangle::getBarycentricCoords(vec3 p) {
     float w = (d00 * d21 - d01 * d20) / denom;
     float u = 1.0f - v - w;
     return u;
+	*/
 }
 
 // https://en.wikipedia.org/wiki/Line–plane_intersection#Algebraic_form
@@ -62,7 +85,7 @@ float Triangle::intersection( Ray* ray ) {
     float d = intersectPlane( ray );
 
     if ( d != -1 ) {
-        vec3 point = *(ray->direction) * d;
+        vec3 point = *(ray->origin) + *(ray->direction) * d;
         float u = getBarycentricCoords(point);
         if ( u >= 0 && u <= 1 ) {
             return d;
