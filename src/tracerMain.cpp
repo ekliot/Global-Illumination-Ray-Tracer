@@ -21,11 +21,12 @@
 #include "PPlane.h"
 #include "World.h"
 #include "Triangle.h"
+#include "Sphere.h"
 using namespace glm;
 
 // dimensions of drawing window
-const int I_WIDTH  = 640;
-const int I_HEIGHT = 480;
+const int I_WIDTH  = 1920;
+const int I_HEIGHT = 1080;
 
 void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
     negative.write( filename );
@@ -37,26 +38,49 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  */
 void init() {
     World *world = new World(
-        vec4( 1.0f )
+        vec4( 0.0f )
     );
+
+    vec3 tri_b = vec3( 0.0f, 0.5f, 2.0f );
+    vec3 tri_c = vec3( -0.5f, 0.0f, 2.0f );
+    vec3 tri_a = vec3( 0.5f, 0.0f, 2.0f );
+    Material tri_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
 
     // add objects to the world
-    Triangle *tri = new Triangle(
-        vec3( 0.0f, 3.0f, 5.0f ),
-        vec3( 0.0f, 0.0f, 5.0f ),
-        vec3( 3.0f, 0.0f, 1.0f ),
-        {vec4( 0.0f )}
-    );
+    Triangle* tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
+
+    // vec3 sphere_p = vec3( 0.0f, 0.0f, 2.0f );
+    // float sphere_r = 0.2f;
+    // Material sphere_mat = {vec4( 1.0f )};
+    //
+    // Sphere* sphere = new Sphere( &sphere_p, &sphere_r, &sphere_mat );
 
     world->add( tri );
+    // world->add( sphere );
 
-    Camera *cam = new Camera(
+    Camera *cam1 = new Camera(
         world,
         vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
-        vec3( 0.0f ), // lookat TODO figure this one out
+        vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
         vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
-        { I_WIDTH, I_HEIGHT, 1.0f, 1.0f } // TODO wtf should the focal length be?
+        { 1.92f, 1.08f, 1.0f } // TODO wtf should the focal length be?
     );
+
+    // Camera *cam2 = new Camera(
+    //     world,
+    //     vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
+    //     vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
+    //     vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+    //     { 1.92f, 1.08f, 400.0f } // TODO wtf should the focal length be?
+    // );
+    //
+    // Camera *cam3 = new Camera(
+    //     world,
+    //     vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
+    //     vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
+    //     vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+    //     { 1.92f, 1.08f, 100.0f } // TODO wtf should the focal length be?
+    // );
 
     // Camera cam  = new Camera(
     //     world,
@@ -68,9 +92,15 @@ void init() {
 
     png::image<png::rgb_pixel> negative(I_WIDTH, I_HEIGHT);
 
-    cam->render( &negative );
+    cam1->render( &negative );
+    photo_print( negative, "out1.png" );
 
-    photo_print( negative, "out.png" );
+    // cam2->render( &negative );
+    // photo_print( negative, "out2.png" );
+    //
+    // cam3->render( &negative );
+    // photo_print( negative, "out3.png" );
+
 }
 
 int main( void ) {
