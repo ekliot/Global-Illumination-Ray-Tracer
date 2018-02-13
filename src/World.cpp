@@ -29,7 +29,7 @@ void World::add( Object* obj ) {
     objects.push_back( obj );
 }
 
-void World::transform_all_to_ccoord( mat4 tmat ) {
+void World::transform_all( mat4 tmat ) {
     for ( Object* obj : objects ) {
         obj->transform( tmat );
     }

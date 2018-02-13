@@ -17,7 +17,7 @@ public:
 
     virtual float intersection( Ray *ray ) = 0;
 
-    void transform( mat4 matrix );
+    virtual void transform( mat4 matrix ) = 0;
 
     Material getMaterial();
 
