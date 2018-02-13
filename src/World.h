@@ -64,7 +64,7 @@ public:
      *
      * @param tmat :: mat4 :: the transformation matrix to camera coordinates
      */
-    void transform_all_to_ccoord( mat4 tmat );
+    void transform_all( mat4 tmat );
 
     /**
      * Returns the colour a ray intersects in the scene
