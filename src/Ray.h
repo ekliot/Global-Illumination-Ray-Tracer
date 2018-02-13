@@ -7,11 +7,11 @@ using namespace glm;
 
 class Ray {
 public:
-    vec3 origin;
-    vec3 direction;
+    vec3* origin;
+    vec3* direction;
 
-    Ray( vec3 origin, vec3 dir );
-    void normalize();
+    Ray( vec3* origin, vec3* dir );
+    void normalizeRay();
 };
 
 #endif // _RAY_H_
