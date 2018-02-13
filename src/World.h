@@ -28,7 +28,7 @@ class World {
 private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot
-    std::vector<Object> objects;
+    std::vector<Object*> objects;
 
     vec4 background;
 
@@ -40,7 +40,7 @@ private:
      *
      * @param obj :: Object :: the object to be transformed
      */
-    void transform( Object obj );
+    // void transform( Object obj );
 
 public:
 
@@ -57,7 +57,7 @@ public:
     /**
      * Adds an object to the scene
      */
-    void add( Object *obj );
+    void add( Object* obj );
 
     /**
      * Transforms all objects in the scene to camera coordinates
@@ -73,7 +73,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the colour intersected by a Ray
      */
-    vec4 get_intersect( Ray *r );
+    vec4 get_intersect( Ray* r );
 
 };
 

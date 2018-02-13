@@ -40,22 +40,31 @@ void init() {
         vec4( 1.0f )
     );
 
+
+    vec3 tri_a = vec3( 0.0f, 300.0f, 500.0f );
+    vec3 tri_b = vec3( 0.0f, 0.0f, 500.0f );
+    vec3 tri_c = vec3( 300.0f, 0.0f, 500.0f );
+    Material tri_mat = {vec4( 0.0f )};
+
+    vec3 origin = vec3(0, 0, 0);
+    vec3 dir = vec3(0, 0, 1);
+    Ray* ray = new Ray(&origin, &dir);
+
     // add objects to the world
-    Triangle *tri = new Triangle(
-        vec3( 0.0f, 3.0f, 5.0f ),
-        vec3( 0.0f, 0.0f, 5.0f ),
-        vec3( 3.0f, 0.0f, 1.0f ),
-        {vec4( 0.0f )}
-    );
+    Triangle *tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
+
+    float f = tri->intersection(ray);
+
+    std::cout << f << '\n';
 
     world->add( tri );
 
     Camera *cam = new Camera(
         world,
         vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
-        vec3( 0.0f ), // lookat TODO figure this one out
+        vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
         vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
-        { I_WIDTH, I_HEIGHT, 1.0f, 1.0f } // TODO wtf should the focal length be?
+        { I_WIDTH, I_HEIGHT, 499.0f, 1.0f } // TODO wtf should the focal length be?
     );
 
     // Camera cam  = new Camera(
