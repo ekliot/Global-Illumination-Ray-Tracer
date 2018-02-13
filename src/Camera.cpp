@@ -5,11 +5,14 @@
  *
  * Author: ekliot
  */
+#include "stdafx.h"
 
 #include <iostream>
 
 #include "Camera.h"
 #include "Ray.h"
+
+
 
 using namespace png;
 using glm::vec3;

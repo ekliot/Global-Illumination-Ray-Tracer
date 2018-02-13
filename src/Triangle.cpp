@@ -1,3 +1,4 @@
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 #endif
@@ -16,9 +17,11 @@ using namespace glm;
 
 Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, Material* mat ) : Object(mat), a(_a), b(_b), c(_c) {}
 
+
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
 float Triangle::intersection( Ray* ray ) {
     const float EPS = 0.0000001;
+
 
     vec3 edge1 = *b - *a;
     vec3 edge2 = *c - *a;
@@ -42,7 +45,7 @@ float Triangle::intersection( Ray* ray ) {
     if ( v < 0.0 || u + v > 1.0 ) return INT_MAX;
 
     t = det_inv * dot( edge2, q );
-
+    
     if ( t > EPS )  return t;
     else            return INT_MAX;
 }

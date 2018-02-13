@@ -6,12 +6,13 @@
  * Author: ekliot
  */
 
+#include "../../stdafx.h"
 
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
 #if defined(_WIN32) || defined(_WIN64)
-#include "stdafx.h"
+
 #include <windows.h>
 #endif
 

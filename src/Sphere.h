@@ -18,4 +18,5 @@ class Sphere : public Object {
         vec3 extractScale( const mat4 &m );
 };
 
+
 #endif
