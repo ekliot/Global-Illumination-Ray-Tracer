@@ -18,27 +18,27 @@ Camera::Camera( World *w, vec3 p,    vec3 l, vec3 u, PPlane pp ) : \
                  world(w), pos(p), lookat(l),  up(u), plane(pp) {}
 
 void Camera::render( image<rgb_pixel> *negative ) {
-    // vec3 n = pos - lookat;
-    // vec3 u = normalize( cross(up, n) );
-    // vec3 v = cross(n, u);
-    //
-    // // COL-MAJOR
-    // // mat4 tmat = mat4(
-    // //     u.x, v.x, n.x, 0,
-    // //     u.y, v.y, n.y, 0,
-    // //     u.z, v.y, n.z, 0,
-    // //     -dot(pos, u), -dot(pos, v), -dot(pos, n), 1
-    // // );
-    //
-    // // ROW-MAJOR
+    vec3 n = pos - lookat;
+    vec3 u = normalize( cross(up, n) );
+    vec3 v = cross(n, u);
+
+    // COL-MAJOR
     // mat4 tmat = mat4(
-    //     u.x, u.y, u.z, -dot(pos, u),
-    //     v.x, v.y, v.z, -dot(pos, v),
-    //     n.x, n.y, n.z, -dot(pos, n),
-    //     0, 0, 0, 1
+    //     u.x, v.x, n.x, 0,
+    //     u.y, v.y, n.y, 0,
+    //     u.z, v.y, n.z, 0,
+    //     -dot(pos, u), -dot(pos, v), -dot(pos, n), 1
     // );
-    //
-    // world->transform_all( tmat );
+
+    // ROW-MAJOR
+    mat4 tmat = mat4(
+        u.x, u.y, u.z, -dot(pos, u),
+        v.x, v.y, v.z, -dot(pos, v),
+        n.x, n.y, n.z, -dot(pos, n),
+        0, 0, 0, 1
+    );
+
+    world->transform_all( tmat );
 
     vec3 ray_ori;
     vec3 ray_dir;
