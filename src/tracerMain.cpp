@@ -24,8 +24,8 @@
 using namespace glm;
 
 // dimensions of drawing window
-const int I_WIDTH  = 640;
-const int I_HEIGHT = 480;
+const int I_WIDTH  = 960;
+const int I_HEIGHT = 540;
 
 void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
     negative.write( filename );
@@ -40,32 +40,40 @@ void init() {
         vec4( 1.0f )
     );
 
-
-    vec3 tri_a = vec3( 0.0f, 300.0f, 500.0f );
-    vec3 tri_b = vec3( 0.0f, 0.0f, 500.0f );
-    vec3 tri_c = vec3( 300.0f, 0.0f, 500.0f );
+    vec3 tri_a = vec3( 0.0f, 0.5f, 2.0f );
+    vec3 tri_b = vec3( 0.0f, 0.0f, 2.0f );
+    vec3 tri_c = vec3( 0.5f, 0.0f, 2.0f );
     Material tri_mat = {vec4( 0.0f )};
-
-    vec3 origin = vec3(0, 0, 0);
-    vec3 dir = vec3(0, 0, 1);
-    Ray* ray = new Ray(&origin, &dir);
 
     // add objects to the world
     Triangle *tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
 
-    float f = tri->intersection(ray);
-
-    std::cout << f << '\n';
-
     world->add( tri );
 
-    Camera *cam = new Camera(
+    Camera *cam1 = new Camera(
         world,
         vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
         vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
         vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
-        { I_WIDTH, I_HEIGHT, 499.0f, 1.0f } // TODO wtf should the focal length be?
+        { 1.0f, 1.0f, 1.0f } // TODO wtf should the focal length be?
+        // { 1.92f, 1.08f, 200.0f } // TODO wtf should the focal length be?
     );
+
+    // Camera *cam2 = new Camera(
+    //     world,
+    //     vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
+    //     vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
+    //     vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+    //     { 1.92f, 1.08f, 400.0f } // TODO wtf should the focal length be?
+    // );
+    //
+    // Camera *cam3 = new Camera(
+    //     world,
+    //     vec3( 0.0f ), // pos TODO this is in world coords, should it be translated somehow?
+    //     vec3( 0.0f, 0.0f, 1.0f ), // lookat TODO figure this one out
+    //     vec3( 0.0f, 1.0f, 0.0f ), // up TODO figure this one out
+    //     { 1.92f, 1.08f, 100.0f } // TODO wtf should the focal length be?
+    // );
 
     // Camera cam  = new Camera(
     //     world,
@@ -77,9 +85,15 @@ void init() {
 
     png::image<png::rgb_pixel> negative(I_WIDTH, I_HEIGHT);
 
-    cam->render( &negative );
+    cam1->render( &negative );
+    photo_print( negative, "out1.png" );
 
-    photo_print( negative, "out.png" );
+    // cam2->render( &negative );
+    // photo_print( negative, "out2.png" );
+    //
+    // cam3->render( &negative );
+    // photo_print( negative, "out3.png" );
+
 }
 
 int main( void ) {

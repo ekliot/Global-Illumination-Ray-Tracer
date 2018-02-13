@@ -6,6 +6,8 @@
  * Author: ekliot
  */
 
+#include <iostream>
+
 #include "Camera.h"
 #include "Ray.h"
 
@@ -16,11 +18,6 @@ Camera::Camera( World *w, vec3 p,    vec3 l, vec3 u, PPlane pp ) : \
                  world(w), pos(p), lookat(l),  up(u), plane(pp) {}
 
 void Camera::render( image<rgb_pixel> *negative ) {
-    vec3 ray_ori;
-    vec3 ray_dir;
-    Ray *ray;
-    vec4 colour;
-
     // vec3 n = this->pos - this->lookat;
     // vec3 u = cross(this->up, n);
     // u = normalize(u);
@@ -33,14 +30,32 @@ void Camera::render( image<rgb_pixel> *negative ) {
     //
     // world->transform_all_to_ccoord(tmat);
 
-    // int start = plane;
+    vec3 ray_ori;
+    vec3 ray_dir;
+    Ray *ray;
+    vec4 colour;
+
+    float px_w = plane.w / negative->get_width();
+    float px_h = plane.h / negative->get_height();
+
+    std::cout << "{"<< px_w << "," << px_h <<"}" << '\n';
+
+    float start_x = -plane.w / 2;
+    float start_y = plane.h / 2;
+
+    float dir_x, dir_y, dir_z;
 
     // trace and put stuff into the pixel buffer
     for ( size_t y = 0; y < negative->get_height(); ++y ) {
         for ( size_t x = 0; x < negative->get_width(); ++x ) {
             ray_ori = pos;
-            ray_dir = vec3( x*plane.ratio, y*plane.ratio, plane.foc_l );
+            dir_x = start_x + x * px_w + px_w/2;
+            dir_y = start_y - y * px_h + px_h/2;
+            dir_z = plane.foc_l;
+            std::cout << "{" << dir_x << ":" << dir_y << ":" << dir_z  << "} -> ";
+            ray_dir = vec3( dir_x, dir_y, dir_z );
             ray = new Ray( &ray_ori, &ray_dir );
+            std::cout << "{" << ray->direction->x << ":" << ray->direction->y << ":" << ray->direction->z << "} -> [" << x << "," << y << "]" << '\n';
 
             colour = world->get_intersect( ray );
             negative->get_row(y)[x] = rgb_pixel( int( colour.x*255 ), int( colour.y*255 ), int( colour.z*255 ) );
