@@ -36,23 +36,21 @@ float Triangle::getBarycentricCoords(vec3 p) {
     return u;
 }
 
+// https://en.wikipedia.org/wiki/Line–plane_intersection#Algebraic_form
 float Triangle::intersectPlane( Ray* ray ) {
     vec3 ab = *(b) - *(a);
     vec3 ac = *(c) - *(a);
     // no need to normalize
-    vec3 n =  cross(ab,ac); // N
-    vec3 p0 = *(a);
+    vec3 n =  cross(ab,ac); // normal vector to the plane
+    vec3 center = *(a); // a known point on the plane
 
     vec3 nn = normalize(n);
 
     // assuming vectors are all normalized
     float denom = dot( nn, *(ray->direction) );
-    if ( denom > 1e-6 ) {
-        vec3 p0l0 = p0 - *(ray->origin);
-        float t = dot( p0l0, nn) / denom;
-        if ( t >= 0 ) {
-            return t;
-        }
+    if ( abs(denom) > 1e-6 ) {
+        float t = dot( center - *(ray->origin), nn ) / denom;
+        if ( t >= 0 ) return t;
     }
 
     return -1;
@@ -61,13 +59,13 @@ float Triangle::intersectPlane( Ray* ray ) {
 float Triangle::intersection( Ray* ray ) {
     // std::cout << glm::to_string( *(ray->origin) ) << "//" << glm::to_string( *(ray->direction) ) << '\n';
 
-    float mag = intersectPlane( ray );
+    float d = intersectPlane( ray );
 
-    if ( mag != -1 ) {
-        vec3 point = *(ray->direction) * mag;
+    if ( d != -1 ) {
+        vec3 point = *(ray->direction) * d;
         float u = getBarycentricCoords(point);
-        if (u >= 0 && u <= 1) {
-            return mag;
+        if ( u >= 0 && u <= 1 ) {
+            return d;
         }
     }
 

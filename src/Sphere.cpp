@@ -18,17 +18,17 @@ float Sphere::intersection( Ray* ray ) {
     float t0, t1; // solutions for t if the ray intersects
 
     vec3 L = *(ray->origin) - *(this->point);
-    float a = dot(*(ray->direction), *(ray->direction));
-    float b = 2 * dot(*(ray->direction), L);
-    float c = dot(L, L) -(*(radius) * *(radius));
-    if (!solveQuadratic(a, b, c, t0, t1)) return -1;
+    float a = dot( *(ray->direction), *(ray->direction) );
+    float b = 2 * dot( *(ray->direction), L );
+    float c = dot( L, L ) - ( *(radius) * *(radius) );
+    if ( !solveQuadratic( a, b, c, t0, t1 ) ) return -1;
 
-    if (t0 > t1){
-        swap(t0, t1);
+    if ( t0 > t1 ){
+        swap( t0, t1 );
     }
-    if (t0 < 0) {
+    if ( t0 < 0 ) {
         t0 = t1; // if t0 is negative, let's use t1 instead
-        if (t0 < 0) return -1; // both t0 and t1 are negative
+        if ( t0 < 0 ) return -1; // both t0 and t1 are negative
     }
 
     return t0;

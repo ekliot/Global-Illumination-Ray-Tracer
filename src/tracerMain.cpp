@@ -38,25 +38,25 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  */
 void init() {
     World *world = new World(
-        vec4( 1.0f )
+        vec4( 0.0f )
     );
 
-    // vec3 tri_a = vec3( 0.0f, 0.5f, 2.0f );
-    // vec3 tri_b = vec3( 0.0f, 0.0f, 2.0f );
-    // vec3 tri_c = vec3( 0.5f, 0.0f, 2.0f );
-    // Material tri_mat = {vec4( 0.0f )};
+    vec3 tri_b = vec3( 0.0f, 0.5f, 2.0f );
+    vec3 tri_c = vec3( -0.5f, 0.0f, 2.0f );
+    vec3 tri_a = vec3( 0.5f, 0.0f, 2.0f );
+    Material tri_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
+
+    // add objects to the world
+    Triangle* tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
+
+    // vec3 sphere_p = vec3( 0.0f, 0.0f, 2.0f );
+    // float sphere_r = 0.2f;
+    // Material sphere_mat = {vec4( 1.0f )};
     //
-    // // add objects to the world
-    // Triangle* tri = new Triangle( &tri_a, &tri_b, &tri_c, &tri_mat );
+    // Sphere* sphere = new Sphere( &sphere_p, &sphere_r, &sphere_mat );
 
-    vec3 sphere_p = vec3( 0.0f, 0.0f, 2.0f );
-    float sphere_r = 1.0f;
-    Material sphere_mat = {vec4( 0.0f )};
-
-    Sphere* sphere = new Sphere( &sphere_p, &sphere_r, &sphere_mat );
-
-    // world->add( tri );
-    world->add( sphere );
+    world->add( tri );
+    // world->add( sphere );
 
     Camera *cam1 = new Camera(
         world,

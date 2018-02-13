@@ -38,7 +38,7 @@ void Camera::render( image<rgb_pixel> *negative ) {
     float px_w = plane.w / negative->get_width();
     float px_h = plane.h / negative->get_height();
 
-    std::cout << "{"<< px_w << "," << px_h <<"}" << '\n';
+    std::cout << "px:world // {"<< px_w << "," << px_h <<"}" << '\n';
 
     float start_x = -plane.w / 2;
     float start_y = plane.h / 2;
