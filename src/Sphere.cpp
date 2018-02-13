@@ -18,14 +18,14 @@ using namespace std;
 		Sphere::Sphere(glm::vec3* point, float* radius, Material* mat): point(point), radius(radius), Object(mat){
 		}
 
-		float Sphere::intersection(Ray* ray)
+		float Sphere::intersection(Ray ray)
 		{
 
 				float t0, t1; // solutions for t if the ray intersects 
 
-				vec3 L = *(this->point) - *(ray->origin);
-				float a = dot(*(ray->direction), *(ray->direction));
-				float b = 2 * dot(*(ray->direction), L);
+				vec3 L = *(ray.origin) - *(this->point);
+				float a = dot(*(ray.direction), *(ray.direction));
+				float b = 2 * dot(*(ray.direction), L);
 				float c = dot(L, L) -(*(radius) * *(radius));
 				if (!solveQuadratic(a, b, c, t0, t1)) return -1;
 

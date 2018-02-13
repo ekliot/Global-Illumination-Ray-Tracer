@@ -24,9 +24,7 @@ Ray::Ray( vec3* start, vec3* dir ) : origin(start), direction(dir) {
 	normalizeRay();
 }
 
-void Ray::normalizeRay(){
-	//this->direction = normalize(this->direction);
-	
+void Ray::normalizeRay(){	
     double magnitude = sqrt(this->direction->x * this->direction->x
         + this->direction->y*this->direction->y
         + this->direction->z*this->direction->z);
