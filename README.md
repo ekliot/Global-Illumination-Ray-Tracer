@@ -4,7 +4,7 @@ This project aims to build a 3D renderer using ray tracing in C++, for the CSCI 
 
 This is a semester-long project with the goal of reproducing the following image:
 
-![Ray Tracing Goal]("/etc/ray-tracer_goal.jpg")
+![Ray Tracing Goal](/etc/ray-tracer_goal.jpg)
 
 The project consists of seven basic checkpoints (the first was simply determining relative object values):
   - [x] Setting the Scene
