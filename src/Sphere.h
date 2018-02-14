@@ -8,14 +8,25 @@ using glm::vec3;
 #include "Material.h"
 
 class Sphere : public Object {
-    vec3* point;
+
+    vec3* center;
+
     float* radius;
+
+    bool solve_quadratic( const float &a, const float &b, const float &c, float &x0, float &x1 );
+
+    vec3 extract_scale( const mat4 &m );
+
+    void scale_radius( mat4 tmat );
+
     public:
-        Sphere( vec3* point, float* radius, Material* mat );
+
+        Sphere( vec3* center, float* radius, Material* mat );
+
         float intersection( Ray* ray );
-        bool solveQuadratic( const float &a, const float &b, const float &c, float &x0, float &x1 );
+
         void transform( mat4 mat );
-        vec3 extractScale( const mat4 &m );
+
 };
 
 #endif

@@ -48,15 +48,21 @@ float Triangle::intersection( Ray* ray ) {
 }
 
 void Triangle::transform( mat4 matrix ) {
-    vec4 a4 = vec4( a->x, a->y, a->z, 1 );
-    a4 = matrix * a4;
-    *a = convert(a4);
+    vec4 _a = vec4( a->x, a->y, a->z, 1 );
+    _a = matrix * _a;
+    std::cout << "old a // " << glm::to_string( *a ) << '\n';
+    *a = convert(_a);
+    std::cout << "new a // " << glm::to_string( *a ) << '\n';
 
-    vec4 b4 = vec4( b->x, b->y, b->z, 1 );
-    b4 = matrix * b4;
-    *b = convert(b4);
+    vec4 _b = vec4( b->x, b->y, b->z, 1 );
+    _b = matrix * _b;
+    std::cout << "old b // " << glm::to_string( *b ) << '\n';
+    *b = convert(_b);
+    std::cout << "new b // " << glm::to_string( *b ) << '\n';
 
-    vec4 c4 = vec4(c->x, c->y, c->z, 1);
-    c4 = matrix * c4;
-    *c = convert(c4);
+    vec4 _c = vec4(c->x, c->y, c->z, 1);
+    _c = matrix * _c;
+    std::cout << "old c // " << glm::to_string( *c ) << '\n';
+    *c = convert(_c);
+    std::cout << "new c // " << glm::to_string( *c ) << '\n' << '\n';
 }

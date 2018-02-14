@@ -10,7 +10,7 @@
 using namespace glm;
 
 class Triangle : public Object {
-private:
+
     vec3* a;
     vec3* b;
     vec3* c;
