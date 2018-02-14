@@ -1,6 +1,6 @@
 # Global Illumination Ray Tracer
 
-This project aims to build a 3D renderer using ray tracing in C++, for the CSCI 711 Global Illumination class at RIT.
+This project aims to build a 3D renderer using ray tracing in C++ for a computer graphics course.
 
 This is a semester-long project with the goal of reproducing the following image:
 
