@@ -153,7 +153,7 @@ void init() {
     png::image<png::rgb_pixel> negative(I_WIDTH, I_HEIGHT);
 
     cam1->render( &negative );
-    photo_print( negative, "out1.png" );
+    //photo_print( negative, "out1.png" );
 
     // cam2->render( &negative );
     // photo_print( negative, "out2.png" );
