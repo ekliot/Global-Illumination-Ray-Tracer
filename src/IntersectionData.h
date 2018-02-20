@@ -10,7 +10,6 @@ typedef struct st_IntersectionData {
     vec3 position;
     vec3 normal;
     vec3 incoming;
-    vec3 reflective;
     std::vector<Light> lights;
 
 } IntersectionData;
