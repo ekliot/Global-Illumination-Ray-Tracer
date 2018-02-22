@@ -1,21 +1,14 @@
 /**
  * Main file for initializing and executing a ray tracing render of a 3D scene
  */
-#if defined(_WIN32) || defined(_WIN64)
-#include "stdafx.h"
-#include <windows.h>
-#endif
 
 #include <cfloat>
 #include <iostream>
 
-// Include standard headers
-#include <stdio.h>
-#include <stdint.h>
-#include <stdlib.h>
-
 // Include GLM vector
 #include <glm/vec3.hpp>
+
+#include "glm/gtx/string_cast.hpp"
 
 #include "png++/png.hpp"
 #include "Camera.h"

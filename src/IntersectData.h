@@ -1,3 +1,7 @@
+/**
+ *
+ */
+
 #ifndef _INTERSECTDATA_H_
 #define _INTERSECTDATA_H_
 
@@ -13,7 +17,7 @@ typedef struct st_IntersectData {
     vec3* position;
     vec3* normal;
     vec3* incoming;
-    std::vector<Light> lights;
+    std::vector<Light*> lights;
     vec3* ambient;
 } IntersectData;
 

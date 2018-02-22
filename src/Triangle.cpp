@@ -5,9 +5,6 @@
 #include <climits>
 #include <iostream>
 
-#include <glm/vec3.hpp>
-#include <glm/glm.hpp>
-
 #include "glm/gtx/string_cast.hpp"
 
 #include "Triangle.h"

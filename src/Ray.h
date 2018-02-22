@@ -11,8 +11,8 @@ public:
     vec3* direction;
 
     Ray( vec3* origin, vec3* dir );
-    void normalizeRay();
-    Ray* reflectRay(vec3* normal);
+    void normalize();
+    Ray* reflect(vec3* normal);
 };
 
 #endif // _RAY_H_
