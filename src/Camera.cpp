@@ -59,7 +59,7 @@ void Camera::render( image<rgb_pixel> *negative ) {
     vec3 ray_ori = vec3( 0.0f );
     vec3 ray_dir;
     Ray *ray;
-    vec4 colour;
+    vec4 color;
 
     // width/height of a pixel in world coordinates
     float px_w = plane.w / negative->get_width();
@@ -86,11 +86,11 @@ void Camera::render( image<rgb_pixel> *negative ) {
 
             // std::cout << glm::to_string( ray->direction )  << " -> [" << x << "," << y << "]" << '\n';
 
-            colour = world->get_intersect( ray ) * 255.0f;
+            color = world->get_intersect( ray ) * 255.0f;
             negative->get_row(y)[x] = rgb_pixel(
-                int( colour.x ),
-                int( colour.y ),
-                int( colour.z )
+                int( color.x ),
+                int( color.y ),
+                int( color.z )
             );
         }
     }

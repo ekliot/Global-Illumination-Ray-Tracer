@@ -67,11 +67,11 @@ public:
     void transform_all( mat4 tmat );
 
     /**
-     * Returns the colour a ray intersects in the scene
+     * Returns the color a ray intersects in the scene
      *
      * @param r :: Ray :: a Ray spawned by the Camera that needs intersection calculated
      *
-     * @return :: vec3 :: the RGB value of the colour intersected by a Ray
+     * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
     vec4 get_intersect( Ray* r );
 
