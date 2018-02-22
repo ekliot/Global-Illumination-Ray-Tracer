@@ -27,8 +27,6 @@ public:
     virtual vec3 get_normal(Ray* ray) = 0;
 
     vec4 get_color(Ray ray, float distance, std::vector<Light> lights);
-    
-    IlluminationModel* get_imodel();
 
 
     vec3 convert( vec4 vector );
