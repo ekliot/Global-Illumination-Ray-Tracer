@@ -7,8 +7,8 @@
 using namespace glm;
 
 typedef struct st_Light {
-    vec4 color;
-    vec3 position;
+    vec3* color;
+    vec3* position;
 } Light;
 
 #endif

@@ -19,7 +19,7 @@ using glm::vec4;
  PUBLIC MEMBERS
 \**************/
 
-Sphere::Sphere( vec3* c, float* r, Material* mat ) : Object(mat), center(c), radius(r) {}
+Sphere::Sphere( vec3* c, float* r, IlluminationModel* _imodel ) : Object(_imodel), center(c), radius(r) {}
 
 float Sphere::intersection( Ray* ray ) {
     float t0, t1; // solutions for t if the ray intersects

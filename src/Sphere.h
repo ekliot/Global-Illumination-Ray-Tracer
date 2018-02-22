@@ -5,7 +5,6 @@
 using glm::vec3;
 
 #include "Object.h"
-#include "Material.h"
 
 class Sphere : public Object {
 
@@ -23,7 +22,7 @@ class Sphere : public Object {
 
     public:
 
-        Sphere( vec3* center, float* radius, Material* mat );
+        Sphere( vec3* center, float* radius, IlluminationModel* _imodel );
 
         float intersection( Ray* ray );
 

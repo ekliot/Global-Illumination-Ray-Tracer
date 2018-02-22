@@ -5,10 +5,11 @@
 
 using namespace glm;
 
-Object::Object( Material* m ) : material(m) {}
+Object::Object( IlluminationModel* _imodel ) : imodel(_imodel) {}
 
 void Object::transform( mat4 matrix ) {}
 
+<<<<<<< HEAD
 vec4 Object::get_color(Ray ray, float distance, std::vector<Light> lights)
 {
     IntersectData data;
@@ -18,6 +19,10 @@ vec4 Object::get_color(Ray ray, float distance, std::vector<Light> lights)
     data.lights = lights;
     // return lightingModel.get_color(data);
     return this->material->color;
+=======
+IlluminationModel* Object::get_imodel() {
+    return imodel;
+>>>>>>> chkpt-3
 }
 
 vec3 Object::convert( vec4 vec ) {

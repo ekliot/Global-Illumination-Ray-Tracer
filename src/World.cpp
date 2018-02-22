@@ -14,8 +14,11 @@
 using namespace glm;
 
 #include "World.h"
+<<<<<<< HEAD
 #include "Material.h"
 #include "Light.h"
+=======
+>>>>>>> chkpt-3
 
 World::World( vec4 bg ) : background(bg) {}
 
@@ -43,9 +46,15 @@ vec4 World::get_intersect( Ray *r ) {
         }
     }
     if ( currentObject != NULL ) {
+<<<<<<< HEAD
       // do work to do things
       std::vector<Light> lights;
       return currentObject->get_color(*r, value, lights);
+=======
+        // TODO this should return whatever the object's IlluminationModel returns for intersection
+        // return currentObject->get_material().color;
+        return background;
+>>>>>>> chkpt-3
     }
 
     return background;
