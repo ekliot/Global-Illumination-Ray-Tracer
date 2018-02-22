@@ -14,7 +14,6 @@
 using namespace glm;
 
 #include "World.h"
-#include "Material.h"
 
 World::World( vec4 bg ) : background(bg) {}
 
@@ -68,8 +67,9 @@ vec4 World::get_intersect( Ray *r ) {
         }
     }
     if ( currentObject != NULL ) {
-        //change color heres
-        return currentObject->get_material().color;
+        // TODO this should return whatever the object's IlluminationModel returns for intersection
+        // return currentObject->get_material().color;
+        return background;
     }
 
     return background;
