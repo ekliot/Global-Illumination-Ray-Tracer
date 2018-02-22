@@ -50,10 +50,10 @@ bool World::can_see_light(vec3 point, Light light)
     for ( Object* obj : objects ) {
         int newValue = obj->intersection( &r );
         if ( newValue > 0 ) {
-            return true;
+            return false;
         }
     }
-    return false;
+    return true;
 }
 
 vec4 World::get_intersect( Ray *r ) {
