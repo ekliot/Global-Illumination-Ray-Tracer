@@ -46,13 +46,7 @@ bool World::can_see_light(vec3 point, Light light)
 {
     vec3 newDirection = light.position - point;
     Ray r = Ray(&point, &newDirection);
-    for ( Object* obj : objects ) {
-        int newValue = obj->intersection( &r );
-        if ( newValue > 0 ) {
-            return false;
-        }
-    }
-    return true;
+    return equal( get_intersect( r ), background );
 }
 
 vec4 World::get_intersect( Ray *r ) {
