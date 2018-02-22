@@ -24,7 +24,7 @@ void World::add_object( Object* obj ) {
     objects.push_back( obj );
 }
 
-void World::add_light(Light light){
+void World::add_light(Light* light){
     lights.push_back( light );
 }
 
@@ -34,10 +34,10 @@ void World::transform_all( mat4 tmat ) {
     }
 }
 
-std::vector<Light> World::pruned_lights(vec3 point){
-    std::vector<Light> returnLights;
+std::vector<Light*> World::pruned_lights(vec3 point){
+    std::vector<Light*> returnLights;
     for (size_t i = 0; i < lights.size(); i++) {
-        if(can_see_light(point, lights[i])){
+        if(can_see_light(point, *lights[i])){
             returnLights.push_back(lights[i]);
         }
     }
@@ -68,6 +68,7 @@ vec4 World::get_intersect( Ray *r ) {
         }
     }
     if ( currentObject != NULL ) {
+        //change color heres
         return currentObject->get_material().color;
     }
 

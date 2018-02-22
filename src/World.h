@@ -31,7 +31,7 @@ private:
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object*> objects;
 
-    std::vector<Light> lights;
+    std::vector<Light*> lights;
 
     vec4 background;
 
@@ -62,7 +62,7 @@ public:
      */
     void add_object( Object* obj );
 
-    void add_light(Light light);
+    void add_light(Light* light);
 
 
 
@@ -83,8 +83,8 @@ public:
     vec4 get_intersect( Ray* r );
 
 private:
-  
-    std::vector<Light> pruned_lights(vec3 point);
+
+    std::vector<Light*> pruned_lights(vec3 point);
 
     bool can_see_light(vec3 point, Light light);
 
