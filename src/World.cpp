@@ -46,10 +46,11 @@ std::vector<Light*> World::pruned_lights(vec3 point){
 }
 bool World::can_see_light(vec3 point, Light light)
 {
-    vec3 newDirection = light.position - point;
+    vec3 newDirection = *light.position - point;
     Ray r = Ray(&point, &newDirection);
-    return equal( get_intersect( r ), background );
+    return get_intersect( &r ) == background;
 }
+
 
 vec4 World::get_intersect( Ray *r ) {
     float value = INT_MAX;
@@ -64,8 +65,9 @@ vec4 World::get_intersect( Ray *r ) {
     }
     if ( currentObject != NULL ) {
       // do work to do things
-      std::vector<Light> lights;
-      return currentObject->get_color(*r, value, lights);
+      vec3 point = *r->origin + *r->direction * value;
+      std::vector<Light*> returnLights = this->pruned_lights(point);
+      return currentObject->get_color(*r, value, returnLights, ambient);
     }
 
     return background;
