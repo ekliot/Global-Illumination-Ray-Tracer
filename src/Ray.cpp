@@ -12,12 +12,11 @@
 using namespace glm;
 #include "Ray.h"
 
-
 Ray::Ray( vec3* start, vec3* dir ) : origin(start), direction(dir) {
-    normalizeRay();
+    normalize();
 }
 
-void Ray::normalizeRay(){
+void Ray::normalize(){
 
     double magnitude = sqrt( direction->x * direction->x
                            + direction->y * direction->y
@@ -30,9 +29,9 @@ void Ray::normalizeRay(){
 
 }
 
-Ray* Ray::reflectRay( vec3* normal ){
+Ray* Ray::reflect( vec3* normal ){
   vec3 newOrigin =  vec3( *origin );
-  vec3 newDirectiontemp = reflect( *(direction), *(normal) );
+  vec3 newDirectiontemp = glm::reflect( *(direction), *(normal) );
 
   return new Ray( &newOrigin, &newDirectiontemp );
 }
