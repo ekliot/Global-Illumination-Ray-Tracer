@@ -22,6 +22,7 @@ using namespace glm;
 
 #include "Object.h"
 #include "Ray.h"
+#include "Light.h"
 
 class World {
 
@@ -29,6 +30,8 @@ private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object*> objects;
+
+    std::vector<Light*> lights;
 
     vec4 background;
 
@@ -57,7 +60,11 @@ public:
     /**
      * Adds an object to the scene
      */
-    void add( Object* obj );
+    void add_object( Object* obj );
+
+    void add_light(Light* light);
+
+
 
     /**
      * Transforms all objects in the scene to camera coordinates
@@ -74,6 +81,12 @@ public:
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
     vec4 get_intersect( Ray* r );
+
+private:
+
+    std::vector<Light*> pruned_lights(vec3 point);
+
+    bool can_see_light(vec3 point, Light light);
 
 };
 
