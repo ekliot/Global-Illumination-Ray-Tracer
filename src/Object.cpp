@@ -1,8 +1,3 @@
-#if defined(_WIN32) || defined(_WIN64)
-#include "stdafx.h"
-#include <windows.h>
-#endif
-
 #include <glm/matrix.hpp>
 
 #include "Object.h"
@@ -13,7 +8,7 @@ Object::Object( Material* m ) : material(m) {}
 
 void Object::transform( mat4 matrix ) {}
 
-Material Object::getMaterial() {
+Material Object::get_material() {
     return *material;
 }
 

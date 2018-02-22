@@ -3,10 +3,6 @@
  *
  * Author: ekliot
  */
-#if defined(_WIN32) || defined(_WIN64)
-#include "stdafx.h"
-#include <windows.h>
-#endif
 
 #include <climits>
 #include <iostream>
@@ -41,14 +37,12 @@ vec4 World::get_intersect( Ray *r ) {
     for ( Object* obj : objects ) {
         int newValue = obj->intersection( r );
         if ( newValue < value && newValue > 0 ) {
-            // std::cout << "BARB" << newValue << '\n';
             value = newValue;
             currentObject = obj;
         }
     }
     if ( currentObject != NULL ) {
-        // std::cout << "BOOYAH" << '\n';
-        return currentObject->getMaterial().color;
+        return currentObject->get_material().color;
     }
 
     return background;

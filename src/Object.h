@@ -19,7 +19,7 @@ public:
 
     virtual void transform( mat4 matrix ) = 0;
 
-    Material getMaterial();
+    Material get_material();
 
     vec3 convert( vec4 vector );
 };

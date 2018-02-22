@@ -25,10 +25,10 @@ void Camera::render( image<rgb_pixel> *negative ) {
     vec3 u = normalize( cross( up, n ) );
     vec3 v = normalize( cross( n, u ) );
 
-    std::cout << '\n';
-    std::cout << "u // { " << glm::to_string( u ) << " }" << '\n';
-    std::cout << "v // { " << glm::to_string( v ) << " }" << '\n';
-    std::cout << "n // { " << glm::to_string( n ) << " }" << '\n';
+    // std::cout << '\n';
+    // std::cout << "u // { " << glm::to_string( u ) << " }" << '\n';
+    // std::cout << "v // { " << glm::to_string( v ) << " }" << '\n';
+    // std::cout << "n // { " << glm::to_string( n ) << " }" << '\n';
 
     // COL-MAJOR
     mat4 tmat = mat4(
@@ -47,12 +47,12 @@ void Camera::render( image<rgb_pixel> *negative ) {
     // );
 
     // std::cout << "tmat // { " << glm::to_string( tmat ) << " }" << '\n';
-    std::cout << '\n';
-    std::cout << "tmat[0] // { " << glm::to_string( tmat[0] ) << " }" << '\n';
-    std::cout << "tmat[1] // { " << glm::to_string( tmat[1] ) << " }" << '\n';
-    std::cout << "tmat[2] // { " << glm::to_string( tmat[2] ) << " }" << '\n';
-    std::cout << "tmat[3] // { " << glm::to_string( tmat[3] ) << " }" << '\n';
-    std::cout << '\n';
+    // std::cout << '\n';
+    // std::cout << "tmat[0] // { " << glm::to_string( tmat[0] ) << " }" << '\n';
+    // std::cout << "tmat[1] // { " << glm::to_string( tmat[1] ) << " }" << '\n';
+    // std::cout << "tmat[2] // { " << glm::to_string( tmat[2] ) << " }" << '\n';
+    // std::cout << "tmat[3] // { " << glm::to_string( tmat[3] ) << " }" << '\n';
+    // std::cout << '\n';
 
     world->transform_all( tmat );
 
@@ -65,7 +65,7 @@ void Camera::render( image<rgb_pixel> *negative ) {
     float px_w = plane.w / negative->get_width();
     float px_h = plane.h / negative->get_height();
 
-    std::cout << "px:world // {"<< px_w << "," << px_h <<"}" << '\n';
+    // std::cout << "px:world // {"<< px_w << "," << px_h <<"}" << '\n';
 
     float start_x = -plane.w / 2;
     float start_y = plane.h / 2;
@@ -79,9 +79,11 @@ void Camera::render( image<rgb_pixel> *negative ) {
             dir_y = start_y - y * px_h + px_h/2;
             dir_z = plane.foc_l;
             ray_dir = vec3( dir_x, dir_y, dir_z );
+
             // std::cout << "{" << dir_x << ":" << dir_y << ":" << dir_z  << "} -> ";
 
             ray = new Ray( &ray_ori, &ray_dir );
+
             // std::cout << glm::to_string( ray->direction )  << " -> [" << x << "," << y << "]" << '\n';
 
             colour = world->get_intersect( ray ) * 255.0f;
