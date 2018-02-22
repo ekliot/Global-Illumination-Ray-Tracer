@@ -30,9 +30,9 @@ void Ray::normalizeRay(){
 
 }
 
-Ray* Ray::reflectRay(vec3* normal){
-  vec3 newOrigin =  vec3(*this->origin);
-  vec3 newDirectiontemp = reflect(*(this->direction), *(normal));
+Ray* Ray::reflectRay( vec3* normal ){
+  vec3 newOrigin =  vec3( *origin );
+  vec3 newDirectiontemp = reflect( *(direction), *(normal) );
 
-  return new Ray(&newOrigin,&newDirectiontemp);
+  return new Ray( &newOrigin, &newDirectiontemp );
 }
