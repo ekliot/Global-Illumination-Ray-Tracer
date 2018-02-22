@@ -17,6 +17,8 @@ class Sphere : public Object {
 
     vec3 extract_scale( const mat4 &m );
 
+    vec3 get_normal(Ray* ray);
+
     void scale_radius( mat4 tmat );
 
     public:

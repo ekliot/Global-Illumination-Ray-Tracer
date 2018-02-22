@@ -15,6 +15,7 @@ using namespace glm;
 
 #include "World.h"
 #include "Material.h"
+#include "Light.h"
 
 World::World( vec4 bg ) : background(bg) {}
 
@@ -31,18 +32,20 @@ void World::transform_all( mat4 tmat ) {
 }
 
 vec4 World::get_intersect( Ray *r ) {
-    int value = INT_MAX;
+    float value = INT_MAX;
     Object* currentObject = NULL;
 
     for ( Object* obj : objects ) {
-        int newValue = obj->intersection( r );
+        float newValue = obj->intersection( r );
         if ( newValue < value && newValue > 0 ) {
             value = newValue;
             currentObject = obj;
         }
     }
     if ( currentObject != NULL ) {
-        return currentObject->get_material().color;
+      // do work to do things
+      std::vector<Light> lights;
+      return currentObject->get_color(*r, value, lights);
     }
 
     return background;

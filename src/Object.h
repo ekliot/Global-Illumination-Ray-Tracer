@@ -5,6 +5,7 @@
 
 #include "Ray.h"
 #include "Material.h"
+#include "Light.h"
 
 using namespace glm;
 
@@ -19,7 +20,9 @@ public:
 
     virtual void transform( mat4 matrix ) = 0;
 
-    Material get_material();
+    virtual vec3 get_normal(Ray* ray) = 0;
+
+    vec4 get_color(Ray ray, float distance, std::vector<Light> lights);
 
     vec3 convert( vec4 vector );
 };
