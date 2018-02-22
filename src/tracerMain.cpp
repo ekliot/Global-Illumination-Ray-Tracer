@@ -54,46 +54,48 @@ void init() {
         D----C
     */
 
-    vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
-    float plane_w = 1.2f;
-    float plane_wt = 0.53f;
-    float plane_l = 5.0f;
-    float plane_lt = 1.18f;
+    // vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
+    // float plane_w = 1.2f;
+    // float plane_wt = 0.53f;
+    // float plane_l = 5.0f;
+    // float plane_lt = 1.18f;
 
     // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
-    vec3 plane_a1 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    vec3 plane_c1 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    // vec3 plane_a1 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    // vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    // vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    // vec3 plane_c1 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    // vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    // vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
 
-    // two materials to differentiate
-    Material plane1_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
-    Material plane2_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
+    // TODO implement these as Phong
+    // Material plane1_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
+    // Material plane2_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
 
     // ABC
-    Triangle* plane_tri1 = new Triangle( &plane_a1, &plane_b, &plane_c1, &plane1_mat );
+    // Triangle* plane_tri1 = new Triangle( &plane_a1, &plane_b, &plane_c1, &plane1_mat );
     // ACD
-    Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, &plane2_mat );
+    // Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, &plane2_mat );
 
-    world->add( plane_tri1 );
-    world->add( plane_tri2 );
+    // world->add( plane_tri1 );
+    // world->add( plane_tri2 );
 
-    vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
-    Material sphere1_mat = {vec4( 0.0f, 0.0f, 1.0f, 1.0f )};
+    // vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
+    // TODO implement this as Phong
+    // Material sphere1_mat = {vec4( 0.0f, 0.0f, 1.0f, 1.0f )};
 
-    vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
-    Material sphere2_mat = {vec4( 0.0f, 1.0f, 0.0f, 1.0f )};
+    // vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
+    // TODO implement this as Phong
+    // Material sphere2_mat = {vec4( 0.0f, 1.0f, 0.0f, 1.0f )};
 
-    float sphere_trans = 1.3f;
-    float sphere_r = 0.55f * sphere_trans;
+    // float sphere_trans = 1.3f;
+    // float sphere_r = 0.55f * sphere_trans;
 
-    Sphere* sphere1 = new Sphere( &sphere1_p, &sphere_r, &sphere1_mat );
-    Sphere* sphere2 = new Sphere( &sphere2_p, &sphere_r, &sphere2_mat );
+    // Sphere* sphere1 = new Sphere( &sphere1_p, &sphere_r, &sphere1_mat );
+    // Sphere* sphere2 = new Sphere( &sphere2_p, &sphere_r, &sphere2_mat );
 
-    world->add( sphere1 );
-    world->add( sphere2 );
+    // world->add( sphere1 );
+    // world->add( sphere2 );
 
     // = = = = = = = = = = //
     // CAMERAS FROM ORIGIN //

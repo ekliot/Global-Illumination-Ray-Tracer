@@ -10,11 +10,11 @@
 using namespace glm;
 
 typedef struct st_IntersectData {
-    vec3 position;
-    vec3 normal;
-    vec3 incoming;
+    vec3* position;
+    vec3* normal;
+    vec3* incoming;
     std::vector<Light> lights;
-
+    vec3* ambient;
 } IntersectData;
 
 #endif

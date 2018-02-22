@@ -4,12 +4,12 @@
 
 using namespace glm;
 
-Object::Object( Material* m ) : material(m) {}
+Object::Object( IlluminationModel* _imodel ) : imodel(_imodel) {}
 
 void Object::transform( mat4 matrix ) {}
 
-Material Object::get_material() {
-    return *material;
+IlluminationModel* Object::get_imodel() {
+    return imodel;
 }
 
 vec3 Object::convert( vec4 vec ) {

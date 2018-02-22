@@ -1,25 +1,29 @@
+/**
+ *
+ */
+
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
 #include <glm/matrix.hpp>
 
 #include "Ray.h"
-#include "Material.h"
+#include "IlluminationModel.h"
 
 using namespace glm;
 
 class Object {
 protected:
-    Material* material;
+    IlluminationModel* imodel;
 
 public:
-    Object( Material* mat );
+    Object( IlluminationModel* _imodel );
 
     virtual float intersection( Ray *ray ) = 0;
 
     virtual void transform( mat4 matrix ) = 0;
 
-    Material get_material();
+    IlluminationModel* get_imodel();
 
     vec3 convert( vec4 vector );
 };
