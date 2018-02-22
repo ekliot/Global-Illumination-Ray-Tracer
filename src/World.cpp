@@ -17,7 +17,7 @@ using namespace glm;
 #include "Light.h"
 
 
-World::World( vec4 bg ) : background(bg) {}
+World::World( vec4 bg, vec3 amb ) : background(bg), ambient(amb) {}
 
 World::~World() {}
 

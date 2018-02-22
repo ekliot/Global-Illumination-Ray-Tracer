@@ -29,8 +29,9 @@ private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object*> objects;
-
     vec4 background;
+    vec3 ambient;
+
 
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
@@ -47,7 +48,7 @@ public:
     /**
      * Constructor
      */
-    World( vec4 background );
+    World( vec4 background, vec3 amb );
 
     /**
      * Destructor
