@@ -10,7 +10,7 @@ Object::Object( IlluminationModel* _imodel ) : imodel(_imodel) {}
 void Object::transform( mat4 matrix ) {}
 
 
-vec4 Object::get_color(Ray ray, float distance, std::vector<Light*> lights, vec3 ambient)
+vec3 Object::get_color(Ray ray, float distance, std::vector<Light*> lights, vec3 ambient)
 {
     IntersectData data;
     * data.position = *ray.origin + *ray.direction * distance;
@@ -18,7 +18,7 @@ vec4 Object::get_color(Ray ray, float distance, std::vector<Light*> lights, vec3
     * data.incoming = *ray.direction;
     data.lights = lights;
     * data.ambient = ambient;
-    return vec4(0,0,0,0);
+    return imodel->intersect(data);
 
 }
 

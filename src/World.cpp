@@ -17,7 +17,7 @@ using namespace glm;
 #include "Light.h"
 
 
-World::World( vec4 bg, vec3 amb ) : background(bg), ambient(amb) {}
+World::World( vec3 bg, vec3 amb ) : background(bg), ambient(amb) {}
 
 World::~World() {}
 
@@ -52,7 +52,7 @@ bool World::can_see_light(vec3 point, Light light)
 }
 
 
-vec4 World::get_intersect( Ray *r ) {
+vec3 World::get_intersect( Ray *r ) {
     float value = INT_MAX;
     Object* currentObject = NULL;
 

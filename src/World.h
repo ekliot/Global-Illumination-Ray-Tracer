@@ -31,7 +31,7 @@ private:
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object*> objects;
     std::vector<Light*> lights;
-    vec4 background;
+    vec3 background;
     vec3 ambient;
 
 
@@ -50,7 +50,7 @@ public:
     /**
      * Constructor
      */
-    World( vec4 background, vec3 amb );
+    World( vec3 background, vec3 amb );
 
     /**
      * Destructor
@@ -80,7 +80,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
-    vec4 get_intersect( Ray* r );
+    vec3 get_intersect( Ray* r );
 
 private:
 

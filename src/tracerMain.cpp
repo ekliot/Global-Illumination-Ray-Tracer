@@ -32,7 +32,7 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  */
 void init() {
     World *world = new World(
-        vec4( 0.0f )
+        vec3( 0.0f ), vec3(.1f)
     );
 
     // add objects to the world
