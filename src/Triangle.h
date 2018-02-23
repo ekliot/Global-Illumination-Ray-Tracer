@@ -19,6 +19,8 @@ public:
 
     float intersection( Ray* ray );
 
+    vec3 get_normal(Ray* ray);
+
     void transform( mat4 matrix );
 };
 

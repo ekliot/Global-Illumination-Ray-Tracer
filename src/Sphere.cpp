@@ -41,6 +41,12 @@ float Sphere::intersection( Ray* ray ) {
     return t0;
 }
 
+vec3 Sphere::get_normal(Ray* ray)
+{
+    vec3 normal = *ray->origin - *this->center;
+    return normalize(normal);
+}
+
 void Sphere::transform( mat4 tmat ) {
     std::cout << "old sphere center // " << glm::to_string( *center ) << '\n';
 

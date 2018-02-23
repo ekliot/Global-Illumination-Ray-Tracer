@@ -14,8 +14,10 @@
 using namespace glm;
 
 #include "World.h"
+#include "Light.h"
 
-World::World( vec4 bg ) : background(bg) {}
+
+World::World( vec3 bg, vec3 amb ) : background(bg), ambient(amb) {}
 
 World::~World() {}
 
@@ -44,26 +46,28 @@ std::vector<Light*> World::pruned_lights(vec3 point){
 }
 bool World::can_see_light(vec3 point, Light light)
 {
-    vec3 newDirection = light.position - point;
+    vec3 newDirection = *light.position - point;
     Ray r = Ray(&point, &newDirection);
-    return equal( get_intersect( r ), background );
+    return get_intersect( &r ) == background;
 }
 
-vec4 World::get_intersect( Ray *r ) {
-    int value = INT_MAX;
+
+vec3 World::get_intersect( Ray *r ) {
+    float value = INT_MAX;
     Object* currentObject = NULL;
 
     for ( Object* obj : objects ) {
-        int newValue = obj->intersection( r );
+        float newValue = obj->intersection( r );
         if ( newValue < value && newValue > 0 ) {
             value = newValue;
             currentObject = obj;
         }
     }
     if ( currentObject != NULL ) {
-        // TODO this should return whatever the object's IlluminationModel returns for intersection
-        // return currentObject->get_material().color;
-        return background;
+      // do work to do things
+      vec3 point = *r->origin + *r->direction * value;
+      std::vector<Light*> returnLights = this->pruned_lights(point);
+      return currentObject->get_color(*r, value, returnLights, ambient);
     }
 
     return background;

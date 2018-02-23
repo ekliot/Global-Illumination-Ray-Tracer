@@ -59,7 +59,7 @@ void Camera::render( image<rgb_pixel> *negative ) {
     vec3 ray_ori = vec3( 0.0f );
     vec3 ray_dir;
     Ray *ray;
-    vec4 color;
+    vec3 color;
 
     // width/height of a pixel in world coordinates
     float px_w = plane.w / negative->get_width();

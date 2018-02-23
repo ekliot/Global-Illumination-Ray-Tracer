@@ -30,10 +30,10 @@ private:
 
     // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object*> objects;
-
     std::vector<Light*> lights;
+    vec3 background;
+    vec3 ambient;
 
-    vec4 background;
 
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
@@ -50,7 +50,7 @@ public:
     /**
      * Constructor
      */
-    World( vec4 background );
+    World( vec3 background, vec3 amb );
 
     /**
      * Destructor
@@ -80,7 +80,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
-    vec4 get_intersect( Ray* r );
+    vec3 get_intersect( Ray* r );
 
 private:
 
