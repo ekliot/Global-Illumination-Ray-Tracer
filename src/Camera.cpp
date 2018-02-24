@@ -19,6 +19,10 @@ using glm::vec3;
 Camera::Camera( World *w, vec3 p,    vec3 l, vec3 u, PPlane pp ) : \
                  world(w), pos(p), lookat(l),  up(u), plane(pp) {}
 
+Camera::~Camera() {
+    delete world;
+}
+
 void Camera::render( image<rgb_pixel> *negative ) {
     vec3 n = normalize( lookat );
     // vec3 n = normalize( pos - lookat ); // this is how it should be but we don't like it that way
@@ -92,6 +96,8 @@ void Camera::render( image<rgb_pixel> *negative ) {
                 int( color.y ),
                 int( color.z )
             );
+
+            delete ray;
         }
     }
 }

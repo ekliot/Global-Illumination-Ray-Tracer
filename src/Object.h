@@ -19,6 +19,7 @@ protected:
 
 public:
     Object( IlluminationModel* _imodel );
+    virtual ~Object();
 
     virtual float intersection( Ray *ray ) = 0;
 

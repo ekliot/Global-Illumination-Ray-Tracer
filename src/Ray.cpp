@@ -9,29 +9,30 @@
 
 #include <glm/glm.hpp>
 
-using namespace glm;
 #include "Ray.h"
 
-Ray::Ray( vec3* start, vec3* dir ) : origin(start), direction(dir) {
-    normalize();
+using namespace glm;
+
+Ray::Ray( vec3* ori, vec3* dir ) {
+    origin = new vec3( ori->x, ori->y, ori->z );
+    direction = new vec3( glm::normalize( *dir ) );
 }
 
-void Ray::normalize(){
-
-    double magnitude = sqrt( direction->x * direction->x
-                           + direction->y * direction->y
-                           + direction->z * direction->z);
-    *(direction) = vec3(
-        direction->x / magnitude,
-        direction->y / magnitude,
-        direction->z / magnitude
-    );
-
+Ray::~Ray() {
+    delete origin;
+    delete direction;
 }
 
 Ray* Ray::reflect( vec3* normal ){
-  vec3 newOrigin =  vec3( *origin );
-  vec3 newDirectiontemp = glm::reflect( *(direction), *(normal) );
+    // std::cout << "reflect( " << glm::to_string( *normal ) << " )" << '\n';
+    vec3 _ori =  vec3( origin->x, origin->y, origin->z );
+    vec3 _dir = glm::reflect( *(direction), *(normal) );
+    // std::cout << "  _ori // " << glm::to_string( _ori ) << '\n';
+    // std::cout << "  _dir // " << glm::to_string( _dir ) << '\n';
 
-  return new Ray( &newOrigin, &newDirectiontemp );
+    Ray* reflected = new Ray( &_ori, &_dir );
+    // std::cout << "  reflected.dir // " << glm::to_string( *(reflected->direction) ) << '\n';
+    // std::cout << "  reflected.ori // " << glm::to_string( *(reflected->origin) ) << '\n';
+
+    return reflected;
 }

@@ -19,7 +19,17 @@ using namespace glm;
 
 World::World( vec3 bg, vec3 amb ) : background(bg), ambient(amb) {}
 
-World::~World() {}
+World::~World() {
+    for ( Object* o : objects ) {
+        delete o;
+    }
+
+    for ( Light* l : lights ) {
+        // std::cout << "lite" << '\n';
+        delete l->color;
+        delete l->position;
+    }
+}
 
 void World::add_object( Object* obj ) {
     objects.push_back( obj );
@@ -46,8 +56,9 @@ std::vector<Light*> World::pruned_lights(vec3 point){
 }
 bool World::can_see_light(vec3 point, Light light) {
     vec3 newDirection = *light.position - point;
-    Ray r = Ray( &point, &newDirection );
-    vec3 isect = get_intersect( &r );
+    Ray* r = new Ray( &point, &newDirection );
+    vec3 isect = get_intersect( r );
+    delete r;
     vec3 comp = glm::equal( isect, background );
     return comp.x && comp.y && comp.z;
 }
@@ -59,11 +70,14 @@ vec3 World::get_intersect( Ray *r ) {
 
     for ( Object* obj : objects ) {
         float newValue = obj->intersection( r );
-        if ( newValue < value && newValue > 0.000001 ) {
+        if ( newValue < value && newValue > 0.0000001 ) {
             value = newValue;
             currentObject = obj;
         }
     }
+
+    // TODO SPLIT THIS SHIT
+
     if ( currentObject != NULL ) {
         // do work to do things
         vec3 point = *r->origin + *r->direction * value;

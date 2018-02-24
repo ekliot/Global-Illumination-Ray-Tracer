@@ -13,6 +13,8 @@ using namespace glm;
 
 class IlluminationModel {
 public:
+    IlluminationModel();
+    virtual ~IlluminationModel() = 0;
     virtual vec3 intersect( IntersectData idata ) = 0;
 };
 

@@ -37,11 +37,11 @@ void init() {
         vec3( 0.1f )  // ambient light
     );
 
-    vec3 light1_col = vec3( 1.0f );
-    vec3 light1_pos = vec3( 1.1f, 4.52f, -5.7f );
+    vec3* light1_col = new vec3( 1.0f );
+    vec3* light1_pos = new vec3( 1.1f, 4.52f, -5.7f );
 
     Light light1 = {
-        &light1_col, &light1_pos
+        light1_col, light1_pos
     };
 
     world->add_light( &light1 );
@@ -94,21 +94,26 @@ void init() {
     world->add_object( plane_tri1 );
     world->add_object( plane_tri2 );
 
-    // vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
+    vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
     // TODO implement this as Phong
-    // Material sphere1_mat = {vec4( 0.0f, 0.0f, 1.0f, 1.0f )};
+    Phong* sphere1_imodel = new Phong(
+        vec3( 0.0f, 1.0f, 0.0f ),
+        vec3( 1.0f, 1.0f, 1.0f ),
+        // ka,  kd,   ks,   ke
+        0.0f, 0.8f, 0.0f, 1.0f
+    );
 
     // vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
     // TODO implement this as Phong
     // Material sphere2_mat = {vec4( 0.0f, 1.0f, 0.0f, 1.0f )};
 
-    // float sphere_trans = 1.3f;
-    // float sphere_r = 0.55f * sphere_trans;
+    float sphere_trans = 1.3f;
+    float sphere_r = 0.55f * sphere_trans;
 
-    // Sphere* sphere1 = new Sphere( &sphere1_p, &sphere_r, &sphere1_mat );
+    Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel );
     // Sphere* sphere2 = new Sphere( &sphere2_p, &sphere_r, &sphere2_mat );
 
-    // world->add( sphere1 );
+    world->add_object( sphere1 );
     // world->add( sphere2 );
 
     // = = = = = = = = = = //
@@ -177,6 +182,7 @@ void init() {
     // cam3->render( &negative );
     // photo_print( negative, "out3.png" );
 
+    delete cam1;
 }
 
 int main( void ) {

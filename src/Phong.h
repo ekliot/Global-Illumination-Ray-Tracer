@@ -19,6 +19,7 @@ class Phong : public IlluminationModel {
 
 public:
     Phong( vec3 _col_o, vec3 _col_s, float _ka, float _kd, float _ks, float _ke );
+    ~Phong();
 
     vec3 intersect( IntersectData idata );
 };

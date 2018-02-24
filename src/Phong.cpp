@@ -22,6 +22,8 @@ Phong::Phong( vec3 _col_o, vec3 _col_s, float _ka, float _kd, float _ks, float _
     }
 }
 
+Phong::~Phong() {}
+
 vec3 Phong::intersect( IntersectData idata ) {
     vec3 ambient = *(idata.ambient) * ka;
 
@@ -29,28 +31,37 @@ vec3 Phong::intersect( IntersectData idata ) {
     vec3 specular = vec3( 0.0f );
 
     for( Light* l : idata.lights ) {
-        vec3 l_dir = *(l->position) - *(idata.position);
+        vec3 l_dir = *(idata.position) - *(l->position);
 
         Ray* source  = new Ray( l->position, &l_dir );
         Ray* reflect = source->reflect( idata.normal );
 
-        // std::cout << "diffuse += " << glm::to_string( *(l->color) ) << " * " << glm::to_string( color_obj ) << " * ( " << dot( *(idata.normal), *(source->direction) ) << " := " << glm::to_string( *(idata.normal) ) << " dot " << glm::to_string( *(source->direction) ) << " )" << '\n';
-
-        diffuse = diffuse + *(l->color) * color_obj * dot( *(idata.normal), *(source->direction) );
+        diffuse = diffuse + *(l->color) * color_obj * abs( dot( *(idata.normal), *(source->direction) ) );
         specular = specular + *(l->color) * color_spec * pow( dot( *(reflect->direction), *(idata.incoming) ), ke );
+
+        // std::cout << "idata.incoming // " << glm::to_string( *(idata.incoming) ) << '\n';
+        // std::cout << "reflect->dir   // " << glm::to_string( *(reflect->direction) ) << '\n';
+
+        // std::cout << "idata.normal // " << glm::to_string( *(idata.normal) ) << '\n';
+        // std::cout << "source->dir  // " << glm::to_string( *(source->direction) ) << '\n';
+
+        delete source;
+        delete reflect;
     }
+
 
     diffuse  = kd * diffuse;
     specular = ks * specular;
 
     vec3 light = ambient + diffuse + specular;
 
-    if ( light.x > 1.0f || light.y > 1.0f || light.z > 1.0f ) {
-        std::cout << "light // " << glm::to_string( light ) << '\n';
-        std::cout << "ambient // " << glm::to_string( ambient ) << '\n';
-        std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
-        std::cout << "specular // " << glm::to_string( specular ) << '\n';
-    }
+    // if ( light.x < 0.5f || light.y < 0.5f || light.z < 0.5f ) {
+    // std::cout << "light // " << glm::to_string( light ) << '\n';
+    // std::cout << "ambient // " << glm::to_string( ambient ) << '\n';
+    // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
+    // std::cout << "specular // " << glm::to_string( specular ) << '\n';
+    //     std::cout << "color_obj // " << glm::to_string( color_obj ) << '\n';
+    // }
 
     return light;
 }
