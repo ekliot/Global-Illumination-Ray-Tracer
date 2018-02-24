@@ -24,11 +24,11 @@ public:
 
     virtual void transform( mat4 matrix ) = 0;
 
-    virtual vec3 get_normal(Ray* ray) = 0;
+    virtual vec3 get_normal( Ray* ray ) = 0;
 
-    vec3 get_color(Ray ray, float distance, std::vector<Light*> lights, vec3 ambient);
+    vec3 get_color( Ray* r, float dist, std::vector<Light*> lights, vec3* amb );
 
-    vec3 convert( vec4 vector );
+    vec3 convert( vec4* vector );
 };
 
 #endif

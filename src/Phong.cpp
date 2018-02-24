@@ -3,9 +3,11 @@
  */
 
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 
 #include <glm/glm.hpp>
+#include "glm/gtx/string_cast.hpp"
 
 #include "Phong.h"
 #include "Ray.h"
@@ -32,6 +34,8 @@ vec3 Phong::intersect( IntersectData idata ) {
         Ray* source  = new Ray( l->position, &l_dir );
         Ray* reflect = source->reflect( idata.normal );
 
+        // std::cout << "diffuse += " << glm::to_string( *(l->color) ) << " * " << glm::to_string( color_obj ) << " * ( " << dot( *(idata.normal), *(source->direction) ) << " := " << glm::to_string( *(idata.normal) ) << " dot " << glm::to_string( *(source->direction) ) << " )" << '\n';
+
         diffuse = diffuse + *(l->color) * color_obj * dot( *(idata.normal), *(source->direction) );
         specular = specular + *(l->color) * color_spec * pow( dot( *(reflect->direction), *(idata.incoming) ), ke );
     }
@@ -40,6 +44,13 @@ vec3 Phong::intersect( IntersectData idata ) {
     specular = ks * specular;
 
     vec3 light = ambient + diffuse + specular;
+
+    if ( light.x > 1.0f || light.y > 1.0f || light.z > 1.0f ) {
+        std::cout << "light // " << glm::to_string( light ) << '\n';
+        std::cout << "ambient // " << glm::to_string( ambient ) << '\n';
+        std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
+        std::cout << "specular // " << glm::to_string( specular ) << '\n';
+    }
 
     return light;
 }

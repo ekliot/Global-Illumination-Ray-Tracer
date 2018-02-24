@@ -16,6 +16,7 @@
 #include "World.h"
 #include "Triangle.h"
 #include "Sphere.h"
+#include "Phong.h"
 using namespace glm;
 
 // dimensions of drawing window
@@ -32,8 +33,18 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  */
 void init() {
     World *world = new World(
-        vec3( 0.0f ), vec3(.1f)
+        vec3( 0.0f ), // background
+        vec3( 0.1f )  // ambient light
     );
+
+    vec3 light1_col = vec3( 1.0f );
+    vec3 light1_pos = vec3( 1.1f, 4.52f, -5.7f );
+
+    Light light1 = {
+        &light1_col, &light1_pos
+    };
+
+    world->add_light( &light1 );
 
     // add objects to the world
 
@@ -47,31 +58,41 @@ void init() {
         D----C
     */
 
-    // vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
-    // float plane_w = 1.2f;
-    // float plane_wt = 0.53f;
-    // float plane_l = 5.0f;
-    // float plane_lt = 1.18f;
+    vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
+    float plane_w = 1.2f;
+    float plane_wt = 0.53f;
+    float plane_l = 5.0f;
+    float plane_lt = 1.18f;
 
     // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
-    // vec3 plane_a1 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    // vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    // vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    // vec3 plane_c1 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    // vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    // vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    vec3 plane_a = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    vec3 plane_c = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
 
     // TODO implement these as Phong
-    // Material plane1_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
-    // Material plane2_mat = {vec4( 1.0f, 0.0f, 0.0f, 1.0f )};
+    Phong* plane1_imodel = new Phong(
+        vec3( 1.0f, 0.0f, 0.0f ), // obj color -- red
+        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+        // ka,  kd,   ks,   ke
+        1.0f, 0.8f, 0.0f, 0.0f
+    );
+    Phong* plane2_imodel = new Phong(
+        vec3( 0.0f, 0.0f, 1.0f ), // obj color -- blue
+        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+        // ka,  kd,   ks,   ke
+        1.0f, 0.8f, 0.0f, 0.0f
+    );
 
     // ABC
-    // Triangle* plane_tri1 = new Triangle( &plane_a1, &plane_b, &plane_c1, &plane1_mat );
+    Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
     // ACD
-    // Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, &plane2_mat );
+    Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, plane2_imodel );
 
-    // world->add( plane_tri1 );
-    // world->add( plane_tri2 );
+    world->add_object( plane_tri1 );
+    world->add_object( plane_tri2 );
 
     // vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
     // TODO implement this as Phong
@@ -126,29 +147,29 @@ void init() {
     // = = = = = = = = = = =  //
 
     // main camera
-    // Camera* cam1  = new Camera(
-    //     world,
-    //     vec3( 1.0f, 2.53f, -7.38f ), // pos
-    //     vec3( 0.0f, 0.0f, 1.0f ), // lookat
-    //     vec3( 0.0f, 1.0f, 0.0f ), // up
-    //     { 1.92f/4, 1.08f/4, 0.2f }
-    // );
-
-    // camera looking down
     Camera* cam1  = new Camera(
         world,
-        vec3( 1.0f, 8.53f, -7.38f ), // pos
-        vec3( 0.0f, -1.0f, 0.0f ), // lookat
-        vec3( 0.0f, 0.0f, 1.0f ), // up
+        vec3( 1.0f, 2.53f, -7.38f ), // pos
+        vec3( 0.0f, 0.0f, 1.0f ), // lookat
+        vec3( 0.0f, 1.0f, 0.0f ), // up
         { 1.92f/4, 1.08f/4, 0.2f }
     );
+
+    // camera looking down
+    // Camera* cam1  = new Camera(
+    //     world,
+    //     vec3( 1.0f, 8.53f, -7.38f ), // pos
+    //     vec3( 0.0f, -1.0f, 0.0f ), // lookat
+    //     vec3( 0.0f, 0.0f, 1.0f ), // up
+    //     { 1.92f/4, 1.08f/4, 0.2f }
+    // );
 
     // PRINT IMAGES
 
     png::image<png::rgb_pixel> negative(I_WIDTH, I_HEIGHT);
 
     cam1->render( &negative );
-    //photo_print( negative, "out1.png" );
+    photo_print( negative, "etc/out1.png" );
 
     // cam2->render( &negative );
     // photo_print( negative, "out2.png" );

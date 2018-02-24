@@ -1,3 +1,7 @@
+/**
+ *
+ */
+
 #ifndef _ILLUIMINATIONMODEL_H_
 #define _ILLUIMINATIONMODEL_H_
 

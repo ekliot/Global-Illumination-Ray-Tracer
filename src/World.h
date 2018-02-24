@@ -34,7 +34,6 @@ private:
     vec3 background;
     vec3 ambient;
 
-
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
 
@@ -62,9 +61,10 @@ public:
      */
     void add_object( Object* obj );
 
-    void add_light(Light* light);
-
-
+    /**
+     *
+     */
+    void add_light( Light* light );
 
     /**
      * Transforms all objects in the scene to camera coordinates

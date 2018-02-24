@@ -48,35 +48,36 @@ float Triangle::intersection( Ray* ray ) {
     else            return INT_MAX;
 }
 
-vec3 Triangle::get_normal(Ray* ray)
-{
+vec3 Triangle::get_normal( Ray* ray ) {
     /*
     Set Vector U to (Triangle.p2 minus Triangle.p1)
-    	Set Vector V to (Triangle.p3 minus Triangle.p1)
+        Set Vector V to (Triangle.p3 minus Triangle.p1)
 
-    	Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
-    	Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
-    	Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
+        Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
+        Set Normal.y to (multiply U.z by V.x) minus (multiply U.x by V.z)
+        Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
     */
 
     vec3 u = *(this->b) - *(this->a);
+    // std::cout << "u // " << glm::to_string( u ) << '\n';
     vec3 v = *(this->c) - *(this->a);
-    vec3 normal = vec3((u.y * v.z) - (u.z * v.y),
-                      (u.z * v.x) - (u.x * v.z),
-                      (u.x * v.y) - (u.y * v.x));
-    return normal;
+    // std::cout << "v // " << glm::to_string( v ) << '\n';
+    vec3 normal = vec3( (u.y * v.z) - (u.z * v.y),
+                        (u.z * v.x) - (u.x * v.z),
+                        (u.x * v.y) - (u.y * v.x));
+    return normalize( normal );
 }
 
 void Triangle::transform( mat4 matrix ) {
     vec4 _a = vec4( a->x, a->y, a->z, 1 );
     _a = matrix * _a;
-    *a = convert(_a);
+    *a = convert( &_a );
 
     vec4 _b = vec4( b->x, b->y, b->z, 1 );
     _b = matrix * _b;
-    *b = convert(_b);
+    *b = convert( &_b );
 
     vec4 _c = vec4(c->x, c->y, c->z, 1);
     _c = matrix * _c;
-    *c = convert(_c);
+    *c = convert( &_c );
 }

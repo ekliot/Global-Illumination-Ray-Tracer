@@ -19,7 +19,7 @@ using glm::vec4;
  PUBLIC MEMBERS
 \**************/
 
-Sphere::Sphere( vec3* c, float* r, IlluminationModel* _imodel ) : Object(_imodel), center(c), radius(r) {}
+Sphere::Sphere( vec3* c, float r, IlluminationModel* _imodel ) : Object(_imodel), center(c), radius(r) {}
 
 float Sphere::intersection( Ray* ray ) {
     float t0, t1; // solutions for t if the ray intersects
@@ -27,7 +27,7 @@ float Sphere::intersection( Ray* ray ) {
     vec3 L = *(ray->origin) - *(center);
     float a = dot( *(ray->direction), *(ray->direction) );
     float b = 2 * dot( *(ray->direction), L );
-    float c = dot( L, L ) - ( *(radius) * *(radius) );
+    float c = dot( L, L ) - ( radius * radius );
     if ( !solve_quadratic( a, b, c, t0, t1 ) ) return -1;
 
     if ( t0 > t1 ){
@@ -41,17 +41,16 @@ float Sphere::intersection( Ray* ray ) {
     return t0;
 }
 
-vec3 Sphere::get_normal(Ray* ray)
-{
+vec3 Sphere::get_normal( Ray* ray ) {
     vec3 normal = *ray->origin - *this->center;
-    return normalize(normal);
+    return normalize( normal );
 }
 
 void Sphere::transform( mat4 tmat ) {
     std::cout << "old sphere center // " << glm::to_string( *center ) << '\n';
 
     vec4 _center = tmat * vec4( center->x, center->y, center->z, 1 );
-    *(center) = convert( _center );
+    *(center) = convert( &_center );
 
     // scale_radius( tmat );
 
@@ -93,10 +92,10 @@ void Sphere::scale_radius( mat4 tmat ) {
 
     float const largestScale = std::sqrt( max );
 
-    *radius = *(radius) * largestScale;
+    radius = radius * largestScale;
 }
 
-vec3 Sphere::extract_scale(const mat4 &m) {
+vec3 Sphere::extract_scale( const mat4 &m ) {
     // length2 returns length squared i.e. v�v
     // no square root involved
     return vec3( length2( vec3( m[0] ) ),

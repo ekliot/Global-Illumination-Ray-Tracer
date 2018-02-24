@@ -10,19 +10,19 @@ class Sphere : public Object {
 
     vec3* center;
 
-    float* radius;
+    float radius;
 
     bool solve_quadratic( const float &a, const float &b, const float &c, float &x0, float &x1 );
 
     vec3 extract_scale( const mat4 &m );
 
-    vec3 get_normal(Ray* ray);
+    vec3 get_normal( Ray* ray );
 
     void scale_radius( mat4 tmat );
 
     public:
 
-        Sphere( vec3* center, float* radius, IlluminationModel* _imodel );
+        Sphere( vec3* center, float radius, IlluminationModel* _imodel );
 
         float intersection( Ray* ray );
 
