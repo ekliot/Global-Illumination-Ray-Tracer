@@ -19,7 +19,7 @@ public:
 
     float intersection( Ray* ray );
 
-    vec3 get_normal( Ray* ray );
+    vec3 get_normal( Ray* ray, float distance );
 
     void transform( mat4 matrix );
 };

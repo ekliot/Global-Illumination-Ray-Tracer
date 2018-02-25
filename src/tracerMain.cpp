@@ -33,7 +33,7 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  */
 void init() {
     World *world = new World(
-        vec3( 0.0f ), // background
+        vec3( 0.5f ), // background
         vec3( 0.1f )  // ambient light
     );
 
@@ -100,7 +100,7 @@ void init() {
         vec3( 0.0f, 1.0f, 0.0f ),
         vec3( 1.0f, 1.0f, 1.0f ),
         // ka,  kd,   ks,   ke
-        0.0f, 0.8f, 0.0f, 1.0f
+        0.0f, 0.3f, 0.6f, 250.0f
     );
 
     // vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );

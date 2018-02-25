@@ -40,7 +40,8 @@ vec3 Phong::intersect( IntersectData idata ) {
         specular = specular + *(l->color) * color_spec * pow( dot( *(reflect->direction), *(idata.incoming) ), ke );
 
         // std::cout << "idata.incoming // " << glm::to_string( *(idata.incoming) ) << '\n';
-        // std::cout << "reflect->dir   // " << glm::to_string( *(reflect->direction) ) << '\n';
+        //std::cout << "diffuse  // " << glm::to_string( diffuse ) << '\n';
+        //std::cout << "dire  // " << glm::to_string( *(idata.normal) ) << '\n';
 
         // std::cout << "idata.normal // " << glm::to_string( *(idata.normal) ) << '\n';
         // std::cout << "source->dir  // " << glm::to_string( *(source->direction) ) << '\n';

@@ -26,7 +26,7 @@ vec3 Object::get_color( Ray* ray, float distance, std::vector<Light*> lights, ve
     vec3 position = *(ray->origin) + *(ray->direction) * distance;
     data.position = &position;
 
-    vec3 normal   = get_normal( ray );
+    vec3 normal   = get_normal( ray, distance );
     data.normal   = &normal;
 
     data.incoming = ray->direction;

@@ -25,7 +25,7 @@ public:
 
     virtual void transform( mat4 matrix ) = 0;
 
-    virtual vec3 get_normal( Ray* ray ) = 0;
+    virtual vec3 get_normal( Ray* ray, float distance ) = 0;
 
     vec3 get_color( Ray* r, float dist, std::vector<Light*> lights, vec3* amb );
 

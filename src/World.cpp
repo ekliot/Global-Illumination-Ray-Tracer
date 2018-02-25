@@ -14,6 +14,7 @@
 
 using namespace glm;
 
+
 #include "World.h"
 #include "Light.h"
 
@@ -57,32 +58,40 @@ std::vector<Light*> World::pruned_lights(vec3 point){
 bool World::can_see_light(vec3 point, Light light) {
     vec3 newDirection = *light.position - point;
     Ray* r = new Ray( &point, &newDirection );
-    vec3 isect = get_intersect( r );
+    float distance = 0;
+    Object* intersectObject = get_intersect_helper(r,&distance);
     delete r;
-    vec3 comp = glm::equal( isect, background );
-    return comp.x && comp.y && comp.z;
+    return (intersectObject == NULL);
+
 }
 
+Object* World::get_intersect_helper(Ray * r, float* distance)
+{
+  Object* returnObject = NULL;
+  *distance = INT_MAX;
+  for ( Object* obj : objects ) {
+      float newValue = obj->intersection( r );
+      if ( newValue < *distance && newValue > 0.00001 ) {
+          *distance = newValue;
+          returnObject = obj;
+      }
+  }
+
+  return returnObject;
+}
 
 vec3 World::get_intersect( Ray *r ) {
-    float value = INT_MAX;
-    Object* currentObject = NULL;
 
-    for ( Object* obj : objects ) {
-        float newValue = obj->intersection( r );
-        if ( newValue < value && newValue > 0.0000001 ) {
-            value = newValue;
-            currentObject = obj;
-        }
-    }
+    float distance = 0;
+    Object* intersectObject = this->get_intersect_helper(r,&distance);
 
     // TODO SPLIT THIS SHIT
 
-    if ( currentObject != NULL ) {
+    if ( intersectObject != NULL ) {
         // do work to do things
-        vec3 point = *r->origin + *r->direction * value;
+        vec3 point = *r->origin + *r->direction * distance;
         std::vector<Light*> returnLights = pruned_lights(point);
-        return currentObject->get_color( r, value, returnLights, &ambient );
+        return intersectObject->get_color( r, distance, returnLights, &ambient );
     }
 
     return background;

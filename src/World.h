@@ -8,6 +8,7 @@
 
 #ifndef _WORLD_H
 #define _WORLD_H
+#define OUT
 
 #if defined(_WIN32) || defined(_WIN64)
 #include "stdafx.h"
@@ -82,7 +83,9 @@ public:
      */
     vec3 get_intersect( Ray* r );
 
+
 private:
+    Object* get_intersect_helper(Ray * r, float* distance);
 
     std::vector<Light*> pruned_lights(vec3 point);
 

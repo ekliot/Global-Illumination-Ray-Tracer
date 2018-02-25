@@ -48,7 +48,7 @@ float Triangle::intersection( Ray* ray ) {
     else            return INT_MAX;
 }
 
-vec3 Triangle::get_normal( Ray* ray ) {
+vec3 Triangle::get_normal( Ray* ray, float distance  ) {
     /*
     Set Vector U to (Triangle.p2 minus Triangle.p1)
         Set Vector V to (Triangle.p3 minus Triangle.p1)
