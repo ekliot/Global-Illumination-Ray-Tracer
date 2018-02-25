@@ -33,9 +33,10 @@ float Sphere::intersection( Ray* ray ) {
     if ( t0 > t1 ){
         swap( t0, t1 );
     }
-    if ( t0 < 0 ) {
+    if ( t0 < 0.00001 ) {
         t0 = t1; // if t0 is negative, let's use t1 instead
         if ( t0 < 0 ) return -1; // both t0 and t1 are negative
+        return t1;
     }
 
     return t0;
