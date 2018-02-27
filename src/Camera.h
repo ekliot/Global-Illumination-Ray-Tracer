@@ -20,16 +20,14 @@
 
 using namespace png;
 using glm::vec3;
+using glm::mat4;
 
 class Camera {
 
     World* world;
-
-    vec3 pos;
-    vec3 lookat;
-    vec3 up;
-
+    mat4 transform_mat;
     PPlane plane;
+    bool is_set = false;
 
 public:
     /**
@@ -48,7 +46,14 @@ public:
      */
     ~Camera( void );
 
-    void render( image<rgb_pixel> *negative );
+    void set_scene();
+    void break_scene();
+
+    /**
+     * ss_rate  //  0   1   2   3   4   5   6
+     * SS level // x0  x2  x4  x6  x9 x12 x16
+     */
+    void render( image<rgb_pixel>* negative, uint ss_rate = 0 );
 
 };
 

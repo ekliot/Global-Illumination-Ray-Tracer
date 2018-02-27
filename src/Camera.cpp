@@ -16,49 +16,53 @@
 using namespace png;
 using glm::vec3;
 
-Camera::Camera( World *w, vec3 p,    vec3 l, vec3 u, PPlane pp ) : \
-                 world(w), pos(p), lookat(l),  up(u), plane(pp) {}
-
-Camera::~Camera() {
-    delete world;
-}
-
-void Camera::render( image<rgb_pixel> *negative ) {
-    vec3 n = normalize( lookat );
-    // vec3 n = normalize( pos - lookat ); // this is how it should be but we don't like it that way
-    vec3 u = normalize( cross( up, n ) );
+Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp ) : world(_w), plane(_pp) {
+    vec3 n = normalize( _look );
+    // vec3 n = normalize( pos - look ); // this is how it should be but we don't like it that way
+    vec3 u = normalize( cross( _up, n ) );
     vec3 v = normalize( cross( n, u ) );
 
-    // std::cout << '\n';
-    // std::cout << "u // { " << glm::to_string( u ) << " }" << '\n';
-    // std::cout << "v // { " << glm::to_string( v ) << " }" << '\n';
-    // std::cout << "n // { " << glm::to_string( n ) << " }" << '\n';
-
     // COL-MAJOR
-    mat4 tmat = mat4(
-        u.x,          v.x,          n.x,          0,
-        u.y,          v.y,          n.y,          0,
-        u.z,          v.z,          n.z,          0,
-        dot(-pos, u), dot(-pos, v), dot(-pos, n), 1
+    transform_mat = mat4(
+        u.x,           v.x,           n.x,           0,
+        u.y,           v.y,           n.y,           0,
+        u.z,           v.z,           n.z,           0,
+        dot(-_pos, u), dot(-_pos, v), dot(-_pos, n), 1
     );
 
     // // ROW-MAJOR
-    // mat4 tmat = mat4(
+    // transform_mat = mat4(
     //     u.x, u.y, u.z, -dot(pos, u),
     //     v.x, v.y, v.z, -dot(pos, v),
     //     n.x, n.y, n.z, -dot(pos, n),
     //       0,   0,   0,            1
     // );
+}
 
-    // std::cout << "tmat // { " << glm::to_string( tmat ) << " }" << '\n';
-    // std::cout << '\n';
-    // std::cout << "tmat[0] // { " << glm::to_string( tmat[0] ) << " }" << '\n';
-    // std::cout << "tmat[1] // { " << glm::to_string( tmat[1] ) << " }" << '\n';
-    // std::cout << "tmat[2] // { " << glm::to_string( tmat[2] ) << " }" << '\n';
-    // std::cout << "tmat[3] // { " << glm::to_string( tmat[3] ) << " }" << '\n';
-    // std::cout << '\n';
+Camera::~Camera() {
+    delete world;
+}
 
-    world->transform_all( tmat );
+void Camera::set_scene() {
+    if ( !is_set ) {
+        world->transform_all( transform_mat );
+        is_set = true;
+    }
+}
+
+void Camera::break_scene() {
+    if ( is_set ){
+        world->transform_all( inverse( transform_mat ) );
+        is_set = false;
+    }
+}
+
+void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
+
+    if ( !is_set ) {
+        std::cout << "Camera::render() called without setting the scene first" << '\n';
+        return;
+    }
 
     vec3 ray_ori = vec3( 0.0f );
     vec3 ray_dir;
@@ -69,8 +73,7 @@ void Camera::render( image<rgb_pixel> *negative ) {
     float px_w = plane.w / negative->get_width();
     float px_h = plane.h / negative->get_height();
 
-    // std::cout << "px:world // {"<< px_w << "," << px_h <<"}" << '\n';
-
+    // we start at the top-left
     float start_x = -plane.w / 2;
     float start_y = plane.h / 2;
 
@@ -79,25 +82,64 @@ void Camera::render( image<rgb_pixel> *negative ) {
     // trace and put stuff into the pixel buffer
     for ( size_t y = 0; y < negative->get_height(); ++y ) {
         for ( size_t x = 0; x < negative->get_width(); ++x ) {
-            dir_x = start_x + x * px_w + px_w/2;
-            dir_y = start_y - y * px_h + px_h/2;
-            dir_z = plane.foc_l;
-            ray_dir = vec3( dir_x, dir_y, dir_z );
 
-            // std::cout << "{" << dir_x << ":" << dir_y << ":" << dir_z  << "} -> ";
+            // if we have a default ss_rate, don't bother with it
+            if ( !ss_rate ) {
+                dir_x = start_x + x * px_w + px_w/2;
+                dir_y = start_y - y * px_h - px_h/2;
+                dir_z = plane.foc_l;
 
-            ray = new Ray( &ray_ori, &ray_dir );
+                ray_dir = vec3( dir_x, dir_y, dir_z );
+                ray = new Ray( &ray_ori, &ray_dir );
 
-            // std::cout << glm::to_string( ray->direction )  << " -> [" << x << "," << y << "]" << '\n';
+                color = world->get_intersect( ray ) * 255.0f;
+                negative->get_row(y)[x] = rgb_pixel(
+                    int( color.x ),
+                    int( color.y ),
+                    int( color.z )
+                );
 
-            color = world->get_intersect( ray ) * 255.0f;
-            negative->get_row(y)[x] = rgb_pixel(
-                int( color.x ),
-                int( color.y ),
-                int( color.z )
-            );
+                delete ray;
+            }
+            // otherwise, engage super sampling
+            else {
+                // how many sub-pixels in each direction
+                uint x_div = ((ss_rate % 2) + ss_rate)/2 + 1;
+                uint y_div = x_div - ss_rate % 2;
 
-            delete ray;
+                float r = 0.0f;
+                float g = 0.0f;
+                float b = 0.0f;
+
+                float base_x = start_x + x * px_w;
+                float base_y = start_y - y * px_h;
+
+                for ( size_t _x = 1; _x <= x_div*2; _x+=2 ) {
+                    for ( size_t _y = 1; _y <= y_div*2; _y+=2 ) {
+                        dir_x = base_x + _x * px_w/(x_div*2);
+                        dir_y = base_y - _y * px_h/(y_div*2);
+                        dir_z = plane.foc_l;
+
+                        ray_dir = vec3( dir_x, dir_y, dir_z );
+                        ray = new Ray( &ray_ori, &ray_dir );
+
+                        color = world->get_intersect( ray );
+                        r += color.x;
+                        g += color.y;
+                        b += color.z;
+
+                        delete ray;
+                    }
+                }
+
+                uint samples = x_div * y_div;
+
+                negative->get_row(y)[x] = rgb_pixel(
+                    int( 255.0f * r / static_cast<float>(samples) ),
+                    int( 255.0f * g / static_cast<float>(samples) ),
+                    int( 255.0f * b / static_cast<float>(samples) )
+                );
+            }
         }
     }
 }
