@@ -11,7 +11,7 @@ class Texture {
 
         Texture();
 
-        virtual vec3 get_diffuse_color(float u, float v) = 0;
+        virtual vec3 get_obj_color(float u, float v) = 0;
         
 };
 

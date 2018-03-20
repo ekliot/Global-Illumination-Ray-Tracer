@@ -19,7 +19,7 @@ typedef struct st_IntersectData {
     vec3* incoming;
     std::vector<Light*> lights;
     vec3* ambient;
-    vec3* diffuse_color;
+    vec3* obj_color;
 } IntersectData;
 
 #endif
