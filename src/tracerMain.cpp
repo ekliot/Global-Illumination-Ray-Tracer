@@ -18,6 +18,8 @@
 #include "Triangle.h"
 #include "Sphere.h"
 #include "Phong.h"
+#include "Rectangle.h"
+
 using namespace glm;
 
 // dimensions of drawing window
@@ -69,12 +71,12 @@ void init() {
 
     // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
     vec3 plane_a = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+    //vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
     vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
     vec3 plane_c = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+    //vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
     vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-
+/*
     // TODO implement these as Phong
     Phong* plane1_imodel = new Phong(
         vec3( 1.0f, 0.0f, 0.0f ), // obj color -- red
@@ -82,6 +84,7 @@ void init() {
         // ka,  kd,   ks,   ke
         1.0f, 0.8f, 0.0f, 0.0f
     );
+    */
     Phong* plane2_imodel = new Phong(
         vec3( 1.0f, 0.0f, 0.0f ), // obj color -- blue
         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
@@ -89,13 +92,17 @@ void init() {
         1.0f, 0.8f, 0.0f, 0.0f
     );
 
-    // ABC
-    Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
-    // ACD
-    Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, plane2_imodel );
+    Rectangle* rect = new Rectangle(&plane_a, &plane_b, &plane_c, &plane_d, plane2_imodel);
 
-    world->add_object( plane_tri1 );
-    world->add_object( plane_tri2 );
+    // ABC
+    //Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
+    // ACD
+    //Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, plane2_imodel );
+
+    //world->add_object( plane_tri1 );
+    //world->add_object( plane_tri2 );
+
+    world->add_object(rect);
 
     vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
     Phong* sphere1_imodel = new Phong(
