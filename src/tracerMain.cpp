@@ -13,6 +13,7 @@
 
 #include "png++/png.hpp"
 #include "Camera.h"
+#include "CheckerBoard.h"
 #include "PPlane.h"
 #include "Phong.h"
 #include "Rectangle.h"
@@ -91,7 +92,12 @@ void init() {
         1.0f, 0.8f, 0.0f, 0.0f
     );
 
-    SolidMaterial* plane_mat = new SolidMaterial( vec3( 1.0f, 0.0f, 0.0f ) );
+    // SolidMaterial* plane_mat = new SolidMaterial( vec3( 1.0f, 0.0f, 0.0f ) );
+    CheckerBoard* plane_mat = new CheckerBoard(
+        vec3( 1.0f, 0.0f, 0.0f ),
+        vec3( 1.0f, 1.0f, 0.0f ),
+        24, 10
+    );
 
     Rectangle* rect = new Rectangle(
         &plane_a, &plane_b,
@@ -114,28 +120,30 @@ void init() {
     //         SPHERES
     // =======================
 
-    // vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
-    // Phong* sphere1_imodel = new Phong(
-    //     vec3( 1.0f, 1.0f, 1.0f ),
-    //     // ka,  kd,   ks,   ke
-    //     0.1f, 0.5f, 0.1f, 20.0f
-    // );
-    //
-    // vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
-    // Phong* sphere2_imodel = new Phong(
-    //     vec3( 1.0f, 1.0f, 1.0f ),
-    //     // ka,  kd,   ks,   ke
-    //     0.1f, 0.5f, 0.1f, 20.0f
-    // );
-    //
-    // float sphere_trans = 1.3f;
-    // float sphere_r = 0.55f * sphere_trans;
-    //
-    // Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel );
-    // Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel );
-    //
-    // world->add_object( sphere1 );
-    // world->add_object( sphere2 );
+    vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
+    Phong* sphere1_imodel = new Phong(
+        vec3( 1.0f, 1.0f, 1.0f ),
+        // ka,  kd,   ks,   ke
+        0.1f, 0.5f, 0.1f, 20.0f
+    );
+    SolidMaterial* sphere1_mat = new SolidMaterial( vec3( 0.0f, 1.0f, 0.0f ) );
+
+    vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
+    Phong* sphere2_imodel = new Phong(
+        vec3( 1.0f, 1.0f, 1.0f ),
+        // ka,  kd,   ks,   ke
+        0.1f, 0.5f, 0.1f, 20.0f
+    );
+    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.0f, 0.0f, 1.0f ) );
+
+    float sphere_trans = 1.3f;
+    float sphere_r = 0.55f * sphere_trans;
+
+    Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
+    Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
+
+    world->add_object( sphere1 );
+    world->add_object( sphere2 );
 
     // = = = = = = = = = = //
     // CAMERAS FROM ORIGIN //
