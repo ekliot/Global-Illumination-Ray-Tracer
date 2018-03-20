@@ -37,12 +37,14 @@ vec3 Object::get_color( Ray* ray, float distance, std::vector<Light*> lights, ve
 
     data.ambient  = ambient;
 
-    data.obj_color = NULL;
-    if(texture != NULL)
-    {
-        //data.obj_color = texture->get_color(u,v);
-    }
+    // if( texture != NULL ) {
+    //     // data.obj_color = texture->get_color(u,v);
+    // } else {
+    //     // data.obj_color = color;
+    // }
 
+    vec3 o_col = vec3( 1.0f, 0.0f, 0.0f ); // TODO this is temporary
+    data.obj_color = &o_col;
 
     return imodel->intersect( data );
 }

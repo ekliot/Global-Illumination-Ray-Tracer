@@ -64,10 +64,10 @@ void init() {
     */
 
     vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
-    float plane_w = 1.2f;
-    float plane_wt = 0.53f;
-    float plane_l = 5.0f;
-    float plane_lt = 1.18f;
+    float plane_w = 1.2f; // plane width
+    float plane_wt = 0.53f; // width transform
+    float plane_l = 5.0f; // plane length
+    float plane_lt = 1.18f; // width transform
 
     // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
     vec3 plane_a = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
@@ -76,23 +76,21 @@ void init() {
     vec3 plane_c = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
     //vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
     vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-/*
+    /*
     // TODO implement these as Phong
     Phong* plane1_imodel = new Phong(
-        vec3( 1.0f, 0.0f, 0.0f ), // obj color -- red
         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
         // ka,  kd,   ks,   ke
         1.0f, 0.8f, 0.0f, 0.0f
     );
     */
     Phong* plane2_imodel = new Phong(
-        vec3( 1.0f, 0.0f, 0.0f ), // obj color -- blue
         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
         // ka,  kd,   ks,   ke
         1.0f, 0.8f, 0.0f, 0.0f
     );
 
-    Rectangle* rect = new Rectangle(&plane_a, &plane_b, &plane_c, &plane_d, plane2_imodel);
+    Rectangle* rect = new Rectangle( &plane_a, &plane_b, &plane_c, &plane_d, plane2_imodel );
 
     // ABC
     //Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
@@ -104,30 +102,32 @@ void init() {
 
     world->add_object(rect);
 
-    vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
-    Phong* sphere1_imodel = new Phong(
-        vec3( 0.0f, 0.0f, 1.0f ),
-        vec3( 1.0f, 1.0f, 1.0f ),
-        // ka,  kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
+    // =======================
+    //         SPHERES
+    // =======================
 
-    vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
-    Phong* sphere2_imodel = new Phong(
-        vec3( 0.0f, 1.0f, 0.0f ),
-        vec3( 1.0f, 1.0f, 1.0f ),
-        // ka,  kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
-
-    float sphere_trans = 1.3f;
-    float sphere_r = 0.55f * sphere_trans;
-
-    Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel );
-    Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel );
-
-    world->add_object( sphere1 );
-    world->add_object( sphere2 );
+    // vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
+    // Phong* sphere1_imodel = new Phong(
+    //     vec3( 1.0f, 1.0f, 1.0f ),
+    //     // ka,  kd,   ks,   ke
+    //     0.1f, 0.5f, 0.1f, 20.0f
+    // );
+    //
+    // vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
+    // Phong* sphere2_imodel = new Phong(
+    //     vec3( 1.0f, 1.0f, 1.0f ),
+    //     // ka,  kd,   ks,   ke
+    //     0.1f, 0.5f, 0.1f, 20.0f
+    // );
+    //
+    // float sphere_trans = 1.3f;
+    // float sphere_r = 0.55f * sphere_trans;
+    //
+    // Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel );
+    // Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel );
+    //
+    // world->add_object( sphere1 );
+    // world->add_object( sphere2 );
 
     // = = = = = = = = = = //
     // CAMERAS FROM ORIGIN //
@@ -184,7 +184,7 @@ void init() {
 
     // PRINT IMAGES
 
-    // png::image<png::rgb_pixel> negative1(I_WIDTH, I_HEIGHT);
+    png::image<png::rgb_pixel> negative1(I_WIDTH, I_HEIGHT);
     // png::image<png::rgb_pixel> negative2(I_WIDTH, I_HEIGHT);
     // png::image<png::rgb_pixel> negative3(I_WIDTH, I_HEIGHT);
     // png::image<png::rgb_pixel> negative4(I_WIDTH, I_HEIGHT);
@@ -192,14 +192,14 @@ void init() {
     // std::clock_t start;
     // double duration;
     //
-    // cam->set_scene();
+    cam->set_scene();
     //
     // //
     //
     // start = std::clock();
     //
-    // cam->render( &negative1 );
-    // photo_print( negative1, "etc/chkpt3_img1.png" );
+    cam->render( &negative1 );
+    photo_print( negative1, "out/test.png" );
     //
     // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
     // std::cout<< "SS x0 // " << duration << "sec" << '\n';

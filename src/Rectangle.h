@@ -1,5 +1,9 @@
-#ifndef _PLANE_H_
-#define _PLANE_H_
+/**
+ *
+ */
+
+#ifndef _RECTANGLE_H_
+#define _RECTANGLE_H_
 
 #include <glm/vec3.hpp>
 using glm::vec3;
@@ -9,10 +13,10 @@ using glm::vec3;
 
 class Rectangle : public Object {
 
-    vec3* ll;
-    vec3* lr;
     vec3* ul;
     vec3* ur;
+    vec3* lr;
+    vec3* ll;
 
     Triangle* tri1;
     Triangle* tri2;
@@ -21,7 +25,8 @@ class Rectangle : public Object {
 
     public:
 
-        Rectangle(vec3* _ll, vec3* _lr, vec3* _ul, vec3* _ur, IlluminationModel* _imodel );
+        Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel );
+        ~Rectangle();
 
         float intersection( Ray* ray );
 
