@@ -22,7 +22,7 @@ Object::~Object() {
 
 void Object::transform( mat4 matrix ) {}
 
-vec3 Object::get_color( Ray* ray, float distance, std::vector<Light*> lights, vec3* ambient ) {
+vec3 Object::get_color( Ray* ray, float distance, std::vector<Light*> lights, vec3* ambient, mat4 reverse_transform_mat ) {
     IntersectData data;
 
     vec3 position = *(ray->origin) + *(ray->direction) * distance;

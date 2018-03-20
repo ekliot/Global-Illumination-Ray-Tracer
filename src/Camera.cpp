@@ -93,7 +93,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                 ray_dir = vec3( dir_x, dir_y, dir_z );
                 ray = new Ray( &ray_ori, &ray_dir );
 
-                color = world->get_intersect( ray ) * 255.0f;
+                color = world->get_intersect( ray, reverse_transform_mat ) * 255.0f;
                 negative->get_row(y)[x] = rgb_pixel(
                     int( color.x ),
                     int( color.y ),
@@ -124,7 +124,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                         ray_dir = vec3( dir_x, dir_y, dir_z );
                         ray = new Ray( &ray_ori, &ray_dir );
 
-                        color = world->get_intersect( ray );
+                        color = world->get_intersect( ray, reverse_transform_mat );
                         r += color.x;
                         g += color.y;
                         b += color.z;

@@ -77,7 +77,7 @@ Object* World::get_intersect_helper( Ray * r, float* distance ){
   return returnObject;
 }
 
-vec3 World::get_intersect( Ray *r ) {
+vec3 World::get_intersect( Ray *r , mat4 inverse_transform_mat ) {
 
     float distance = 0;
     Object* intersectObject = this->get_intersect_helper( r, &distance );
@@ -88,7 +88,7 @@ vec3 World::get_intersect( Ray *r ) {
         // do work to do things
         vec3 point = *r->origin + *r->direction * distance;
         std::vector<Light*> returnLights = pruned_lights( point );
-        return intersectObject->get_color( r, distance, returnLights, &ambient );
+        return intersectObject->get_color( r, distance, returnLights, &ambient, inverse_transform_mat );
     }
 
     return background;
