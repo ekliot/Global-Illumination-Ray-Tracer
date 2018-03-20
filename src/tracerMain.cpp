@@ -184,10 +184,10 @@ void init() {
 
     // PRINT IMAGES
 
-    png::image<png::rgb_pixel> negative1(I_WIDTH, I_HEIGHT);
-    png::image<png::rgb_pixel> negative2(I_WIDTH, I_HEIGHT);
-    png::image<png::rgb_pixel> negative3(I_WIDTH, I_HEIGHT);
-    png::image<png::rgb_pixel> negative4(I_WIDTH, I_HEIGHT);
+    // png::image<png::rgb_pixel> negative1(I_WIDTH, I_HEIGHT);
+    // png::image<png::rgb_pixel> negative2(I_WIDTH, I_HEIGHT);
+    // png::image<png::rgb_pixel> negative3(I_WIDTH, I_HEIGHT);
+    // png::image<png::rgb_pixel> negative4(I_WIDTH, I_HEIGHT);
 
     // std::clock_t start;
     // double duration;
