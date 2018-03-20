@@ -60,7 +60,6 @@ void Camera::break_scene() {
 }
 
 void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
-
     if ( !is_set ) {
         std::cout << "Camera::render() called without setting the scene first" << '\n';
         return;
