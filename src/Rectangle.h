@@ -8,7 +8,6 @@
 #include <glm/vec3.hpp>
 using glm::vec3;
 
-#include "Object.h"
 #include "Triangle.h"
 
 class Rectangle : public Object {
@@ -25,7 +24,7 @@ class Rectangle : public Object {
 
     public:
 
-        Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel );
+        Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel, Material* _mat );
         ~Rectangle();
 
         float intersection( Ray* ray );

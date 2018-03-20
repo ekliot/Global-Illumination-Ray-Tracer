@@ -10,18 +10,21 @@
 #include "Ray.h"
 #include "Light.h"
 #include "IlluminationModel.h"
-#include "Texture.h"
+#include "Material.h"
 
 using namespace glm;
 
 class Object {
 protected:
     IlluminationModel* imodel;
-    Texture* texture;
+    Material* material;
 
 public:
-    Object( IlluminationModel* _imodel, Texture* _texture=NULL);
+    Object( IlluminationModel* _imodel, Material* _mat);
     virtual ~Object();
+
+    // Object( const Object& model );
+    // virtual Object& operator=( const Object& model ) = 0;
 
     virtual float intersection( Ray *ray ) = 0;
 

@@ -22,7 +22,7 @@ class Sphere : public Object {
 
     public:
 
-        Sphere( vec3* center, float radius, IlluminationModel* _imodel );
+        Sphere( vec3* center, float radius, IlluminationModel* _imodel, Material* _mat );
 
         float intersection( Ray* ray );
 

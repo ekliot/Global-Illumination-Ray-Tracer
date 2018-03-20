@@ -14,11 +14,12 @@
 #include "png++/png.hpp"
 #include "Camera.h"
 #include "PPlane.h"
-#include "World.h"
-#include "Triangle.h"
-#include "Sphere.h"
 #include "Phong.h"
 #include "Rectangle.h"
+#include "SolidMaterial.h"
+#include "Sphere.h"
+#include "Triangle.h"
+#include "World.h"
 
 using namespace glm;
 
@@ -90,7 +91,14 @@ void init() {
         1.0f, 0.8f, 0.0f, 0.0f
     );
 
-    Rectangle* rect = new Rectangle( &plane_a, &plane_b, &plane_c, &plane_d, plane2_imodel );
+    SolidMaterial* plane_mat = new SolidMaterial( vec3( 1.0f, 0.0f, 0.0f ) );
+
+    Rectangle* rect = new Rectangle(
+        &plane_a, &plane_b,
+        &plane_c, &plane_d,
+        plane2_imodel,
+        plane_mat
+     );
 
     // ABC
     //Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );

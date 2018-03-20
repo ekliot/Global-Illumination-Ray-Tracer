@@ -2,6 +2,8 @@
  *
  */
 
+#include <iostream>
+
 #include "glm/gtx/string_cast.hpp"
 
 using namespace std;
@@ -14,17 +16,19 @@ using glm::vec4;
  PUBLIC MEMBERS
 \**************/
 
-Rectangle::Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel ) : \
-        Object(_imodel), ul(_ul), ur(_ur), lr(_lr), ll(_ll) {
+Rectangle::Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel, Material* _mat ) : \
+        Object(_imodel,_mat), ul(_ul), ur(_ur), lr(_lr), ll(_ll) {
 
-    tri1 = new Triangle( ll, lr, ul, imodel );
-    tri2 = new Triangle( ul, ur, lr, imodel );
+    // TODO these should COPY imodel and material
+    tri1 = new Triangle( ll, lr, ul, imodel, material );
+    tri2 = new Triangle( ul, ur, lr, imodel, material );
 
 }
 
 Rectangle::~Rectangle() {
-    delete tri1;
-    delete tri2;
+    // TODO see constructor for why these are commented out
+    // delete tri1;
+    // delete tri2;
 }
 
 void Rectangle::transform( mat4 mat ) {
