@@ -34,7 +34,7 @@ public:
 
     vec2 get_uv( vec3* point);
 
-    vec3 get_color( Ray* r, float dist, std::vector<Light*> lights, vec3* amb );
+    vec3 get_color( Ray* r, float dist, std::vector<Light*> lights, vec3* amb,  mat4 reverse_transform_mat );
 
     vec3 convert( vec4* vector );
 };
