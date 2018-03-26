@@ -158,7 +158,7 @@ void init() {
     // = = = = = = = = = = =  //
 
     // main camera
-    Camera* cam1  = new Camera(
+    Camera* cam = new Camera(
         world,
         vec3( 1.0f, 2.53f, -7.38f ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
@@ -182,59 +182,52 @@ void init() {
     png::image<png::rgb_pixel> negative3(I_WIDTH, I_HEIGHT);
     png::image<png::rgb_pixel> negative4(I_WIDTH, I_HEIGHT);
 
-    std::clock_t start;
-    double duration;
-
-    cam1->set_scene();
-
-
+    // std::clock_t start;
+    // double duration;
     //
-
-    start = std::clock();
-
-    cam1->render( &negative1 );
-    photo_print( negative1, "etc/chkpt3_img1.png" );
-
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    std::cout<< "SS x0 // " << duration << "sec" << '\n';
-
+    // cam->set_scene();
     //
-
-    start = std::clock();
-
-    cam1->render( &negative2, 2 );
-    photo_print( negative2, "etc/chkpt3_img2.png" );
-
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    std::cout << "SS x4 // " << duration << "sec" << '\n';
-
+    // //
     //
-
-    start = std::clock();
-
-    cam1->render( &negative3, 4 );
-    photo_print( negative3, "etc/chkpt3_img3.png" );
-
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    std::cout << "SS x9 // " << duration << "sec" << '\n';
-
+    // start = std::clock();
     //
-
-    start = std::clock();
-
-    cam1->render( &negative4, 6 );
-    photo_print( negative4, "etc/chkpt3_img4.png" );
-
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    std::cout << "SS x16 // " << duration << "sec" << '\n';
-
-    // cam2->render( &negative );
-    // photo_print( negative, "out2.png" );
+    // cam->render( &negative1 );
+    // photo_print( negative1, "etc/chkpt3_img1.png" );
     //
-    // cam3->render( &negative );
-    // photo_print( negative, "out3.png" );
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout<< "SS x0 // " << duration << "sec" << '\n';
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+    // cam->render( &negative2, 2 );
+    // photo_print( negative2, "etc/chkpt3_img2.png" );
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout << "SS x4 // " << duration << "sec" << '\n';
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+    // cam->render( &negative3, 4 );
+    // photo_print( negative3, "etc/chkpt3_img3.png" );
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout << "SS x9 // " << duration << "sec" << '\n';
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+    // cam->render( &negative4, 6 );
+    // photo_print( negative4, "etc/chkpt3_img4.png" );
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout << "SS x16 // " << duration << "sec" << '\n';
 
-    delete cam1;
+    delete cam;
 }
 
 int main( void ) {
