@@ -10,12 +10,19 @@
 #include "Ray.h"
 #include "Light.h"
 #include "IlluminationModel.h"
+#include "AABB.h"
 
 using namespace glm;
 
 class Object {
 protected:
     IlluminationModel* imodel;
+
+    float minHelper(float oldValue, float newValue);
+    float maxHelper(float oldValue, float newValue);
+
+    vec3 minVecHelper(vec3 oldValue, vec3 newValue);
+    vec3 maxVecHelper(vec3 oldValue, vec3 newValue);
 
 public:
     Object( IlluminationModel* _imodel );
@@ -30,6 +37,9 @@ public:
     vec3 get_color( Ray* r, float dist, std::vector<Light*> lights, vec3* amb );
 
     vec3 convert( vec4* vector );
+
+    virtual AABB* getAABB() = 0;
+
 };
 
 #endif

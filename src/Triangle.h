@@ -22,6 +22,9 @@ public:
     vec3 get_normal( Ray* ray, float distance );
 
     void transform( mat4 matrix );
+
+    AABB* getAABB();
+    
 };
 
 #endif // _TRIANGLE_H_

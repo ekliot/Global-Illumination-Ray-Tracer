@@ -28,6 +28,8 @@ class Sphere : public Object {
 
         void transform( mat4 mat );
 
+        AABB* getAABB();
+
 };
 
 #endif

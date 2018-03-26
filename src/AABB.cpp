@@ -49,7 +49,7 @@ float AABB::intersectRay(Ray* ray)
     // if tmin > tmax, ray doesn't intersect AABB
     if (tmin > tmax)
     {
-        return INT_MAX;;
+        return INT_MAX;
     }
     return tmin;
 }

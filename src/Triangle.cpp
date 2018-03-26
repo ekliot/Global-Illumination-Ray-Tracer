@@ -8,6 +8,7 @@
 #include "glm/gtx/string_cast.hpp"
 
 #include "Triangle.h"
+#include "AABB.h"
 
 using namespace glm;
 
@@ -80,4 +81,18 @@ void Triangle::transform( mat4 matrix ) {
     vec4 _c = vec4(c->x, c->y, c->z, 1);
     _c = matrix * _c;
     *c = convert( &_c );
+}
+
+AABB* Triangle::getAABB()
+{
+    vec3 vec_max = vec3(a->x, a->y, a->z);
+    vec3 vec_min = vec3(a->x, a->y, a->z);
+
+    vec_max = maxVecHelper(vec_max, *b);
+    vec_max = maxVecHelper(vec_max,*c);
+
+    vec_min = minVecHelper(vec_min, *b);
+    vec_min = minVecHelper(vec_min,*c);
+
+    return new AABB(vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y, vec_min.z);
 }
