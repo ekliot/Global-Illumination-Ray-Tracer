@@ -24,6 +24,7 @@ using namespace glm;
 #include "Object.h"
 #include "Ray.h"
 #include "Light.h"
+#include "KDTreeNode.h"
 
 class World {
 
@@ -34,6 +35,8 @@ private:
     std::vector<Light*> lights;
     vec3 background;
     vec3 ambient;
+
+    KDTreeNode* objectTree;
 
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
@@ -82,6 +85,8 @@ public:
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
     vec3 get_intersect( Ray* r );
+
+    void generate_kd_tree();
 
 
 private:

@@ -2,6 +2,7 @@
 #define _AABB_H_
 
 #include "Ray.h"
+#include <iostream>
 
 class AABB {
 
@@ -20,6 +21,7 @@ class AABB {
         float intersectRay(Ray* ray);
         vec3 getMax();
         vec3 getMin();
+        void print();
 
 };
 

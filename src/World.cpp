@@ -44,6 +44,7 @@ void World::transform_all( mat4 tmat ) {
     }
 }
 
+
 std::vector<Light*> World::pruned_lights( vec3 point ) {
     std::vector<Light*> returnLights;
     for ( size_t i = 0; i < lights.size(); i++ ) {
@@ -92,4 +93,9 @@ vec3 World::get_intersect( Ray *r ) {
     }
 
     return background;
+}
+
+void World::generate_kd_tree()
+{
+    objectTree = new KDTreeNode(objects, new AABB(100,100,100,-100,-100,-100), 0);
 }

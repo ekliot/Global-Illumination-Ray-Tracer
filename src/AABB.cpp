@@ -58,10 +58,20 @@ float AABB::intersectRay(Ray* ray)
 
 vec3 AABB::getMax()
 {
-    return vec3(x_max, y_min, z_min);
+    return vec3(x_max, y_max, z_max);
 }
 
 vec3 AABB::getMin()
 {
     return vec3(x_min, y_min, z_min);
+}
+
+void AABB::print()
+{
+    std::cout << "xmax: " << x_max << ' ';
+    std::cout << "ymax: " << y_max << ' ';
+    std::cout << "zmax: " << z_max << '\n';
+    std::cout << "xmin: " << x_min << ' ';
+    std::cout << "ymin: " << y_min << ' ';
+    std::cout << "zmin: " << z_min << '\n';
 }
