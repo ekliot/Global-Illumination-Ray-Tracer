@@ -30,6 +30,8 @@ Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp ) : world
         dot(-_pos, u), dot(-_pos, v), dot(-_pos, n), 1
     );
 
+    reverse_transform_mat = inverse(transform_mat);
+
     // // ROW-MAJOR
     // transform_mat = mat4(
     //     u.x, u.y, u.z, -dot(pos, u),

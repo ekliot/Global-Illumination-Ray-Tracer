@@ -12,7 +12,7 @@
 
 using namespace glm;
 
-Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel ) : Object(_imodel), a(_a), b(_b), c(_c) {}
+Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), a(_a), b(_b), c(_c) {}
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
 float Triangle::intersection( Ray* ray ) {

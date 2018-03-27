@@ -9,12 +9,15 @@
 
 #include "IntersectData.h"
 
-using namespace glm;
+using glm::vec3;
 
 class IlluminationModel {
 public:
     IlluminationModel();
+    // IlluminationModel( const IlluminationModel& model );
     virtual ~IlluminationModel() = 0;
+    // virtual IlluminationModel& operator=( const IlluminationModel& model ) = 0;
+
     virtual vec3 intersect( IntersectData idata ) = 0;
 };
 

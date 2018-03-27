@@ -9,13 +9,15 @@
 
 #include "Object.h"
 #include "IntersectData.h"
+#include "Material.h"
 
 using namespace glm;
 
-Object::Object( IlluminationModel* _imodel ) : imodel(_imodel) {}
+Object::Object( IlluminationModel* _imodel, Material* _mat) : imodel(_imodel), material(_mat) {}
 
 Object::~Object() {
     delete imodel;
+    delete material;
 }
 
 void Object::transform( mat4 matrix ) {}
@@ -34,6 +36,10 @@ vec3 Object::get_color( Ray* ray, float distance, std::vector<Light*> lights, ve
     data.lights   = lights;
 
     data.ambient  = ambient;
+
+    vec3 o_col = material->get_color( 0.0f, 0.0f );
+    // vec3 o_col = vec3( 1.0f, 0.0f, 0.0f ); // TODO this is temporary
+    data.obj_color = &o_col;
 
     return imodel->intersect( data );
 }
@@ -72,4 +78,7 @@ vec3 Object::maxVecHelper(vec3 oldValue, vec3 newValue)
         maxHelper(oldValue.y, newValue.y),
         maxHelper(oldValue.z, newValue.z)
     );
+}
+vec2 Object::get_uv( vec3* point ){
+    return vec2( 0.0f );
 }
