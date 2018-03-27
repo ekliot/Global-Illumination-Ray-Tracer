@@ -9,17 +9,44 @@ x_max(_x_max), y_max(_y_max), z_max(_z_max), x_min(_x_min), y_min(_y_min), z_min
 AABB::AABB(vec3 max, vec3 min):
 x_max(max.x), y_max(max.y), z_max(max.z), x_min(min.x), y_min(min.y), z_min(min.z) {}
 
+AABB::AABB(AABB* first, AABB* second)
+{
+    x_max = max(first->x_max, second->x_max);
+    y_max = max(first->y_max, second->y_max);
+    z_max = max(first->z_max, second->z_max);
+
+    x_min = min(first->x_min, second->x_min);
+    y_min = min(first->y_min, second->y_min);
+    z_min = min(first->z_min, second->z_min);
+}
+
 bool AABB::intersectAABB(AABB* aabb)
 {
-    if( x_min < aabb->x_max &&
-        aabb->x_min < x_max &&
-        y_min < aabb->y_max &&
-        aabb->y_min < y_max &&
-        z_min < aabb->z_max &&
-        aabb->z_min < z_max)
-        return true;
-    else
+
+    // if (Aaxis.min > Baxis.max)
+    // or
+    //    (Baxis.min > Aaxis.max) return FALSE
+
+    if( x_min > aabb->x_max ||
+        aabb->x_min > x_max ||
+        y_min > aabb->y_max ||
+        aabb->y_min > y_max ||
+        z_min > aabb->z_max ||
+        aabb->z_min > z_max
+     )
         return false;
+
+    return true;
+    // if( x_min < aabb->x_max &&
+    //     aabb->x_min < x_max &&
+    //     y_min < aabb->y_max &&
+    //     aabb->y_min < y_max &&
+    //     z_min < aabb->z_max &&
+    //     aabb->z_min < z_max)
+    //
+    //     return true;
+    // else
+    //     return false;
 }
 
 float AABB::intersectRay(Ray* ray)

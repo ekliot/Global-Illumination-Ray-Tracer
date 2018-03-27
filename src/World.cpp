@@ -97,5 +97,10 @@ vec3 World::get_intersect( Ray *r ) {
 
 void World::generate_kd_tree()
 {
-    objectTree = new KDTreeNode(objects, new AABB(100,100,100,-100,-100,-100), 0);
+    AABB* currentAABB = new AABB(-FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+    for ( Object* obj : objects ) {
+        currentAABB = new AABB(currentAABB, obj->getAABB());
+    }
+    currentAABB->print();
+    objectTree = new KDTreeNode(objects, currentAABB, 0);
 }

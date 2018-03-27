@@ -6,10 +6,10 @@ using namespace std;
 KDTreeNode::KDTreeNode(std::vector<Object*> _objects, AABB* _aabb, int count) :
 objects(_objects), aabb(_aabb)
 {
-     cout << "count: " << count << "\n";
+     // cout << "count: " << count << "\n";
+     // cout << "object list length: " << objects.size() << "\n";
 
-     cout << "object list length: " << objects.size() << "\n";
-     if(objects.size() >= 2 && count  < 10)
+     if(objects.size() >= 2 && count  < 25)
      {
         std::vector<Object*> firstList;
         std::vector<Object*> secondList;
@@ -44,15 +44,16 @@ objects(_objects), aabb(_aabb)
             secondAABB = new AABB(aabb->getMax().x, aabb->getMax().y, aabb->getMax().z,
             aabb->getMin().x, aabb->getMin().y, aabb->getMin().z + zLength);
         }
-        std::cout << "firstAABB" << '\n';
-        firstAABB->print();
-        std::cout << "secondAABB" << '\n';
-        secondAABB->print();
+
+        // std::cout << "firstAABB" << '\n';
+        // firstAABB->print();
+        // std::cout << "secondAABB" << '\n';
+        // secondAABB->print();
         for (const auto& object : objects)
         {
             AABB* currentAABB = object->getAABB();
-            std::cout << "currentAABB" << '\n';
-            currentAABB->print();
+            // std::cout << "currentAABB" << '\n';
+            // currentAABB->print();
             if(currentAABB->intersectAABB(firstAABB))
             {
                 firstList.push_back(object);
@@ -61,14 +62,17 @@ objects(_objects), aabb(_aabb)
             {
                 secondList.push_back(object);
             }
-        }
+            //std::cout << "list 1 length" << firstList.size() << '\n';
 
-        left = new KDTreeNode(firstList, firstAABB, ++count);
-        right = new KDTreeNode(secondList, secondAABB, ++count);
+        }
+        count = count +1;
+        left = new KDTreeNode(firstList, firstAABB, count);
+        right = new KDTreeNode(secondList, secondAABB, count);
 
      }
      else
      {
          // we gucci fam
      }
+
  }
