@@ -60,3 +60,20 @@ float Rectangle::intersection( Ray* ray ) {
 vec3 Rectangle::get_normal( Ray* ray, float distance ) {
     return tri1->get_normal( ray, distance );
 }
+
+AABB* Rectangle::getAABB()
+{
+    vec3 vec_max = vec3(ul->x, ul->y, ul->z);
+    vec3 vec_min = vec3(ul->x, ul->y, ul->z);
+
+    vec_max = maxVecHelper(vec_max, *ur);
+    vec_max = maxVecHelper(vec_max,*ll);
+    vec_max = maxVecHelper(vec_max,*lr);
+
+    vec_min = minVecHelper(vec_min, *ur);
+    vec_min = minVecHelper(vec_min,*ll);
+    vec_min = minVecHelper(vec_min,*lr);
+
+
+    return new AABB(vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y, vec_min.z);
+}
