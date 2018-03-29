@@ -16,18 +16,18 @@ class Sphere : public Object {
 
     vec3 extract_scale( const mat4 &m );
 
-    vec3 get_normal( Ray* ray, float distance );
 
     void scale_radius( mat4 tmat );
 
-    public:
+public:
+    Sphere( vec3* center, float radius, IlluminationModel* _imodel, Material* _mat );
 
-        Sphere( vec3* center, float radius, IlluminationModel* _imodel );
+    void transform( mat4 mat );
+    float intersection( Ray* ray );
+    vec3 get_normal( Ray* ray, float distance );
 
-        float intersection( Ray* ray );
-
-        void transform( mat4 mat );
-
+    vec3 world_to_obj_space( vec3 point );
+    vec2 get_uv( vec3 point );
 };
 
 #endif

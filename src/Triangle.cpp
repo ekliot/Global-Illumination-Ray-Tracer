@@ -11,7 +11,7 @@
 
 using namespace glm;
 
-Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel ) : Object(_imodel), a(_a), b(_b), c(_c) {}
+Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), a(_a), b(_b), c(_c) {}
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
 float Triangle::intersection( Ray* ray ) {
@@ -50,7 +50,7 @@ float Triangle::intersection( Ray* ray ) {
 
 vec3 Triangle::get_normal( Ray* ray, float distance  ) {
     /*
-    Set Vector U to (Triangle.p2 minus Triangle.p1)
+        Set Vector U to (Triangle.p2 minus Triangle.p1)
         Set Vector V to (Triangle.p3 minus Triangle.p1)
 
         Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
@@ -58,10 +58,8 @@ vec3 Triangle::get_normal( Ray* ray, float distance  ) {
         Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
     */
 
-    vec3 u = *(this->b) - *(this->a);
-    // std::cout << "u // " << glm::to_string( u ) << '\n';
-    vec3 v = *(this->c) - *(this->a);
-    // std::cout << "v // " << glm::to_string( v ) << '\n';
+    vec3 u = *(b) - *(a);
+    vec3 v = *(c) - *(a);
     vec3 normal = vec3( (u.y * v.z) - (u.z * v.y),
                         (u.z * v.x) - (u.x * v.z),
                         (u.x * v.y) - (u.y * v.x));
@@ -80,4 +78,14 @@ void Triangle::transform( mat4 matrix ) {
     vec4 _c = vec4(c->x, c->y, c->z, 1);
     _c = matrix * _c;
     *c = convert( &_c );
+}
+
+// TODO actually implement world-to-obj coords
+vec3 Triangle::world_to_obj_space( vec3 point ) {
+    return point;
+}
+
+// TODO actually implement uv coords
+vec2 Triangle::get_uv( vec3 point ) {
+    return vec2( 0.0f );
 }
