@@ -26,6 +26,7 @@ class Camera {
 
     World* world;
     mat4 transform_mat;
+    mat4 reverse_transform_mat;
     PPlane plane;
     bool is_set = false;
 

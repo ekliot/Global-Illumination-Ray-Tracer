@@ -81,7 +81,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
-    vec3 get_intersect( Ray* r );
+    vec3 get_intersect( Ray* r, mat4 inverse_transform_mat );
 
 
 private:
