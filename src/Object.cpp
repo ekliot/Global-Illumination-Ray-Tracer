@@ -38,9 +38,9 @@ vec3 Object::get_color( Ray* ray, float distance, std::vector<Light*> lights, ve
     data.ambient  = ambient;
 
     vec2 uv = get_uv( world_to_obj_space( position ) );
-    if ( uv.x > 1 || uv.x < 0 || uv.y > 1 || uv.y < 0 ) {
-        std::cout << "ASDFASG" << '\n';
-    }
+    // if ( uv.x > 1 || uv.x < 0 || uv.y > 1 || uv.y < 0 ) {
+    //     std::cout << "ASDFASG" << '\n';
+    // }
     vec3 o_col = material->get_color( uv.x, uv.y );
     data.obj_color = &o_col;
 
