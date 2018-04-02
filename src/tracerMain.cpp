@@ -126,7 +126,7 @@ void init() {
         // ka,  kd,   ks,   ke
         0.1f, 0.5f, 0.1f, 20.0f
     );
-    SolidMaterial* sphere1_mat = new SolidMaterial( vec3( 0.0f, 1.0f, 0.0f ) );
+    SolidMaterial* sphere1_mat = new SolidMaterial( vec3( 0.0f, 1.0f, 0.0f ), 0.5f, 0.0f );
 
     vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
     Phong* sphere2_imodel = new Phong(
@@ -134,7 +134,7 @@ void init() {
         // ka,  kd,   ks,   ke
         0.1f, 0.5f, 0.1f, 20.0f
     );
-    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.0f, 0.0f, 1.0f ) );
+    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.3f, 0.3f, 0.3f ), 0.5f, 0.0f );
 
     float sphere_trans = 1.3f;
     float sphere_r = 0.55f * sphere_trans;

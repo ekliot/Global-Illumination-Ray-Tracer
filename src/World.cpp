@@ -77,7 +77,8 @@ Object* World::get_intersect_helper( Ray * r, float* distance ){
   return returnObject;
 }
 
-vec3 World::get_intersect( Ray *r , mat4 inverse_transform_mat ) {
+// I think this is where we should do the thing
+vec3 World::get_intersect( Ray *r , mat4 inverse_transform_mat, int depth ) {
 
     float distance = 0;
     Object* intersectObject = this->get_intersect_helper( r, &distance );
@@ -88,7 +89,22 @@ vec3 World::get_intersect( Ray *r , mat4 inverse_transform_mat ) {
         // do work to do things
         vec3 point = *r->origin + *r->direction * distance;
         std::vector<Light*> returnLights = pruned_lights( point );
-        return intersectObject->get_color( r, distance, returnLights, &ambient, inverse_transform_mat );
+
+        vec3 currentColor = intersectObject->get_color( r, distance, returnLights, &ambient, inverse_transform_mat );
+        if(depth < MAX_DEPTH)
+        {
+            float kr = intersectObject->getMaterial()->get_kr();
+            if(kr > 0)
+            {
+                vec3 normalDir = intersectObject->get_normal(r, distance);
+
+                Ray reflectRay = Ray(r->origin ,&normalDir);
+                vec3 addCurrentColor = get_intersect(&reflectRay, inverse_transform_mat, depth+1);
+                currentColor = currentColor+ kr*addCurrentColor;
+            }
+        }
+
+        return currentColor;
     }
 
     return background;

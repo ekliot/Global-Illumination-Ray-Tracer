@@ -14,7 +14,7 @@ using glm::vec3;
 #include "CheckerBoard.h"
 
 CheckerBoard::CheckerBoard( vec3 _color_odd, vec3 _color_even, int _rows, int _cols ) :
-            color_odd(_color_odd), color_even(_color_even), rows(_rows), cols(_cols) {}
+            Material(0,0), color_odd(_color_odd), color_even(_color_even), rows(_rows), cols(_cols) {}
 
 
 vec3 CheckerBoard::get_color( float u, float v ) {

@@ -31,6 +31,9 @@ public:
     // reduces a 4D vector to a 3D vector
     vec3 convert( vec4* vector );
 
+    //gets the object's material
+    Material* getMaterial();
+
     // returns INT_MAX if given Ray does not intersect Object, or a value indicating distance
     virtual float intersection( Ray *ray ) = 0;
     // transforms the object by a given transformation matrix
@@ -41,6 +44,7 @@ public:
     virtual vec3 world_to_obj_space( vec3 point );
     // vec2 get_uv( vec3 point );
     virtual vec2 get_uv( vec3 point );
+
 };
 
 #endif

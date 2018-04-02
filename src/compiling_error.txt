@@ -1,0 +1,37 @@
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp: In constructor ‘KDTreeNode::KDTreeNode(std::vector<Object*>, AABB*, int)’:
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:51:26: error: ISO C++ forbids declaration of ‘object’ with no type [-fpermissive]
+         for (const auto& object : objects)
+                          ^
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:51:35: warning: range-based ‘for’ loops only available with -std=c++11 or -std=gnu++11
+         for (const auto& object : objects)
+                                   ^
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:53:39: error: base operand of ‘->’ is not a pointer
+             AABB* currentAABB = object->getAABB();
+                                       ^
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:58:43: error: invalid conversion from ‘int’ to ‘std::vector<Object*>::value_type {aka Object*}’ [-fpermissive]
+                 firstList.push_back(object);
+                                           ^
+In file included from /usr/include/c++/5/vector:64:0,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/IntersectData.h:8,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/IlluminationModel.h:10,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/Object.h:12,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.h:6,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:1:
+/usr/include/c++/5/bits/stl_vector.h:913:7: note:   initializing argument 1 of ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = Object*; _Alloc = std::allocator<Object*>; std::vector<_Tp, _Alloc>::value_type = Object*]’
+       push_back(const value_type& __x)
+       ^
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:62:44: error: invalid conversion from ‘int’ to ‘std::vector<Object*>::value_type {aka Object*}’ [-fpermissive]
+                 secondList.push_back(object);
+                                            ^
+In file included from /usr/include/c++/5/vector:64:0,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/IntersectData.h:8,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/IlluminationModel.h:10,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/Object.h:12,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.h:6,
+                 from /home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:1:
+/usr/include/c++/5/bits/stl_vector.h:913:7: note:   initializing argument 1 of ‘void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = Object*; _Alloc = std::allocator<Object*>; std::vector<_Tp, _Alloc>::value_type = Object*]’
+       push_back(const value_type& __x)
+       ^
+/home/chris/Repos/Global-Illumination-Ray-Tracer/src/KDTreeNode.cpp:64:45: error: expected primary-expression before ‘<<’ token
+             std::cout << "list 1 length" << << '\n';
+                                             ^

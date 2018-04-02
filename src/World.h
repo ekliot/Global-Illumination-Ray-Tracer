@@ -35,6 +35,8 @@ private:
     vec3 background;
     vec3 ambient;
 
+    const int MAX_DEPTH = 5;
+
     // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
     // std::vector<Attribute> attributes;
 
@@ -81,7 +83,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
-    vec3 get_intersect( Ray* r, mat4 inverse_transform_mat );
+    vec3 get_intersect( Ray* r, mat4 inverse_transform_mat, int depth = 0);
 
 
 private:
