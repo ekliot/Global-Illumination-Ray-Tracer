@@ -32,7 +32,7 @@ public:
     vec3 convert( vec4* vector );
 
     //gets the object's material
-    Material* getMaterial();
+    Material* get_material();
 
     // returns INT_MAX if given Ray does not intersect Object, or a value indicating distance
     virtual float intersection( Ray *ray ) = 0;

@@ -61,6 +61,6 @@ vec2 Object::get_uv( vec3 point ) {
     return vec2( 0.0f );
 }
 
-Material* Object::getMaterial(){
+Material* Object::get_material(){
     return material;
 }
