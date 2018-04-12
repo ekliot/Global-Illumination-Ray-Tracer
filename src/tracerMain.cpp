@@ -124,7 +124,7 @@ void init() {
         // ka,  kd,   ks,   ke
         0.1f, 0.5f, 0.1f, 20.0f
     );
-    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.3f, 0.3f, 0.3f ), 0.5f, 0.0f );
+    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.0f, 0.0f, 0.0f ), 0.0f, 1.0f, .8f );
 
     float sphere_trans = 1.3f;
     float sphere_r = 0.55f * sphere_trans;
