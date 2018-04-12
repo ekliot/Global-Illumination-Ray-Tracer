@@ -13,7 +13,7 @@ class SolidMaterial : public Material {
     vec3 color;
 
 public:
-    SolidMaterial( vec3 color );
+    SolidMaterial( vec3 color, float kr, float kd);
     ~SolidMaterial();
     vec3 get_color( float u, float v );
 };
