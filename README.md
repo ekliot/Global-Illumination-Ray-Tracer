@@ -9,10 +9,10 @@ This is a semester-long project with the goal of reproducing the following image
 The project consists of seven basic checkpoints (the first was simply determining relative object values):
   - [x] Setting the Scene
   - [x] Framework
-  - [ ] Phong Illumination
-  - [ ] Procedural Textures
-  - [ ] Reflection
-  - [ ] Transmission
+  - [x] Phong Illumination
+  - [x] Procedural Textures
+  - [x] Reflection
+  - [x] Transmission
   - [ ] Tone Reproduction
 
 Progress is detailed [here](https://www.ekliot.com/makes/ray_tracer).
