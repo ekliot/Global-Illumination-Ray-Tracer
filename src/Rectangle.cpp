@@ -47,6 +47,9 @@ void Rectangle::transform( mat4 mat ) {
     vec4 _ll = vec4( ll->x, ll->y, ll->z, 1 );
     _ll = mat * _ll;
     *ll = convert( &_ll );
+
+    tri1->transform(mat);
+    tri2->transform(mat);
 }
 
 float Rectangle::intersection( Ray* ray ) {

@@ -20,7 +20,9 @@
 #include "Sphere.h"
 #include "Triangle.h"
 #include "World.h"
+#include "tinyply.h"
 
+using namespace tinyply;
 using namespace glm;
 
 // dimensions of drawing window
@@ -51,6 +53,8 @@ void init() {
     };
 
     world->add_light( &light1 );
+
+
 
     // add objects to the world
 
@@ -140,7 +144,10 @@ void init() {
     world->add_object( sphere1 );
     world->add_object( sphere2 );
 
+
     world->generate_kd_tree();
+
+    //world->add_bunny();
 
     // = = = = = = = = = = //
     // CAMERAS FROM ORIGIN //
@@ -213,6 +220,7 @@ void init() {
     //
     cam->render( &negative1 );
     photo_print( negative1, "out/test.png" );
+
     //
     // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
     // std::cout<< "SS x0 // " << duration << "sec" << '\n';

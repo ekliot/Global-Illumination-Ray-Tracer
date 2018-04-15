@@ -25,6 +25,9 @@ using namespace glm;
 #include "Ray.h"
 #include "Light.h"
 #include "KDTreeNode.h"
+#include "Triangle.h"
+
+
 
 class World {
 
@@ -88,6 +91,7 @@ public:
 
     void generate_kd_tree();
 
+    void add_bunny();
 
 private:
     Object* get_intersect_helper(Ray * r, float* distance);

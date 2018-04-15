@@ -16,6 +16,7 @@ class Triangle : public Object {
 
 public:
     Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat );
+    ~Triangle();
 
     float intersection( Ray* ray );
 

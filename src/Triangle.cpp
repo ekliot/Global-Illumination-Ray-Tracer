@@ -12,7 +12,18 @@
 
 using namespace glm;
 
-Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), a(_a), b(_b), c(_c) {}
+Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), a(_a), b(_b), c(_c) {
+    a = new vec3(_a->x, _a->y, _a->z);
+    b = new vec3(_b->x, _b->y, _b->z);
+    c = new vec3(_c->x, _c->y, _c->z);
+
+}
+
+Triangle::~Triangle(){
+    delete a;
+    delete b;
+    delete c;
+}
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
 float Triangle::intersection( Ray* ray ) {
@@ -44,7 +55,14 @@ float Triangle::intersection( Ray* ray ) {
 
     t = det_inv * dot( edge2, q );
 
-    if ( t > EPS )  return t;
+    if ( t > EPS )
+    {
+        // std::cout<<glm::to_string(firstVec)<<std::endl;
+        // std::cout<<glm::to_string(secondVec)<<std::endl;
+        // std::cout<<glm::to_string(thirdVec)<<std::endl;
+
+        return t;
+    }
     // TODO this should return a float!!!
     else            return INT_MAX;
 }
