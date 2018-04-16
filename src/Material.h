@@ -17,7 +17,7 @@ protected:
 
 public:
 
-    Material(float _kr, float _kd, float _ir = 0);
+    Material( float _kr, float _kd, float _ir = 0 );
     // Material( const Material& material );
     virtual ~Material() = 0;
     // virtual Material& operator=( const Material& model ) = 0;

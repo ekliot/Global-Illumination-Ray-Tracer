@@ -59,11 +59,13 @@ bool World::can_see_light( vec3 point, Light light ) {
     Ray* r = new Ray( &point, &newDirection );
     float distance = 0;
 
+    // TODO we want to be able to tell if one or more of the objects intersected are transparent
+    // however, we also want to be able to tell exactly how much light gets through...
+    // perhaps this method ought to return not a vavriable, but a float b/w 0.0-1.0, to represent the percentage of light that reaches the given point from the given light source
     Object* intersect_obj = get_intersected_obj( r, &distance );
 
-    // TODO should this check for transparency?
     delete r;
-    return ( intersect_obj == NULL );
+    return ( intersect_obj == NULL || intersect_obj->get_material()->get_ir() > 0.0f );
 }
 
 // determine the object intersected by a given object, and store the distance

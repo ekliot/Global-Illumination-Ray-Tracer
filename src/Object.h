@@ -20,7 +20,7 @@ protected:
     Material* material;
 
 public:
-    Object( IlluminationModel* _imodel, Material* _mat);
+    Object( IlluminationModel* _imodel, Material* _mat );
     virtual ~Object();
 
     // Object( const Object& model );
