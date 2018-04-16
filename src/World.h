@@ -87,7 +87,7 @@ public:
 
 
 private:
-    Object* get_intersect_helper(Ray * r, float* distance);
+    Object* get_intersected_obj(Ray * r, float* distance);
 
     std::vector<Light*> pruned_lights(vec3 point);
 
