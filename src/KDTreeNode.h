@@ -7,13 +7,14 @@
 
 class KDTreeNode {
 
+
+
+public:
     KDTreeNode* left;
     KDTreeNode* right;
 
-    std::vector<Object*> objects;
+    std::vector<Object*>* objects;
     AABB* aabb;
-
-public:
     KDTreeNode(std::vector<Object*> _objects, AABB* _aabb, int count);
 
 };

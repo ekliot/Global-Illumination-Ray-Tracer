@@ -118,36 +118,35 @@ void init() {
     =======================
             SPHERES
     =======================
-    */
-    vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
-    Phong* sphere1_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ),
-        // ka,  kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
-    SolidMaterial* sphere1_mat = new SolidMaterial( vec3( 0.0f, 1.0f, 0.0f ) );
+//    */
+//    vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
+//    Phong* sphere1_imodel = new Phong(
+//        vec3( 1.0f, 1.0f, 1.0f ),
+//        // ka,  kd,   ks,   ke
+//        0.1f, 0.5f, 0.1f, 20.0f
+//    );
+//    SolidMaterial* sphere1_mat = new SolidMaterial( vec3( 0.0f, 1.0f, 0.0f ) );
+//
+//    vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
+//    Phong* sphere2_imodel = new Phong(
+//        vec3( 1.0f, 1.0f, 1.0f ),
+//        // ka,  kd,   ks,   ke
+//        0.1f, 0.5f, 0.1f, 20.0f
+//    );
+//    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.0f, 0.0f, 1.0f ) );
+//
+//    float sphere_trans = 1.3f;
+//    float sphere_r = 0.55f * sphere_trans;
+//
+//    Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
+//    Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
+//
+//    world->add_object( sphere1 );
+//    world->add_object( sphere2 );
 
-    vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
-    Phong* sphere2_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ),
-        // ka,  kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
-    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.0f, 0.0f, 1.0f ) );
-
-    float sphere_trans = 1.3f;
-    float sphere_r = 0.55f * sphere_trans;
-
-    Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
-    Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
-
-    world->add_object( sphere1 );
-    world->add_object( sphere2 );
 
 
-    world->generate_kd_tree();
-
-    //world->add_bunny();
+    world->add_bunny();
 
     // = = = = = = = = = = //
     // CAMERAS FROM ORIGIN //
@@ -187,7 +186,7 @@ void init() {
     // main camera
     Camera* cam = new Camera(
         world,
-        vec3( 1.0f, 2.53f, -7.38f ), // pos
+        vec3( 0.6f, 2.75f, -5.38f ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
         vec3( 0.0f, 1.0f, 0.0f ), // up
         { 1.92f, 1.08f, 0.8f }
@@ -213,6 +212,8 @@ void init() {
     // double duration;
     //
     cam->set_scene();
+    world->generate_kd_tree();
+
     //
     // //
     //

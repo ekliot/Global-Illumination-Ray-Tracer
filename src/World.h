@@ -89,6 +89,10 @@ public:
      */
     vec3 get_intersect( Ray* r );
 
+    vec3 get_intersect_kd_tree( Ray* r );
+
+    vec3* get_intersect_kd_tree_helper( Ray *r, KDTreeNode* node, float* returnDist);
+
     void generate_kd_tree();
 
     void add_bunny();

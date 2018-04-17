@@ -13,7 +13,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
-
+#include <cmath>
 
 #include <glm/vec3.hpp>
 #include <glm/matrix.hpp>
@@ -91,11 +91,155 @@ Object* World::get_intersect_helper( Ray * r, float* distance ){
 }
 
 
+
+vec3* World::get_intersect_kd_tree_helper( Ray *r, KDTreeNode* node, float* returnDist)
+{
+
+    float paramReturnDist = FLT_MAX;
+
+
+    if(node->left == NULL)
+    {
+
+        *returnDist = INT_MAX;
+
+        for ( Object* obj : *node->objects ) {
+
+            float newValue = obj->intersection( r );
+            if ( newValue < *returnDist && newValue > 0.00001 )
+            {
+
+                *returnDist = newValue;
+
+                vec3 value = obj->get_color( r, *returnDist, lights, &ambient );
+                return new vec3(value);
+            }
+        }
+    }
+    if(node->left == NULL)
+    {
+        return NULL;
+    }
+
+    float a_enter = node->left->aabb->intersectRay(r);
+    // float a_exit = INT_MAX;
+    // if( a_enter != INT_MAX)
+    // {
+    //     vec3 newOrigin = *r->origin + ( a_enter+.01f  * *r->direction ) ;
+    //     Ray enterRay = Ray(&newOrigin, r->direction);
+    //     a_exit = node->left->aabb->intersectRay(&enterRay);
+    //
+    // }
+
+    float b_enter = node->right->aabb->intersectRay(r);
+    // float b_exit = INT_MAX;
+    // if( b_enter != INT_MAX)
+    // {
+    //     vec3 newOrigin = *r->origin + ( b_enter+.01f * *r->direction) ;
+    //     Ray enterRay = Ray(&newOrigin, r->direction);
+    //     a_exit = node->right->aabb->intersectRay(&enterRay);
+    // }
+
+
+    if(a_enter < 0)
+        a_enter = INT_MAX;
+
+    if(b_enter < 0)
+        b_enter = INT_MAX;
+
+    if(a_enter == INT_MAX && b_enter == INT_MAX)
+    {
+        return NULL;
+    }
+
+    if ( abs(a_enter - b_enter) < 0.00001) {
+
+        return NULL;
+
+
+    }
+    else if(a_enter <= b_enter && a_enter != INT_MAX)
+    {
+        vec3 *a_vec = get_intersect_kd_tree_helper(r, node->left, &paramReturnDist);
+        if(a_vec != NULL)
+        {
+            return a_vec;
+        }
+        vec3 *b_vec = get_intersect_kd_tree_helper(r, node->right, &paramReturnDist);
+        if(b_enter != INT_MAX)
+        {
+            return b_vec;
+        }
+    }
+    else if(b_enter < a_enter && b_enter != INT_MAX)
+    {
+
+        vec3 *b_vec = get_intersect_kd_tree_helper(r, node->right, &paramReturnDist);
+        if(b_vec != NULL)
+        {
+            return b_vec;
+        }
+        vec3 *a_vec = get_intersect_kd_tree_helper(r, node->left, &paramReturnDist);
+        if(a_enter != INT_MAX)
+        {
+            return a_vec;
+        }
+    }
+
+
+    *returnDist = FLT_MAX;
+    return NULL;
+}
+
+
+vec3 World::get_intersect_kd_tree( Ray *r )
+{
+    float returnValue =  FLT_MAX;
+    vec3* color = get_intersect_kd_tree_helper(r,objectTree, &returnValue);
+    if(color != NULL)
+    {
+        return *color;
+    }
+    else
+    {
+        return background;
+    }
+
+    return vec3(0,0,0);
+}
+
+vec3 World::get_intersect( Ray *r  ) {
+
+    float distance = 0;
+    Object* intersectObject = this->get_intersect_helper( r, &distance );
+
+    // TODO SPLIT THIS SHIT
+
+    if ( intersectObject != NULL ) {
+        // do work to do things
+        vec3 point = *r->origin + *r->direction * distance;
+        std::vector<Light*> returnLights = pruned_lights( point );
+        return intersectObject->get_color( r, distance, returnLights, &ambient );
+    }
+
+    return background;
+}
+
+void World::generate_kd_tree()
+{
+    AABB* currentAABB = new AABB(-FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+    for ( Object* obj : objects ) {
+        currentAABB = new AABB(currentAABB, obj->getAABB());
+    }
+//    currentAABB->print();
+    objectTree = new KDTreeNode(objects, currentAABB, 0);
+}
+
 void World::add_bunny()
 {
     try
     {
-        const std::string filename = "src/tinyply/cube.ply";
+        const std::string filename = "src/tinyply/bunny.ply";
         // Read the file and create a std::istringstream suitable
         // for the lib -- tinyply does not perform any file i/o.
         std::ifstream ss(filename, std::ios::binary);
@@ -164,31 +308,4 @@ void World::add_bunny()
         std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
     }
 
-}
-// I think this is where we should do the thing
-vec3 World::get_intersect( Ray *r  ) {
-
-    float distance = 0;
-    Object* intersectObject = this->get_intersect_helper( r, &distance );
-
-    // TODO SPLIT THIS SHIT
-
-    if ( intersectObject != NULL ) {
-        // do work to do things
-        vec3 point = *r->origin + *r->direction * distance;
-        std::vector<Light*> returnLights = pruned_lights( point );
-        return intersectObject->get_color( r, distance, returnLights, &ambient );
-    }
-
-    return background;
-}
-
-void World::generate_kd_tree()
-{
-    AABB* currentAABB = new AABB(-FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
-    for ( Object* obj : objects ) {
-        currentAABB = new AABB(currentAABB, obj->getAABB());
-    }
-    currentAABB->print();
-    objectTree = new KDTreeNode(objects, currentAABB, 0);
 }

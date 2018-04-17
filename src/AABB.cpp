@@ -53,9 +53,9 @@ float AABB::intersectRay(Ray* ray)
 {
     vec3 dirfrac;
     // r.dir is unit direction vector of ray
-    dirfrac.x = 1.0f /  ray->direction->x;
-    dirfrac.y = 1.0f /  ray->direction->y;
-    dirfrac.z = 1.0f /  ray->direction->z;
+    dirfrac.x = 1.0f / ray->direction->x;
+    dirfrac.y = 1.0f / ray->direction->y;
+    dirfrac.z = 1.0f /ray->direction->z;
 
     // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
     // r.org is origin of ray
@@ -63,8 +63,8 @@ float AABB::intersectRay(Ray* ray)
     float t2 = (x_max - ray->origin->x)*dirfrac.x;
     float t3 = (y_min - ray->origin->y)*dirfrac.y;
     float t4 = (y_max - ray->origin->y)*dirfrac.y;
-    float t5 = (x_min - ray->origin->z)*dirfrac.z;
-    float t6 = (x_max - ray->origin->z)*dirfrac.z;
+    float t5 = (z_min - ray->origin->z)*dirfrac.z;
+    float t6 = (z_max - ray->origin->z)*dirfrac.z;
 
     float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
     float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
@@ -80,7 +80,7 @@ float AABB::intersectRay(Ray* ray)
     {
         return INT_MAX;
     }
-    return tmin;
+    return tmax;
 }
 
 vec3 AABB::getMax()

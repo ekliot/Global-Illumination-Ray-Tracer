@@ -4,12 +4,17 @@
 using namespace std;
 
 KDTreeNode::KDTreeNode(std::vector<Object*> _objects, AABB* _aabb, int count) :
-objects(_objects), aabb(_aabb)
+aabb(_aabb)
 {
+    objects = new std::vector<Object*>();
+    for(Object *  o : _objects)
+    {
+        objects->push_back(o);
+    }
      // cout << "count: " << count << "\n";
-     // cout << "object list length: " << objects.size() << "\n";
+     //cout << "object list length: " << objects.size() << "\n";
 
-     if(objects.size() >= 2 && count  < 25)
+     if(objects->size() >= 2 && count  < 25)
      {
         std::vector<Object*> firstList;
         std::vector<Object*> secondList;
@@ -49,7 +54,7 @@ objects(_objects), aabb(_aabb)
         // firstAABB->print();
         // std::cout << "secondAABB" << '\n';
         // secondAABB->print();
-        for (const auto& object : objects)
+        for (const auto& object : *objects)
         {
             AABB* currentAABB = object->getAABB();
             // std::cout << "currentAABB" << '\n';
@@ -72,6 +77,8 @@ objects(_objects), aabb(_aabb)
      }
      else
      {
+         left = NULL;
+         right = NULL;
          // we gucci fam
      }
 
