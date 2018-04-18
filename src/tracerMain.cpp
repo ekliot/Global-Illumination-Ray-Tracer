@@ -108,9 +108,9 @@ void init() {
         0.1f, 0.5f, 0.1f, 20.0f
     );
     SolidMaterial* sphere1_mat = new SolidMaterial(
-        vec3( 0.0f, 1.0f, 0.0f ), // color
-        //kr,   kd
-        0.0f, 0.0f
+        vec3( 0.0f, 0.0f, 0.0f ), // color
+        //kr,   kd,   ir
+        0.0f, 1.0f, 0.8f
     );
 
     vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
@@ -121,8 +121,8 @@ void init() {
     );
     SolidMaterial* sphere2_mat = new SolidMaterial(
         vec3( 0.0f, 0.0f, 0.0f ), // color
-        //kr,   kd,   ir
-        0.0f, 1.0f, 0.8f
+        //kr,   kd
+        1.0f, 0.0f
     );
 
     float sphere_trans = 1.3f;
