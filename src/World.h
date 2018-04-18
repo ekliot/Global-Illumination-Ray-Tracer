@@ -72,11 +72,12 @@ public:
 
 
 private:
+    std::vector<Object*> get_intersecting_objs( Ray* r );
     Object* get_intersected_obj( Ray * r, float* distance );
 
-    std::vector<Light*> get_pruned_lights( vec3 point );
+    std::vector<Light> get_pruned_lights( vec3 point );
 
-    bool can_see_light( vec3 point, Light light );
+    Light adjusted_light_to_point( vec3 point, Light light );
 
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat, Object* intersect, Object* last_isect, int depth );
 

@@ -4,6 +4,7 @@
 
 #include <climits>
 #include <iostream>
+#include <algorithm>
 #include <vector>
 
 #include <glm/vec3.hpp>
@@ -42,36 +43,132 @@ void World::transform_all( mat4 tmat ) {
     }
 }
 
-std::vector<Light*> World::get_pruned_lights( vec3 point ) {
-    std::vector<Light*> ret_lights;
+std::vector<Light> World::get_pruned_lights( vec3 point ) {
+    std::vector<Light> ret_lights;
 
     for ( size_t i = 0; i < lights.size(); i++ ) {
-        if ( can_see_light( point, *lights[i] ) ) {
-            ret_lights.push_back( lights[i] );
+        Light adj_light = adjusted_light_to_point( point, *lights[i] );
+        if ( *(adj_light.color) != vec3( -1.0f ) ) {
+            ret_lights.push_back( adj_light );
         }
     }
 
     return ret_lights;
 }
 
-bool World::can_see_light( vec3 point, Light light ) {
-    vec3 newDirection = *light.position - point;
-    Ray r = Ray( &point, &newDirection );
-    float distance = 0;
+// bool World::can_see_light( vec3 point, Light light ) {
+//     vec3 _dir = point - *light.position;
+//     // a Ray pointing from the given light to the given point
+//     Ray r = Ray( &point, &_dir );
+//
+//     std::vector<Object*> isecting_objs = get_intersecting_objs( &r );
+//
+//     bool visible = true;
+//
+//     for ( Object* obj : isecting_objs ) {
+//         visible = visible && (obj->get_material()->get_kd() > 0.0f);
+//         if ( !visible ) { break; }
+//     }
+//
+//     return visible;
+// }
 
-    // TODO we want to be able to tell if one or more of the objects intersected are transparent
-    // however, we also want to be able to tell exactly how much light gets through...
-    // perhaps this method ought to return not a variable, but a float b/w 0.0-1.0, to represent the percentage of light that reaches the given point from the given light source
-    Object* intersect_obj = get_intersected_obj( &r, &distance );
+// returns a light with color RGBs of -1.0f if the given Light is not visible from the given point
+Light World::adjusted_light_to_point( vec3 point, Light light ) {
+    // vec3 _dir = point - *light.position;
+    vec3 _dir = *light.position - point;
+    // a Ray pointing from the given point to the given light
+    Ray r = Ray( &point, &_dir );
 
-    // if ( intersect_obj != NULL && intersect_obj->get_material()->get_kd() < 1.0f ) {
-    //     // newDirection =;
-    //     while ( distance < INT_MAX ) {
-    //         /* code */
-    //     }
-    // }
+    // a list of objects between the point and Light, sorted by closest->farthest from the Light
+    std::vector<Object*> isecting_objs = get_intersecting_objs( &r );
 
-    return ( intersect_obj == NULL || intersect_obj->get_material()->get_ir() > 0.0f );
+    // deep copy the original light
+    vec3* adj_col = new vec3( light.color->x, light.color->y, light.color->z );
+    vec3* adj_pos = new vec3( light.position->x, light.position->y, light.position->z );
+
+    bool visible = true;
+    float kd = 0.0f;
+    vec3 _adj = vec3( 0.0f );
+
+    // for every object between the light and point, modify the colour of the light
+    // reaching that point based on the object colours and transparencies
+    for ( Object* obj : isecting_objs ) {
+        kd = obj->get_material()->get_kd();
+
+        visible = visible && ( kd > 0.0f );
+        if ( !visible ) {
+            adj_col = new vec3( -1.0f );
+            break;
+        }
+        else {
+
+            // std::cout << "adjusting light..." << '\n';
+            //
+            // std::cout << "  cur_col // " << glm::to_string(*adj_col) << '\n';
+            // std::cout << "  obj_col // " << glm::to_string(obj->get_material()->get_color( 0.0f, 0.0f )) << '\n';
+            // std::cout << "  kd // " << kd << '\n';
+
+            // TODO it'd be cool to make this alter the light's colour based on the objet colour...
+            // this has failed in the past, however
+            // perhaps, if we model light absorption?
+            // IDEA light_col - ( vec(1.0f) - obj_col ) * ( 1.0f - kd )
+            // _adj = normalize( *adj_col + obj->get_material()->get_color( 0.0f, 0.0f ) ) * kd;
+
+            _adj = *adj_col * ( kd );
+            adj_col->x = _adj.x;
+            adj_col->y = _adj.y;
+            adj_col->z = _adj.z;
+
+            // if ( *adj_col != vec3( -1.0f ) && *adj_col != *light.color ) {
+            //     std::cout << "got color: " << glm::to_string( *adj_col ) << '\n';
+            //     std::cout << "from:      " << glm::to_string( *light.color ) << '\n';
+            // }
+        }
+    }
+
+    Light ret = {
+        adj_col,
+        adj_pos
+    };
+
+    return ret;
+}
+
+std::vector<Object*> World::get_intersecting_objs( Ray* r ) {
+    typedef struct st_ObjDist {
+        Object* obj;
+        float dist;
+        // sorts ObjDists in ascending distance from ray origin
+        static bool compare( const st_ObjDist &a, const st_ObjDist &b ) {
+            return a.dist > b.dist;
+        }
+    } ObjDist;
+
+    // first collect all intersecting objects with their distance from the ray origin
+
+    std::vector<ObjDist> ods;
+    float _dist = 0.0f;
+
+    for ( Object* obj : objects ) {
+        _dist = obj->intersection( r );
+
+        if ( _dist < INT_MAX && _dist > 0.00001 ) {
+            ods.push_back( { obj, _dist } );
+        }
+    }
+
+    // then, sort them in ascending distance from the ray origin
+
+    std::sort( ods.begin(), ods.end(), ObjDist::compare );
+
+    std::vector<Object*> objs;
+
+    for ( ObjDist od : ods ) {
+        objs.push_back( od.obj );
+    }
+
+    return objs;
 }
 
 // determine the object intersected by a given object, and store the distance
@@ -79,19 +176,20 @@ bool World::can_see_light( vec3 point, Light light ) {
 // @param float* distance :: the output variable where to store the distance at which the ray intersects (INT_MAX by default)
 // @return Object* :: a pointer to the Object that is intersected, or NULL if none are intersected
 Object* World::get_intersected_obj( Ray* r, float* distance ){
-    Object* returnObject = NULL;
+    Object* ret_obj = NULL;
     *distance = INT_MAX;
+    float _dist = 0.0f;
 
     for ( Object* obj : objects ) {
-        float newValue = obj->intersection( r );
+        _dist = obj->intersection( r );
 
-        if ( newValue < *distance && newValue > 0.00001 ) {
-            *distance = newValue;
-            returnObject = obj;
+        if ( _dist < *distance && _dist > 0.00001 ) {
+            *distance = _dist;
+            ret_obj = obj;
         }
     }
 
-    return returnObject;
+    return ret_obj;
 }
 
 // return a the colour seen by a given Ray at its point of intersection
@@ -115,7 +213,7 @@ vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Obj
 
     // 3D point of intersection
     vec3 point = *ray->origin + *ray->direction * distance;
-    std::vector<Light*> ret_lights = get_pruned_lights( point );
+    std::vector<Light> ret_lights = get_pruned_lights( point );
 
     // the colour of the intersected object seen by the Ray
     vec3 cur_color = intersect_obj->get_color( ray, distance, ret_lights, &ambient, inverse_transform_mat );

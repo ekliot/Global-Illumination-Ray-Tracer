@@ -28,31 +28,31 @@ vec3 Phong::intersect( IntersectData idata ) {
     vec3 ambient = *(idata.ambient) * ka;
 
     // std::cout << "idata.incoming // " << glm::to_string( *(idata.incoming) ) << '\n';
-    // std::cout << "dire  // " << glm::to_string( *(idata.normal) ) << '\n';
-    //
-    // std::cout << "idata.normal // " << glm::to_string( *(idata.normal) ) << '\n';
+    // std::cout << "idata.normal   // " << glm::to_string( *(idata.normal) ) << '\n';
 
     vec3 diffuse  = vec3( 0.0f );
     vec3 specular = vec3( 0.0f );
 
-    for( Light* l : idata.lights ) {
-        vec3 l_dir = *(idata.position) - *(l->position);
+    for( Light l : idata.lights ) {
+        // if ( *idata.obj_color == vec3(0.0f,1.0f,0.0f) ) {
+        //     std::cout << "light {" << '\n';
+        //     std::cout << "  col: " << glm::to_string( *l.color ) << '\n';
+        //     std::cout << "  pos: " << glm::to_string( *l.position ) << '\n';
+        //     std::cout << "}" << '\n';
+        // }
 
-        Ray* source  = new Ray( l->position, &l_dir );
+        vec3 l_dir = *(idata.position) - *(l.position);
+
+        Ray* source  = new Ray( l.position, &l_dir );
         Ray* reflect = source->reflect( idata.normal );
 
-        diffuse = diffuse + *(l->color) * *(idata.obj_color) * abs( dot( *(idata.normal), *(source->direction) ) );
-        specular = specular + *(l->color) * color_spec * pow( dot( *(reflect->direction), *(idata.incoming) ), ke );
-
-        // std::cout << "idata.incoming // " << glm::to_string( *(idata.incoming) ) << '\n';
-        //std::cout << "diffuse  // " << glm::to_string( diffuse ) << '\n';
-        //std::cout << "dire  // " << glm::to_string( *(idata.normal) ) << '\n';
-
-        // std::cout << "idata.normal // " << glm::to_string( *(idata.normal) ) << '\n';
-        // std::cout << "source->dir  // " << glm::to_string( *(source->direction) ) << '\n';
+        diffuse = diffuse + *(l.color) * *(idata.obj_color) * abs( dot( *(idata.normal), *(source->direction) ) );
+        specular = specular + *(l.color) * color_spec * pow( dot( *(reflect->direction), *(idata.incoming) ), ke );
 
         delete source;
         delete reflect;
+        delete l.color;
+        delete l.position;
     }
 
     diffuse  = kd * diffuse;
@@ -60,12 +60,14 @@ vec3 Phong::intersect( IntersectData idata ) {
 
     vec3 light = ambient + diffuse + specular;
 
-    // if ( light.x < 0.5f || light.y < 0.5f || light.z < 0.5f ) {
-    // std::cout << "light // " << glm::to_string( light ) << '\n';
-    // std::cout << "ambient // " << glm::to_string( ambient ) << '\n';
-    // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
-    // std::cout << "specular // " << glm::to_string( specular ) << '\n';
-    //     std::cout << "color_obj // " << glm::to_string( color_obj ) << '\n';
+    // if ( light.x < 0.5f && light.y < 0.5f && light.z < 0.5f ) {
+    // if ( *idata.obj_color == vec3(0.0f,1.0f,0.0f) ) {
+    //     std::cout << '\n';
+    //     std::cout << "light        // " << glm::to_string( light ) << '\n';
+    //     std::cout << "  + ambient  // " << glm::to_string( ambient ) << '\n';
+    //     std::cout << "  + diffuse  // " << glm::to_string( diffuse ) << '\n';
+    //     std::cout << "  + specular // " << glm::to_string( specular ) << '\n';
+    //     std::cout << "         obj // " << glm::to_string( *idata.obj_color ) << '\n';
     // }
 
     return light;

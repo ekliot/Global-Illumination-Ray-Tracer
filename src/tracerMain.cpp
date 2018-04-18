@@ -122,7 +122,7 @@ void init() {
     SolidMaterial* sphere2_mat = new SolidMaterial(
         vec3( 0.0f, 0.0f, 0.0f ), // color
         //kr,   kd,   ir
-        0.0f, 1.0f, 1.0f
+        0.0f, 1.0f, 0.8f
     );
 
     float sphere_trans = 1.3f;
