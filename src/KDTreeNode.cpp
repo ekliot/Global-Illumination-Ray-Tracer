@@ -11,8 +11,6 @@ aabb(_aabb)
     {
         objects->push_back(o);
     }
-     // cout << "count: " << count << "\n";
-     //cout << "object list length: " << objects.size() << "\n";
 
      if(objects->size() >= 2 && count  < 25)
      {

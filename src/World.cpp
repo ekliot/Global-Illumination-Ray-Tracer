@@ -14,6 +14,8 @@
 #include <iostream>
 #include <cstring>
 #include <cmath>
+#include <ctime>
+
 
 #include <glm/vec3.hpp>
 #include <glm/matrix.hpp>
@@ -154,7 +156,21 @@ vec3* World::get_intersect_kd_tree_helper( Ray *r, KDTreeNode* node, float* retu
 
     if ( abs(a_enter - b_enter) < 0.00001) {
 
-        return NULL;
+        float a_dist;
+        vec3 *a_vec = get_intersect_kd_tree_helper(r, node->left, &a_dist);
+
+        float b_dist;
+
+        vec3 *b_vec = get_intersect_kd_tree_helper(r, node->right, &b_dist);
+        if(a_dist < b_dist)
+        {
+            return a_vec;
+        }
+        else
+        {
+            return b_vec;
+        }
+
 
 
     }
@@ -231,8 +247,8 @@ void World::generate_kd_tree()
     for ( Object* obj : objects ) {
         currentAABB = new AABB(currentAABB, obj->getAABB());
     }
-//    currentAABB->print();
     objectTree = new KDTreeNode(objects, currentAABB, 0);
+
 }
 
 void World::add_bunny()
@@ -291,7 +307,7 @@ void World::add_bunny()
                 // ka,  kd,   ks,   ke
                 0.1f, 0.5f, 0.1f, 20.0f
             );
-            SolidMaterial* bunny_mat = new SolidMaterial( vec3( 0.5f, 0.0f, 0.0f ) );
+            SolidMaterial* bunny_mat = new SolidMaterial( vec3( 0.8f, 0.2f, 0.2f ) );
 
 
             //add triangle here

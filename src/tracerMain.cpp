@@ -67,52 +67,52 @@ void init() {
         |    |
         D----C
     */
-
-    vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
-    float plane_w = 1.2f; // plane width
-    float plane_wt = 0.53f; // width transform
-    float plane_l = 5.0f; // plane length
-    float plane_lt = 1.18f; // width transform
-
-    // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
-    vec3 plane_a = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    //vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
-    vec3 plane_c = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    //vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
-    /*
-    // TODO implement these as Phong
-    Phong* plane1_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        1.0f, 0.8f, 0.0f, 0.0f
-    );
-    */
-    Phong* plane2_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        1.0f, 0.8f, 0.0f, 0.0f
-    );
-
-    SolidMaterial* plane_mat = new SolidMaterial( vec3( 1.0f, 0.0f, 0.0f ) );
-
-    Rectangle* rect = new Rectangle(
-        &plane_a, &plane_b,
-        &plane_c, &plane_d,
-        plane2_imodel,
-        plane_mat
-     );
-
-    // ABC
-    //Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
-    // ACD
-    //Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, plane2_imodel );
-
-    //world->add_object( plane_tri1 );
-    //world->add_object( plane_tri2 );
-
-    world->add_object(rect);
+//
+//    vec3 plane_cent = vec3( 1.8f, 1.24f, -4.57f );
+//    float plane_w = 1.2f; // plane width
+//    float plane_wt = 0.53f; // width transform
+//    float plane_l = 5.0f; // plane length
+//    float plane_lt = 1.18f; // width transform
+//
+//    // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
+//    vec3 plane_a = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+//    //vec3 plane_a2 = plane_cent + vec3( -plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+//    vec3 plane_b = plane_cent + vec3(  plane_w/plane_wt, 0.0f,  plane_l/plane_lt );
+//    vec3 plane_c = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+//    //vec3 plane_c2 = plane_cent + vec3(  plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+//    vec3 plane_d = plane_cent + vec3( -plane_w/plane_wt, 0.0f, -plane_l/plane_lt );
+//    /*
+//    // TODO implement these as Phong
+//    Phong* plane1_imodel = new Phong(
+//        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+//        // ka,  kd,   ks,   ke
+//        1.0f, 0.8f, 0.0f, 0.0f
+//    );
+//    */
+//    Phong* plane2_imodel = new Phong(
+//        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+//        // ka,  kd,   ks,   ke
+//        1.0f, 0.8f, 0.0f, 0.0f
+//    );
+//
+//    SolidMaterial* plane_mat = new SolidMaterial( vec3( 1.0f, 0.0f, 0.0f ) );
+//
+//    Rectangle* rect = new Rectangle(
+//        &plane_a, &plane_b,
+//        &plane_c, &plane_d,
+//        plane2_imodel,
+//        plane_mat
+//     );
+//
+//    // ABC
+//    //Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
+//    // ACD
+//    //Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, plane2_imodel );
+//
+//    //world->add_object( plane_tri1 );
+//    //world->add_object( plane_tri2 );
+//
+//    world->add_object(rect);
 
     /*
     =======================
@@ -186,7 +186,7 @@ void init() {
     // main camera
     Camera* cam = new Camera(
         world,
-        vec3( 0.6f, 2.75f, -5.38f ), // pos
+        vec3( 0.7f, 2.8f, -5.2f ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
         vec3( 0.0f, 1.0f, 0.0f ), // up
         { 1.92f, 1.08f, 0.8f }
@@ -219,8 +219,11 @@ void init() {
     //
     // start = std::clock();
     //
-    cam->render( &negative1 );
+
+    cam->render( &negative1);
     photo_print( negative1, "out/test.png" );
+
+
 
     //
     // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;

@@ -125,7 +125,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                         ray_dir = vec3( dir_x, dir_y, dir_z );
                         ray = new Ray( &ray_ori, &ray_dir );
 
-                        color = world->get_intersect( ray );
+                        color = world->get_intersect_kd_tree( ray );
                         r += color.x;
                         g += color.y;
                         b += color.z;
