@@ -83,8 +83,8 @@ void init() {
 
     // SolidMaterial* plane_mat = new SolidMaterial( vec3( 0.0f, 0.0f, 0.0f ), 0.5f, 0.5f );
     CheckerBoard* plane_mat = new CheckerBoard(
-        vec3( 1.0f, 0.0f, 0.0f ),
-        vec3( 1.0f, 1.0f, 0.0f ),
+        vec3( 1.0f, 0.0f, 0.0f ), // odd colour
+        vec3( 1.0f, 1.0f, 0.0f ), // even colour
         24, 10
     );
 
@@ -95,14 +95,6 @@ void init() {
         plane_mat
      );
 
-    // ABC
-    //Triangle* plane_tri1 = new Triangle( &plane_a, &plane_b, &plane_c, plane1_imodel );
-    // ACD
-    //Triangle* plane_tri2 = new Triangle( &plane_a2, &plane_c2, &plane_d, plane2_imodel );
-
-    //world->add_object( plane_tri1 );
-    //world->add_object( plane_tri2 );
-
     world->add_object(rect);
 
     // =======================
@@ -111,20 +103,27 @@ void init() {
 
     vec3 sphere1_p = vec3( 0.77f, 2.7f, -5.0f );
     Phong* sphere1_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ),
-        // ka,  kd,   ks,   ke
+        vec3( 1.0f, 1.0f, 1.0f ), // color
+        //ka,   kd,   ks,   ke
         0.1f, 0.5f, 0.1f, 20.0f
     );
-    SolidMaterial* sphere1_mat = new SolidMaterial( vec3( 0.0f, 1.0f, 0.0f ), 0.0f, 0.0f );
+    SolidMaterial* sphere1_mat = new SolidMaterial(
+        vec3( 0.0f, 0.0f, 0.0f ), // color
+        //kr,   kd,   ir
+        0.0f, 1.0f, 0.8f
+    );
 
     vec3 sphere2_p = vec3( 1.68f, 2.23f, -3.72f );
-    // vec3 sphere2_p = vec3( 2.0f, 2.23f, -2.72f );
     Phong* sphere2_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ),
-        // ka,  kd,   ks,   ke
+        vec3( 1.0f, 1.0f, 1.0f ), // color
+        //ka,   kd,   ks,   ke
         0.1f, 0.5f, 0.1f, 20.0f
     );
-    SolidMaterial* sphere2_mat = new SolidMaterial( vec3( 0.3f, 0.3f, 0.3f ), 0.5f, 0.0f );
+    SolidMaterial* sphere2_mat = new SolidMaterial(
+        vec3( 0.0f, 0.0f, 0.0f ), // color
+        //kr,   kd
+        1.0f, 0.0f
+    );
 
     float sphere_trans = 1.3f;
     float sphere_r = 0.55f * sphere_trans;

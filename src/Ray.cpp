@@ -31,3 +31,7 @@ Ray* Ray::reflect( vec3* normal ){
 
     return reflected;
 }
+void Ray::print(){
+    std::cout << "ori -> " << glm::to_string( *origin ) << '\n';
+    std::cout << "dir -> " << glm::to_string( *direction ) << '\n';
+}
