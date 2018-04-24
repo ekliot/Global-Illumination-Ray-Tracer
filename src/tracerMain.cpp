@@ -21,6 +21,9 @@
 #include "Sphere.h"
 #include "Triangle.h"
 #include "World.h"
+#include "WardToneRepro.h"
+#include "ToneReproModel.h"
+#include "ReinhardToneRepro.h"
 
 using namespace glm;
 
@@ -43,7 +46,7 @@ void init() {
     );
 
     vec3* light1_col = new vec3( 1.0f );
-    vec3* light1_pos = new vec3( 1.1f, 4.52f, -5.7f );
+    vec3* light1_pos = new vec3( 1.1f, 4.52f, -5.0f );
 
     Light light1 = {
         light1_col, light1_pos
@@ -169,13 +172,18 @@ void init() {
     // CAMERAS FOR CHECKPOINT //
     // = = = = = = = = = = =  //
 
+    float lMax = 1.0f;
+    ReinhardToneRepro* toneReproModel = new ReinhardToneRepro(&lMax);
+
     // main camera
     Camera* cam = new Camera(
         world,
         vec3( 1.0f, 2.53f, -7.38f ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
         vec3( 0.0f, 1.0f, 0.0f ), // up
-        { 1.92f, 1.08f, 0.8f } // P_Plane
+        { 1.92f, 1.08f, 0.8f }, // P_Plane
+        toneReproModel
+
     );
 
     // camera looking down
@@ -203,8 +211,9 @@ void init() {
     //
     // start = std::clock();
     //
-    cam->render( &negative1 );
-    photo_print( negative1, "out/test.png" );
+    image<rgb_pixel> pixel_buf = cam->render( &negative1 );
+
+    photo_print( pixel_buf, "out/test.png" );
     //
     // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
     // std::cout<< "SS x0 // " << duration << "sec" << '\n';

@@ -9,14 +9,15 @@
 #include <iostream>
 
 #include "glm/gtx/string_cast.hpp"
-
+#include <iostream>
 #include "Camera.h"
 #include "Ray.h"
 
 using namespace png;
 using glm::vec3;
 
-Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp ) : world(_w), plane(_pp) {
+Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp, ToneReproModel* _toneReproModel)
+ : world(_w), plane(_pp), toneReproModel(_toneReproModel) {
     vec3 n = normalize( _look );
     // vec3 n = normalize( pos - look ); // this is how it should be but we don't like it that way
     vec3 u = normalize( cross( _up, n ) );
@@ -59,11 +60,11 @@ void Camera::break_scene() {
     }
 }
 
-void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
-    if ( !is_set ) {
-        std::cout << "Camera::render() called without setting the scene first" << '\n';
-        return;
-    }
+image<rgb_pixel> Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
+    // if ( !is_set ) {
+    //     std::cout << "Camera::render() called without setting the scene first" << '\n';
+    //     return;
+    // }
 
     vec3 ray_ori = vec3( 0.0f );
     vec3 ray_dir;
@@ -144,4 +145,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
             }
         }
     }
+    toneReproModel->setImage(negative);
+    return toneReproModel->Reproduce();
+
 }
