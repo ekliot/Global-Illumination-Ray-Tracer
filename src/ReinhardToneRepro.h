@@ -11,8 +11,8 @@ using namespace png;
 class ReinhardToneRepro : public ToneReproModel  {
 
 public:
-    ReinhardToneRepro(float* _lMax);
-    image<rgb_pixel> Reproduce();
+    ReinhardToneRepro();
+    image<rgb_pixel> Reproduce(vec3** imageBuf, float lMax);
 
 };
 

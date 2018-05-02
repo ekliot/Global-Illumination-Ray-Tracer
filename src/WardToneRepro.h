@@ -11,8 +11,8 @@ using namespace png;
 class WardToneRepro : public ToneReproModel  {
 
 public:
-    WardToneRepro(float* _lMax);
-    image<rgb_pixel> Reproduce();
+    WardToneRepro();
+    image<rgb_pixel> Reproduce(vec3** imageBuf, float lMax);
 
 };
 

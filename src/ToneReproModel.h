@@ -13,17 +13,16 @@ using namespace png;
 class ToneReproModel{
 
 protected:
-    float* lMax;
     image<rgb_pixel>* input;
-    float getLuminance(rgb_pixel pixel);
-    float getLogAverageLuminance();
+    float getLuminance(vec3 pixel);
+    float getLogAverageLuminance(vec3 ** imageBuf);
 
 public:
-    ToneReproModel(float* _lMax);
+    ToneReproModel();
     ~ToneReproModel();
 
     void setImage(image<rgb_pixel>* _input);
-    virtual image<rgb_pixel> Reproduce() = 0;
+    virtual image<rgb_pixel> Reproduce(vec3** imageBuf, float lMax) = 0;
 };
 
 

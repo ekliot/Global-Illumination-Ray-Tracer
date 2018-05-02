@@ -55,7 +55,7 @@ public:
      * ss_rate  //  0   1   2   3   4   5   6
      * SS level // x0  x2  x4  x6  x9 x12 x16
      */
-    image<rgb_pixel> render( image<rgb_pixel>* negative, uint ss_rate = 0 );
+    image<rgb_pixel> render( image<rgb_pixel>* negative, float lMax = 1, uint ss_rate = 0 );
 
 };
 

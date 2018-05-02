@@ -5,15 +5,15 @@
 using namespace png;
 
 
-WardToneRepro::WardToneRepro(float* _lMax): ToneReproModel(_lMax){}
+WardToneRepro::WardToneRepro(): ToneReproModel(){}
 
-image<rgb_pixel> WardToneRepro::Reproduce()
+image<rgb_pixel> WardToneRepro::Reproduce( vec3** imageBuf, float lMax)
 {
     int ldMax = 255;
     size_t height = input->get_height();
     size_t width = input->get_width();
 
-    float logAvgLum = getLogAverageLuminance();
+    float logAvgLum = getLogAverageLuminance(imageBuf);
 
     float temp1 = 1.219 + pow((ldMax/2.0f), 0.4f);
     float temp2 = 1.219 + pow(logAvgLum , 0.4f);
@@ -24,11 +24,12 @@ image<rgb_pixel> WardToneRepro::Reproduce()
 
     for ( size_t y = 0; y < input->get_height(); ++y ) {
         for ( size_t x = 0; x < input->get_width(); ++x ) {
-            rgb_pixel pixel = input->get_row(y)[x];
+            vec3 real_pixel = imageBuf[y][x];
 
-            float red = pixel.red * sf;
-            float blue = pixel.blue * sf;
-            float green = pixel.green * sf;
+
+            int red = real_pixel.x  * sf; /* pixel.red * sf /1000.0f * ldMax;*/
+            int green =  real_pixel.y *sf;/*pixel.blue * sf /1000.0f* ldMax; */
+            int blue =  real_pixel.z   * sf;/*pixel.green * sf /1000.0f* ldMax; */
 
             if(red > ldMax)
             {

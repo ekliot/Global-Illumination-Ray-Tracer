@@ -60,7 +60,7 @@ void Camera::break_scene() {
     }
 }
 
-image<rgb_pixel> Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
+image<rgb_pixel> Camera::render( image<rgb_pixel>* negative, float lMax, uint ss_rate) {
     // if ( !is_set ) {
     //     std::cout << "Camera::render() called without setting the scene first" << '\n';
     //     return;
@@ -75,15 +75,26 @@ image<rgb_pixel> Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
     float px_w = plane.w / negative->get_width();
     float px_h = plane.h / negative->get_height();
 
+
+
     // we start at the top-left
     float start_x = -plane.w / 2;
     float start_y = plane.h / 2;
 
     float dir_x, dir_y, dir_z;
 
-    // trace and put stuff into the pixel buffer
-    for ( size_t y = 0; y < negative->get_height(); ++y ) {
-        for ( size_t x = 0; x < negative->get_width(); ++x ) {
+    size_t width = negative->get_width();
+    size_t height = negative->get_height();
+
+    vec3** imageBuf = new vec3*[height]; // each element is a pointer to an array.
+
+    for(size_t i = 0; i < height; ++i)
+        imageBuf[i] = new vec3[width]; // build rows
+
+    for(size_t y = 0; y < height; ++y)
+    {
+        for(size_t x = 0; x < width; ++x)
+        {
 
             // if we have a default ss_rate, don't bother with it
             if ( !ss_rate ) {
@@ -94,14 +105,17 @@ image<rgb_pixel> Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                 ray_dir = vec3( dir_x, dir_y, dir_z );
                 ray = new Ray( &ray_ori, &ray_dir );
 
-                color = world->get_intersect( ray, reverse_transform_mat ) * 255.0f;
+                color = world->get_intersect( ray, reverse_transform_mat );
 
+                imageBuf[y][x] = color *lMax;/* random value! */;
+
+                /*
                 negative->get_row(y)[x] = rgb_pixel(
-                    int( color.x ),
-                    int( color.y ),
-                    int( color.z )
+                    float(color.x * 10.0f),
+                    float(color.y * 10.0f),
+                    float(color.z * 10.0f)
                 );
-
+                */
                 delete ray;
             }
             // otherwise, engage super sampling
@@ -143,9 +157,25 @@ image<rgb_pixel> Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                     int( 255.0f * b / static_cast<float>(samples) )
                 );
             }
+
+        }
+    }
+
+    // trace and put stuff into the pixel buffer
+    for ( size_t y = 0; y < negative->get_height(); ++y ) {
+        for ( size_t x = 0; x < negative->get_width(); ++x ) {
+
+
+
         }
     }
     toneReproModel->setImage(negative);
-    return toneReproModel->Reproduce();
+    return toneReproModel->Reproduce(imageBuf, lMax);
+
+    // // DON'T FORGET TO DELETE THE MATRIX!
+    // for(size_t i = 0; i < height; ++i)
+    //     delete imageBuf[i];
+    //
+    // delete imageBuf;
 
 }

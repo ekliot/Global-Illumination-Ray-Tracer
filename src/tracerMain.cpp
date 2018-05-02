@@ -46,7 +46,7 @@ void init() {
     );
 
     vec3* light1_col = new vec3( 1.0f );
-    vec3* light1_pos = new vec3( 1.1f, 4.52f, -5.0f );
+    vec3* light1_pos = new vec3( 1.1f, 4.52f, -5.6f );
 
     Light light1 = {
         light1_col, light1_pos
@@ -172,8 +172,8 @@ void init() {
     // CAMERAS FOR CHECKPOINT //
     // = = = = = = = = = = =  //
 
-    float lMax = 1.0f;
-    ReinhardToneRepro* toneReproModel = new ReinhardToneRepro(&lMax);
+
+    ReinhardToneRepro* toneReproModel = new ReinhardToneRepro();
 
     // main camera
     Camera* cam = new Camera(
@@ -211,7 +211,7 @@ void init() {
     //
     // start = std::clock();
     //
-    image<rgb_pixel> pixel_buf = cam->render( &negative1 );
+    image<rgb_pixel> pixel_buf = cam->render( &negative1 , 1000.0f );
 
     photo_print( pixel_buf, "out/test.png" );
     //
