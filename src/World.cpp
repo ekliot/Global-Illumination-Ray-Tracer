@@ -8,6 +8,7 @@
 #include <vector>
 
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <glm/matrix.hpp>
 #include "glm/gtx/string_cast.hpp"
 
@@ -40,6 +41,17 @@ void World::add_light( Light* light ){
 void World::transform_all( mat4 tmat ) {
     for ( Object* obj : objects ) {
         obj->transform( tmat );
+    }
+    for ( Light* light : lights ) {
+        vec4 _pos = vec4( light->position->x, light->position->y, light->position->z, 1 );
+        vec4 newPosition = tmat* _pos;
+
+        light->position->x = newPosition.x;
+        light->position->y = newPosition.y;
+        light->position->z = newPosition.z;
+        // vec3 Object::convert( vec4* vec ) {
+        //     return vec3( vec->x / vec->w, vec->y / vec->w, vec->z / vec->w );
+        // }
     }
 }
 
@@ -77,11 +89,13 @@ std::vector<Light> World::get_pruned_lights( vec3 point ) {
 Light World::adjusted_light_to_point( vec3 point, Light light ) {
     // vec3 _dir = point - *light.position;
     vec3 _dir = *light.position - point;
+
+    float dist = length(_dir);
     // a Ray pointing from the given point to the given light
     Ray r = Ray( &point, &_dir );
 
     // a list of objects between the point and Light, sorted by closest->farthest from the Light
-    std::vector<Object*> isecting_objs = get_intersecting_objs( &r );
+    std::vector<Object*> isecting_objs = get_intersecting_objs( &r, dist );
 
     // deep copy the original light
     vec3* adj_col = new vec3( light.color->x, light.color->y, light.color->z );
@@ -135,7 +149,7 @@ Light World::adjusted_light_to_point( vec3 point, Light light ) {
     return ret;
 }
 
-std::vector<Object*> World::get_intersecting_objs( Ray* r ) {
+std::vector<Object*> World::get_intersecting_objs( Ray* r, float disty ) {
     typedef struct st_ObjDist {
         Object* obj;
         float dist;
@@ -153,7 +167,7 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r ) {
     for ( Object* obj : objects ) {
         _dist = obj->intersection( r );
 
-        if ( _dist < INT_MAX && _dist > 0.00001 ) {
+        if ( _dist < INT_MAX && _dist > 0.00001 && _dist < disty ) {
             ods.push_back( { obj, _dist } );
         }
     }
@@ -204,7 +218,7 @@ vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Obj
 
     // if the ray does not hit anything, return the World's background colour
     if ( intersect_obj == NULL ) {
-        // std::cout << "nuffin" << '\n';
+        //std::cout << "nuffin" << '\n';
         return background;
     }
 
@@ -230,7 +244,9 @@ vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Obj
             vec3 normal_dir = intersect_obj->get_normal( ray, distance );
 
             vec3 reflect_dir = glm::reflect( *ray->direction, normal_dir );
-            Ray reflect_ray = Ray( &point, &reflect_dir );
+            vec3 newPoint = point + .1f * reflect_dir;
+
+            Ray reflect_ray = Ray( &newPoint, &reflect_dir );
 
             // std::cout << "reflect ray:" << '\n';
             // reflect_ray.print();
@@ -250,6 +266,11 @@ vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Obj
             );
             cur_color = cur_color + kd * refract_color;
         }
+    }
+    else
+    {
+        std::cout << "max recursion" << '\n';
+
     }
 
     return cur_color;

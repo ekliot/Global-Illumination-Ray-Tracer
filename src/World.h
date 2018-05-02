@@ -30,7 +30,7 @@ private:
     vec3 ambient;
     float ir;
 
-    const int MAX_DEPTH = 5;
+    const int MAX_DEPTH = 20;
 
 public:
 
@@ -72,7 +72,7 @@ public:
 
 
 private:
-    std::vector<Object*> get_intersecting_objs( Ray* r );
+    std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
     Object* get_intersected_obj( Ray * r, float* distance );
 
     std::vector<Light> get_pruned_lights( vec3 point );
