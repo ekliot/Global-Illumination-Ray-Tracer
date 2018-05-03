@@ -19,7 +19,7 @@ using glm::vec4;
  PUBLIC MEMBERS
 \**************/
 
-Sphere::Sphere( vec3* c, float r, IlluminationModel* _imodel ) : Object(_imodel), center(c), radius(r) {}
+Sphere::Sphere( vec3* c, float r, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), center(c), radius(r) {}
 
 float Sphere::intersection( Ray* ray ) {
     float t0, t1; // solutions for t if the ray intersects
@@ -104,4 +104,10 @@ vec3 Sphere::extract_scale( const mat4 &m ) {
     return vec3( length2( vec3( m[0] ) ),
                  length2( vec3( m[1] ) ),
                  length2( vec3( m[2] ) ) );
+}
+
+AABB* Sphere::getAABB()
+{
+    return new AABB(center->x + radius, center->y + radius, center->z + radius,
+    center->x - radius, center->y - radius, center->z - radius);
 }
