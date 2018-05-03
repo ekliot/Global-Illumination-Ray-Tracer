@@ -6,9 +6,9 @@
 
 #include "glm/gtx/string_cast.hpp"
 
-using namespace std;
 using glm::vec3;
 using glm::vec4;
+using namespace std;
 
 #include "Rectangle.h"
 
@@ -79,4 +79,31 @@ AABB* Rectangle::getAABB()
 
 
     return new AABB(vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y, vec_min.z);
+}
+// TODO actually implement world-to-obj conversion
+vec3 Rectangle::world_to_obj_space( vec3 point ) {
+    return point;
+}
+
+// TODO actually implement uv coords for real
+// HACK this does not bother converting to object coordinates!!!
+vec2 Rectangle::get_uv( vec3 point ) {
+    float u = 0.0f;
+    float v = 0.0f;
+
+    if ( ul->y == lr->y && ur->y == ll->y ) {
+        float x_min = std::min( ul->x, std::min( ur->x, std::min( lr->x, ll->x ) ) );
+        float z_min = std::min( ul->z, std::min( ur->z, std::min( lr->z, ll->z ) ) );
+
+        float x_max = std::max( ul->x, std::max( ur->x, std::max( lr->x, ll->x ) ) );
+        float z_max = std::max( ul->z, std::max( ur->z, std::max( lr->z, ll->z ) ) );
+
+        float w = x_max - x_min;
+        float l = z_max - z_min;
+
+        u = ( x_max - point.x ) / w;
+        v = ( z_max - point.z ) / l;
+    }
+
+    return vec2( u, v );
 }

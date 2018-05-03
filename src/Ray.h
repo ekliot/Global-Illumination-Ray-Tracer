@@ -13,6 +13,7 @@ public:
     Ray( vec3* origin, vec3* dir );
     ~Ray();
     Ray* reflect(vec3* normal);
+    void print();
 };
 
 #endif // _RAY_H_

@@ -69,7 +69,7 @@ float Triangle::intersection( Ray* ray ) {
 
 vec3 Triangle::get_normal( Ray* ray, float distance  ) {
     /*
-    Set Vector U to (Triangle.p2 minus Triangle.p1)
+        Set Vector U to (Triangle.p2 minus Triangle.p1)
         Set Vector V to (Triangle.p3 minus Triangle.p1)
 
         Set Normal.x to (multiply U.y by V.z) minus (multiply U.z by V.y)
@@ -77,10 +77,8 @@ vec3 Triangle::get_normal( Ray* ray, float distance  ) {
         Set Normal.z to (multiply U.x by V.y) minus (multiply U.y by V.x)
     */
 
-    vec3 u = *(this->b) - *(this->a);
-    // std::cout << "u // " << glm::to_string( u ) << '\n';
-    vec3 v = *(this->c) - *(this->a);
-    // std::cout << "v // " << glm::to_string( v ) << '\n';
+    vec3 u = *(b) - *(a);
+    vec3 v = *(c) - *(a);
     vec3 normal = vec3( (u.y * v.z) - (u.z * v.y),
                         (u.z * v.x) - (u.x * v.z),
                         (u.x * v.y) - (u.y * v.x));
@@ -113,4 +111,12 @@ AABB* Triangle::getAABB()
     vec_min = minVecHelper(vec_min,*c);
 
     return new AABB(vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y, vec_min.z);
+// TODO actually implement world-to-obj coords
+vec3 Triangle::world_to_obj_space( vec3 point ) {
+    return point;
+}
+
+// TODO actually implement uv coords
+vec2 Triangle::get_uv( vec3 point ) {
+    return vec2( 0.0f );
 }

@@ -20,19 +20,17 @@ class Rectangle : public Object {
     Triangle* tri1;
     Triangle* tri2;
 
+public:
+    Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel, Material* _mat );
+    ~Rectangle();
+
+    void transform( mat4 mat );
+    float intersection( Ray* ray );
     vec3 get_normal( Ray* ray, float distance );
 
-    public:
-
-        Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel, Material* _mat );
-        ~Rectangle();
-
-        float intersection( Ray* ray );
-
-        void transform( mat4 mat );
-
-        AABB* getAABB();
-
+    AABB* getAABB();
+    vec3 world_to_obj_space( vec3 point );
+    vec2 get_uv( vec3 point );
 };
 
 #endif

@@ -8,12 +8,6 @@
 
 #ifndef _WORLD_H
 #define _WORLD_H
-#define OUT
-
-#if defined(_WIN32) || defined(_WIN64)
-#include "stdafx.h"
-#include <windows.h>
-#endif
 
 #include <vector>
 #include <glm/vec3.hpp>
@@ -33,11 +27,13 @@ class World {
 
 private:
 
-    // TODO we'll need to make this into a spacial data struct // ekliot
     std::vector<Object*> objects;
     std::vector<Light*> lights;
+
     vec3 background;
     vec3 ambient;
+    float ir;
+
 
     KDTreeNode* objectTree;
 
@@ -51,12 +47,14 @@ private:
      */
     // void transform( Object obj );
 
+    const int MAX_DEPTH = 5;
+
 public:
 
     /**
      * Constructor
      */
-    World( vec3 background, vec3 amb );
+    World( vec3 background, vec3 amb, float ir = 1.0 );
 
     /**
      * Destructor
@@ -87,7 +85,7 @@ public:
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
-    vec3 get_intersect( Ray* r );
+    vec3 get_intersect( Ray* r, mat4 inverse_transform_mat, int depth = 0, Object* lastIntersectionObject = NULL);
 
     vec3 get_intersect_kd_tree( Ray* r );
 
@@ -98,11 +96,14 @@ public:
     void add_bunny();
 
 private:
-    Object* get_intersect_helper(Ray * r, float* distance);
+    std::vector<Object*> get_intersecting_objs( Ray* r );
+    Object* get_intersected_obj( Ray * r, float* distance );
 
-    std::vector<Light*> pruned_lights(vec3 point);
+    std::vector<Light> get_pruned_lights( vec3 point );
 
-    bool can_see_light(vec3 point, Light light);
+    Light adjusted_light_to_point( vec3 point, Light light );
+
+    vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat, Object* intersect, Object* last_isect, int depth );
 
 };
 

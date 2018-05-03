@@ -45,19 +45,23 @@ float Sphere::intersection( Ray* ray ) {
 vec3 Sphere::get_normal( Ray* ray, float distance ) {
     vec3 point = *ray->origin + *ray->direction * distance;
     vec3 normal = point- *this->center;
-    //std::cout << "old sphere center // " << glm::to_string( normal ) << '\n';
 
     return normalize( normal );
 }
 
 void Sphere::transform( mat4 tmat ) {
-
     vec4 _center = tmat * vec4( center->x, center->y, center->z, 1 );
     *(center) = convert( &_center );
+}
 
-    // scale_radius( tmat );
+// TODO actually implement object space
+vec3 Sphere::world_to_obj_space( vec3 point ) {
+    return point;
+}
 
-    //std::cout << "new sphere center // " << glm::to_string( *center ) << '\n';
+// TODO actually implement uv projection
+vec2 Sphere::get_uv( vec3 point ) {
+    return vec2( 0.0f );
 }
 
 /***************\
