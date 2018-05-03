@@ -37,353 +37,242 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  * into a pixel buffer
  */
 void init() {
+
+}
+
+void cornell_box() {
     World *world = new World(
-        vec3( 0.5f ), // background
+        vec3( 0.0f ), // background
         vec3( 0.1f )  // ambient light
     );
-
-    vec3* light1_col = new vec3( 1.0f );
-    vec3* light1_pos = new vec3(1.8f, 2.74f + 1.8f, -4.57);
-
-    Light light1 = {
-        light1_col, light1_pos
-    };
-
-    world->add_light( &light1 );
 
     // add objects to the world
 
     // =======================
-    //          PLANE
+    //          CUBE
     // =======================
 
     /*
-        A----B
-        |    |
-        D----C
+            E--------F
+           /|      / |
+         /  |    /   |
+        A---H---B----G
+        |  /    |   /
+        |/      | /
+        D-------C
     */
-    vec3 plane_cent;
-    // float plane_w, plane_wt, plane_l, plane_lt;
 
-    vec3 cube_center = vec3(1.8f, 2.74f, -4.57);
-    float c_len = 2.3f;
+    float cube_w = 1.0f;
+    float cube_r = cube_w / 2;
+    vec3 cube_center = vec3( 0.0f );
+
     // llf = lower left far
-    vec3 llf = cube_center + vec3(-c_len, -c_len, c_len);
-    vec3 ulf = cube_center + vec3(-c_len, c_len, c_len);
-    vec3 lrf = cube_center + vec3(c_len, -c_len, c_len);
-    vec3 urf = cube_center + vec3(c_len, c_len, c_len);
+    vec3 pt_a = cube_center + vec3( -cube_r,  cube_r, -cube_r );
+    vec3 pt_b = cube_center + vec3(  cube_r,  cube_r, -cube_r );
+    vec3 pt_c = cube_center + vec3(  cube_r, -cube_r, -cube_r );
+    vec3 pt_d = cube_center + vec3( -cube_r, -cube_r, -cube_r );
+    vec3 pt_e = cube_center + vec3( -cube_r,  cube_r,  cube_r );
+    vec3 pt_f = cube_center + vec3(  cube_r,  cube_r,  cube_r );
+    vec3 pt_g = cube_center + vec3(  cube_r, -cube_r,  cube_r );
+    vec3 pt_h = cube_center + vec3( -cube_r, -cube_r,  cube_r );
 
-    vec3 llc = cube_center + vec3(-c_len, -c_len, -c_len);
-    vec3 ulc = cube_center + vec3(-c_len, c_len, -c_len);
-    vec3 lrc = cube_center + vec3(c_len, -c_len, -c_len);
-    vec3 urc = cube_center + vec3(c_len, c_len, -c_len);
-
-    //
-    // plane_w  = 1.2f;  // plane width
-    // plane_wt = 0.53f; // width transform
-    // plane_l  = 5.0f;  // plane length
-    // plane_lt = 1.18f; // width transform
-
-
-    vec3 plane_a, plane_b, plane_c, plane_d;
     Phong* plane_imodel;
     SolidMaterial* plane_mat;
     Rectangle* rect;
 
-    // bottom plane
-
-    // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
-    plane_a = vec3(llf);
-    plane_b = vec3(lrf);
-    plane_c = vec3(lrc);
-    plane_d = vec3(llc);
+    //
+    // floor
+    //
 
     plane_imodel = new Phong(
         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
         // ka,  kd,   ks,   ke
-        1.0f, 0.8f, 0.0f, 0.0f
+        0.0f, 0.8f, 0.0f, 0.0f
     );
-
-
-     plane_mat = new SolidMaterial(
-        vec3( 0.9f, 0.9f, 0.9f ), // color
+    plane_mat = new SolidMaterial(
+        vec3( 0.8f, 0.8f, 0.8f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
-
-
     rect = new Rectangle(
-        &plane_a, &plane_d,
-        &plane_c, &plane_b,
+        pt_h, pt_g, pt_c, pt_d,
         plane_imodel,
         plane_mat
-     );
-     world->add_object(rect);
+    );
+    world->add_object( rect );
 
-    // middle plane
-
-    // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
-    vec3 plane_a2 = vec3(llf);
-    vec3 plane_b2 = vec3(ulf);
-    vec3 plane_c2 = vec3(urf);
-    vec3 plane_d2 = vec3(lrf);
+    //
+    // back wall
+    //
 
     plane_imodel = new Phong(
-     vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-     // ka,  kd,   ks,   ke
-     1.0f, 0.8f, 0.0f, 0.0f
+        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+        // ka,  kd,   ks,   ke
+        0.0f, 0.8f, 0.0f, 0.0f
     );
-
-
     plane_mat = new SolidMaterial(
-     vec3( 0.9f, 0.9f, 0.9f ), // color
-     //kr,   kd
-     0.0f, 0.0f
+        vec3( 0.8f, 0.8f, 0.8f ), // color
+        //kr,   kd
+        0.0f, 0.0f
     );
-
-
     rect = new Rectangle(
-     &plane_a2, &plane_d2,
-     &plane_c2, &plane_b2,
-     plane_imodel,
-     plane_mat
+        pt_e, pt_f, pt_g, pt_h,
+        plane_imodel,
+        plane_mat
     );
-
     world->add_object(rect);
 
     //
-    //  // top plane
+    // ceiling
     //
-    vec3 plane_a3 = vec3(ulf);
-    vec3 plane_b3 = vec3(urf);
-    vec3 plane_c3 = vec3(urc);
-    vec3 plane_d3 = vec3(ulc);
 
     plane_imodel = new Phong(
         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
         // ka,  kd,   ks,   ke
-        1.0f, 0.8f, 0.0f, 0.0f
+        0.0f, 0.8f, 0.0f, 0.0f
     );
-
-
-     plane_mat = new SolidMaterial(
-        vec3( 0.9f, 0.9f, 0.9f ), // color
+    plane_mat = new SolidMaterial(
+        vec3( 0.8f, 0.8f, 0.8f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
-
-
     rect = new Rectangle(
-        &plane_a3, &plane_d3,
-        &plane_c3, &plane_b3,
+        pt_a, pt_b, pt_f, pt_e,
         plane_imodel,
         plane_mat
-     );
-     world->add_object(rect);
+    );
+    world->add_object(rect);
 
-     //
-     // left plane
-     //
-     vec3 plane_a4 = vec3(ulf);
-     vec3 plane_b4 = vec3(llf);
-     vec3 plane_c4 = vec3(llc);
-     vec3 plane_d4 = vec3(ulc);
+    //
+    // left wall
+    //
 
-     plane_imodel = new Phong(
-         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-         // ka,  kd,   ks,   ke
-         1.0f, 0.8f, 0.0f, 0.0f
-     );
+    plane_imodel = new Phong(
+        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+        // ka,  kd,   ks,   ke
+        0.0f, 0.8f, 0.0f, 0.0f
+    );
+    // TODO refine this colour
+    plane_mat = new SolidMaterial(
+        vec3( 0.8f, 0.1f, 0.1f ), // color
+        //kr,   kd
+        0.0f, 0.0f
+    );
+    rect = new Rectangle(
+        pt_a, pt_e, pt_h, pt_d,
+        plane_imodel,
+        plane_mat
+    );
+    world->add_object(rect);
 
+    //
+    // right wall
+    //
 
-      plane_mat = new SolidMaterial(
-         vec3( 0.9f, 0.1f, 0.1f ), // color
-         //kr,   kd
-         0.0f, 0.0f
-     );
-
-
-     rect = new Rectangle(
-         &plane_a4, &plane_d4,
-         &plane_c4, &plane_b4,
-         plane_imodel,
-         plane_mat
-      );
-      world->add_object(rect);
-
-      //
-      // right plane
-      //
-      vec3 plane_a5 = vec3(urf);
-      vec3 plane_b5 = vec3(lrf);
-      vec3 plane_c5 = vec3(lrc);
-      vec3 plane_d5 = vec3(urc);
-
-      plane_imodel = new Phong(
-          vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-          // ka,  kd,   ks,   ke
-          1.0f, 0.8f, 0.0f, 0.0f
-      );
-
-
-       plane_mat = new SolidMaterial(
-          vec3( 0.1f, 0.1f, 0.9f ), // color
-          //kr,   kd
-          0.0f, 0.0f
-      );
-
-
-      rect = new Rectangle(
-          &plane_a5, &plane_d5,
-          &plane_c5, &plane_b5,
-          plane_imodel,
-          plane_mat
-       );
-       world->add_object(rect);
+    plane_imodel = new Phong(
+        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+        // ka,  kd,   ks,   ke
+        0.0f, 0.8f, 0.0f, 0.0f
+    );
+    // TODO refine this colour
+    plane_mat = new SolidMaterial(
+        vec3( 0.3f, 0.1f, 0.8f ), // color
+        //kr,   kd
+        0.0f, 0.0f
+    );
+    rect = new Rectangle(
+        pt_f, pt_b, pt_c, pt_g,
+        plane_imodel,
+        plane_mat
+    );
+    world->add_object(rect);
 
     // =======================
     //         SPHERES
     // =======================
 
-
-    float sphere_trans = 1.3f;
-    float sphere_r = 0.55f * sphere_trans;
-
-    vec3 sphere1_p = vec3( 0.77f, 0.44f + sphere_r, -3.0f );
-    Phong* sphere1_imodel = new Phong(
-        vec3( 0.0f, 0.0f, 0.0f ), // color
-        //ka,   kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
-    SolidMaterial* sphere1_mat = new SolidMaterial(
-        vec3(0.0f, 0.0f, 0.0f), // color
-        //kr,   kd,   ir
-        1.0f, 0.0f
-    );
-
-    vec3 sphere2_p = vec3( 3.0f, 0.44f + sphere_r, -4.7f);
-    Phong* sphere2_imodel = new Phong(
-        vec3( 0.0f, 0.0f, 0.0f ), // color
-        //ka,   kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
-    SolidMaterial* sphere2_mat = new SolidMaterial(
-        vec3(0.0f, 0.0f, 0.0f), // color
-        //kr,   kd
-        0.0f, 1.0f, .7f
-    );
-
-
-    Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
-    Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
-
-    world->add_object( sphere1 );
-    world->add_object( sphere2 );
-
-    // = = = = = = = = = = //
-    // CAMERAS FROM ORIGIN //
-    // = = = = = = = = = = //
-
-    // // ORIGIN camera
-    // Camera* cam1  = new Camera(
-    //     world,
-    //     vec3( 0.0f, 3.0f, -3.0f ), // pos
-    //     vec3( 0.0f, -1.0f, 1.0f ), // lookat
-    //     vec3( 0.0f, 1.0f, 1.0f ), // up
-    //     { 1.92f, 1.08f, 1.0f }
+    // float sphere_trans = 1.0f;
+    // float sphere_r = 0.5f * sphere_trans;
+    //
+    // //
+    // // REFLECTIVE
+    // //
+    //
+    // vec3 sphere1_p = vec3( 0.0f - 1.5 * sphere_r, 0.0f + sphere_r, 0.0f );
+    // Phong* sphere1_imodel = new Phong(
+    //  vec3( 0.0f, 0.0f, 0.0f ), // color
+    //  //ka,   kd,   ks,   ke
+    //  0.1f, 0.5f, 0.1f, 20.0f
+    // );
+    // SolidMaterial* sphere1_mat = new SolidMaterial(
+    //  vec3(0.0f, 0.0f, 0.0f), // color
+    //  //kr,   kd
+    //  1.0f, 0.0f
     // );
     //
-    // // camera upside down, looking forward
-    // Camera* cam2  = new Camera(
-    //     world,
-    //     vec3( 0.0f ), // pos
-    //     vec3( 0.0f, 0.0f, 1.0f ), // lookat
-    //     vec3( 0.0f, -1.0f, 0.0f ), // up
-    //     { 1.92f, 1.08f, 1.0f }
+    // //
+    // // TRANSMISSIVE
+    // //
+    //
+    // vec3 sphere2_p = vec3(
+    //     0.0f - 1.5 * sphere_r, // x
+    //     0.0f + sphere_r,       // y
+    //     0.0f
+    // );
+    // Phong* sphere2_imodel = new Phong(
+    //  vec3( 0.0f, 0.0f, 0.0f ), // color
+    //  //ka,   kd,   ks,   ke
+    //  0.1f, 0.5f, 0.1f, 20.0f
+    // );
+    // SolidMaterial* sphere2_mat = new SolidMaterial(
+    //  vec3(0.0f, 0.0f, 0.0f), // color
+    //  //kr,   kd,   ir
+    //  0.0f, 1.0f, 0.7f
     // );
     //
-    // // camera looking down
-    // Camera* cam3  = new Camera(
-    //     world,
-    //     vec3( 0.0f ), // pos
-    //     vec3( 0.0f, -1.0f, 0.0f ), // lookat
-    //     vec3( 0.0f, 0.0f, 1.0f ), // up
-    //     { 1.92f, 1.08f, 1.0f }
-    // );
+    // Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
+    // Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
+    //
+    // world->add_object( sphere1 );
+    // world->add_object( sphere2 );
 
-    // = = = = = = = = = = =  //
-    // CAMERAS FOR CHECKPOINT //
-    // = = = = = = = = = = =  //
+    // =======================
+    //          LIGHT
+    // =======================
+
+    vec3* light_col = new vec3( 1.0f );
+    vec3* light_pos = new vec3( 0.0f ); //, cube_r, 0.0f );
+
+    Light light = {
+        light_col, light_pos
+    };
+
+    world->add_light( &light );
 
     // main camera
     Camera* cam = new Camera(
         world,
-        vec3( 1.8f, 2.53f, -8.38f ), // pos
+        vec3( 0.0f, 0.0f, -cube_w ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
         vec3( 0.0f, 1.0f, 0.0f ), // up
         { 1.92f, 1.08f, 0.8f } // P_Plane
     );
 
-    // camera looking down
-    // Camera* cam = new Camera(
-    //     world,
-    //     vec3( 1.0f, 8.53f, -5.38f ), // pos
-    //     vec3( 0.0f, -1.0f, 0.0f ), // lookat
-    //     vec3( 0.0f, 0.0f, 1.0f ), // up
-    //     { 1.92f, 1.08f, 1.0f }
-    // );
+    png::image<png::rgb_pixel> negative( I_WIDTH, I_HEIGHT );
 
-    // PRINT IMAGES
+    std::clock_t start;
+    double duration;
 
-    png::image<png::rgb_pixel> negative1(I_WIDTH, I_HEIGHT);
-    // png::image<png::rgb_pixel> negative2(I_WIDTH, I_HEIGHT);
-    // png::image<png::rgb_pixel> negative3(I_WIDTH, I_HEIGHT);
-    // png::image<png::rgb_pixel> negative4(I_WIDTH, I_HEIGHT);
-
-    // std::clock_t start;
-    // double duration;
-    //
     cam->set_scene();
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    cam->render( &negative1 );
-    photo_print( negative1, "out/test.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout<< "SS x0 // " << duration << "sec" << '\n';
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    // cam->render( &negative2, 2 );
-    // photo_print( negative2, "etc/chkpt3_img2.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout << "SS x4 // " << duration << "sec" << '\n';
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    // cam->render( &negative3, 4 );
-    // photo_print( negative3, "etc/chkpt3_img3.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout << "SS x9 // " << duration << "sec" << '\n';
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    // cam->render( &negative4, 6 );
-    // photo_print( negative4, "etc/chkpt3_img4.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout << "SS x16 // " << duration << "sec" << '\n';
+
+    start = std::clock();
+
+    cam->render( &negative );
+    photo_print( negative, "out/test.png" );
+
+    duration = start - std::clock();
+
+    std::cout << "render took " << duration << '\n';
 
     delete cam;
 }
@@ -391,7 +280,7 @@ void init() {
 int main( void ) {
 
     // initialize the stuff we need for our rendering
-    init();
+    cornell_box();
 
     return 0;
 }

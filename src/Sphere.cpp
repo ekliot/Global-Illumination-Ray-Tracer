@@ -51,7 +51,7 @@ vec3 Sphere::get_normal( Ray* ray, float distance ) {
 
 void Sphere::transform( mat4 tmat ) {
     vec4 _center = tmat * vec4( center->x, center->y, center->z, 1 );
-    *(center) = convert( &_center );
+    *(center) = convert( _center );
 }
 
 // TODO actually implement object space

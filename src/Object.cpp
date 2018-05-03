@@ -47,8 +47,8 @@ vec3 Object::get_color( Ray* ray, float distance, std::vector<Light> lights, vec
     return imodel->intersect( data );
 }
 
-vec3 Object::convert( vec4* vec ) {
-    return vec3( vec->x / vec->w, vec->y / vec->w, vec->z / vec->w );
+vec3 Object::convert( vec4 vec ) {
+    return vec3( vec.x / vec.w, vec.y / vec.w, vec.z / vec.w );
 }
 
 // HACK I don't know what to do here

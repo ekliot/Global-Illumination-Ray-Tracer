@@ -16,13 +16,14 @@ using namespace std;
  PUBLIC MEMBERS
 \**************/
 
-Rectangle::Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel, Material* _mat ) : \
-        Object(_imodel,_mat), ul(_ul), ur(_ur), lr(_lr), ll(_ll) {
+Rectangle::Rectangle( vec3 a, vec3 b, vec3 c, vec3 d, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat) {
+    /**  A-----B
+       /      /
+      D-----C  **/
 
     // TODO these should COPY imodel and material
-    tri1 = new Triangle( ll, lr, ul, imodel, material );
-    tri2 = new Triangle( ul, ur, lr, imodel, material );
-
+    tri1 = new Triangle( vec3( a ), vec3( b ), vec3( c ), imodel, material );
+    tri2 = new Triangle( vec3( c ), vec3( d ), vec3( a ), imodel, material );
 }
 
 Rectangle::~Rectangle() {
@@ -31,22 +32,25 @@ Rectangle::~Rectangle() {
     // delete tri2;
 }
 
+vec3 Rectangle::get_a() {
+    return tri1->get_a();
+}
+
+vec3 Rectangle::get_b() {
+    return tri1->get_b();
+}
+
+vec3 Rectangle::get_c() {
+    return tri1->get_c();
+}
+
+vec3 Rectangle::get_d() {
+    return tri2->get_b();
+}
+
 void Rectangle::transform( mat4 mat ) {
-    vec4 _ul = vec4( ul->x, ul->y, ul->z, 1 );
-    _ul = mat * _ul;
-    *ul = convert( &_ul );
-
-    vec4 _ur = vec4( ur->x, ur->y, ur->z, 1 );
-    _ur = mat * _ur;
-    *ur = convert( &_ur );
-
-    vec4 _lr = vec4( lr->x, lr->y, lr->z, 1 );
-    _lr = mat * _lr;
-    *lr = convert( &_lr );
-
-    vec4 _ll = vec4( ll->x, ll->y, ll->z, 1 );
-    _ll = mat * _ll;
-    *ll = convert( &_ll );
+    tri1->transform( mat );
+    tri2->transform( mat );
 }
 
 float Rectangle::intersection( Ray* ray ) {
@@ -72,12 +76,17 @@ vec2 Rectangle::get_uv( vec3 point ) {
     float u = 0.0f;
     float v = 0.0f;
 
-    if ( ul->y == lr->y && ur->y == ll->y ) {
-        float x_min = std::min( ul->x, std::min( ur->x, std::min( lr->x, ll->x ) ) );
-        float z_min = std::min( ul->z, std::min( ur->z, std::min( lr->z, ll->z ) ) );
+    vec3 a = get_a();
+    vec3 b = get_b();
+    vec3 c = get_c();
+    vec3 d = get_d();
 
-        float x_max = std::max( ul->x, std::max( ur->x, std::max( lr->x, ll->x ) ) );
-        float z_max = std::max( ul->z, std::max( ur->z, std::max( lr->z, ll->z ) ) );
+    if ( a.y == c.y && b.y == d.y ) {
+        float x_min = std::min( a.x, std::min( b.x, std::min( c.x, d.x ) ) );
+        float z_min = std::min( a.z, std::min( b.z, std::min( c.z, d.z ) ) );
+
+        float x_max = std::max( a.x, std::max( b.x, std::max( c.x, d.x ) ) );
+        float z_max = std::max( a.z, std::max( b.z, std::max( c.z, d.z ) ) );
 
         float w = x_max - x_min;
         float l = z_max - z_min;

@@ -29,7 +29,7 @@ public:
     // returns a 3D vector of the RGB value of a point on the object intersected by a given Ray
     vec3 get_color( Ray* r, float dist, std::vector<Light> lights, vec3* amb, mat4 rev_tmat );
     // reduces a 4D vector to a 3D vector
-    vec3 convert( vec4* vector );
+    vec3 convert( vec4 vector );
 
     //gets the object's material
     Material* get_material();

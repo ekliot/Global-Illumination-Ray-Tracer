@@ -12,17 +12,17 @@ using glm::vec3;
 
 class Rectangle : public Object {
 
-    vec3* ul;
-    vec3* ur;
-    vec3* lr;
-    vec3* ll;
-
     Triangle* tri1;
     Triangle* tri2;
 
 public:
-    Rectangle( vec3* _ul, vec3* _ur, vec3* _lr, vec3* _ll, IlluminationModel* _imodel, Material* _mat );
+    Rectangle( vec3 _ul, vec3 _ur, vec3 _lr, vec3 _ll, IlluminationModel* _imodel, Material* _mat );
     ~Rectangle();
+
+    vec3 get_a();
+    vec3 get_b();
+    vec3 get_c();
+    vec3 get_d();
 
     void transform( mat4 mat );
     float intersection( Ray* ray );
