@@ -62,19 +62,19 @@ void cornell_box() {
         D-------C
     */
 
-    float cube_w = 1.0f;
+    float cube_w = 2.0f;
     float cube_r = cube_w / 2;
     vec3 cube_center = vec3( 0.0f );
 
     // llf = lower left far
-    vec3 pt_a = cube_center + vec3( -cube_r,  cube_r, -cube_r );
-    vec3 pt_b = cube_center + vec3(  cube_r,  cube_r, -cube_r );
-    vec3 pt_c = cube_center + vec3(  cube_r, -cube_r, -cube_r );
-    vec3 pt_d = cube_center + vec3( -cube_r, -cube_r, -cube_r );
-    vec3 pt_e = cube_center + vec3( -cube_r,  cube_r,  cube_r );
-    vec3 pt_f = cube_center + vec3(  cube_r,  cube_r,  cube_r );
-    vec3 pt_g = cube_center + vec3(  cube_r, -cube_r,  cube_r );
-    vec3 pt_h = cube_center + vec3( -cube_r, -cube_r,  cube_r );
+    vec3 pt_a = cube_center + vec3( -cube_r,  cube_r * 0.9, -cube_r );
+    vec3 pt_b = cube_center + vec3(  cube_r,  cube_r * 0.9, -cube_r );
+    vec3 pt_c = cube_center + vec3(  cube_r, -cube_r * 0.9, -cube_r );
+    vec3 pt_d = cube_center + vec3( -cube_r, -cube_r * 0.9, -cube_r );
+    vec3 pt_e = cube_center + vec3( -cube_r,  cube_r * 0.9,  cube_r );
+    vec3 pt_f = cube_center + vec3(  cube_r,  cube_r * 0.9,  cube_r );
+    vec3 pt_g = cube_center + vec3(  cube_r, -cube_r * 0.9,  cube_r );
+    vec3 pt_h = cube_center + vec3( -cube_r, -cube_r * 0.9,  cube_r );
 
     Phong* plane_imodel;
     SolidMaterial* plane_mat;
@@ -90,7 +90,7 @@ void cornell_box() {
         0.0f, 0.8f, 0.0f, 0.0f
     );
     plane_mat = new SolidMaterial(
-        vec3( 0.8f, 0.8f, 0.8f ), // color
+        vec3( 0.7f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
@@ -111,7 +111,7 @@ void cornell_box() {
         0.0f, 0.8f, 0.0f, 0.0f
     );
     plane_mat = new SolidMaterial(
-        vec3( 0.8f, 0.8f, 0.8f ), // color
+        vec3( 0.7f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
@@ -132,7 +132,7 @@ void cornell_box() {
         0.0f, 0.8f, 0.0f, 0.0f
     );
     plane_mat = new SolidMaterial(
-        vec3( 0.8f, 0.8f, 0.8f ), // color
+        vec3( 0.7f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
@@ -191,57 +191,63 @@ void cornell_box() {
     //         SPHERES
     // =======================
 
-    // float sphere_trans = 1.0f;
-    // float sphere_r = 0.5f * sphere_trans;
+    float sphere_trans = 1.0;
+    float sphere_r = ( cube_r / 3 ) * sphere_trans;
+    float sphere_lift = 0.03f;
+    float sphere_y = pt_d.y + sphere_r + sphere_lift;
+
     //
-    // //
-    // // REFLECTIVE
-    // //
+    // REFLECTIVE
     //
-    // vec3 sphere1_p = vec3( 0.0f - 1.5 * sphere_r, 0.0f + sphere_r, 0.0f );
-    // Phong* sphere1_imodel = new Phong(
-    //  vec3( 0.0f, 0.0f, 0.0f ), // color
-    //  //ka,   kd,   ks,   ke
-    //  0.1f, 0.5f, 0.1f, 20.0f
-    // );
-    // SolidMaterial* sphere1_mat = new SolidMaterial(
-    //  vec3(0.0f, 0.0f, 0.0f), // color
-    //  //kr,   kd
-    //  1.0f, 0.0f
-    // );
+
+    vec3 sphere1_p = vec3(
+        -cube_r/2.1,
+        sphere_y,
+        sphere_r
+    );
+    Phong* sphere1_imodel = new Phong(
+        vec3( 0.0f, 0.0f, 0.0f ), // specular color
+        //ka,   kd,   ks,   ke
+        0.1f, 0.5f, 0.1f, 20.0f
+    );
+    SolidMaterial* sphere1_mat = new SolidMaterial(
+        vec3( 0.0f, 0.0f, 0.0f ), // color
+        //kr,   kd
+        1.0f, 0.0f
+    );
+
     //
-    // //
-    // // TRANSMISSIVE
-    // //
+    // TRANSMISSIVE
     //
-    // vec3 sphere2_p = vec3(
-    //     0.0f - 1.5 * sphere_r, // x
-    //     0.0f + sphere_r,       // y
-    //     0.0f
-    // );
-    // Phong* sphere2_imodel = new Phong(
-    //  vec3( 0.0f, 0.0f, 0.0f ), // color
-    //  //ka,   kd,   ks,   ke
-    //  0.1f, 0.5f, 0.1f, 20.0f
-    // );
-    // SolidMaterial* sphere2_mat = new SolidMaterial(
-    //  vec3(0.0f, 0.0f, 0.0f), // color
-    //  //kr,   kd,   ir
-    //  0.0f, 1.0f, 0.7f
-    // );
-    //
-    // Sphere* sphere1 = new Sphere( &sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
-    // Sphere* sphere2 = new Sphere( &sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
-    //
-    // world->add_object( sphere1 );
-    // world->add_object( sphere2 );
+
+    vec3 sphere2_p = vec3(
+        cube_r/2.1,
+        sphere_y,
+        0.0f
+    );
+    Phong* sphere2_imodel = new Phong(
+        vec3( 0.0f, 0.0f, 0.0f ), // specular color
+        //ka,   kd,   ks,   ke
+        0.1f, 0.6f, 0.35f, 20.0f
+    );
+    SolidMaterial* sphere2_mat = new SolidMaterial(
+        vec3( 0.1f, 0.1f, 0.1f ), // color
+        //kr,   kd,   ir
+        0.0f, 0.8f, 1.9f
+    );
+
+    Sphere* sphere1 = new Sphere( sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
+    Sphere* sphere2 = new Sphere( sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
+
+    world->add_object( sphere1 );
+    world->add_object( sphere2 );
 
     // =======================
     //          LIGHT
     // =======================
 
-    vec3* light_col = new vec3( 1.0f );
-    vec3* light_pos = new vec3( 0.0f ); //, cube_r, 0.0f );
+    vec3* light_col = new vec3( 0.9f );
+    vec3* light_pos = new vec3( 0.0f, pt_a.y * 0.95, -cube_r/2 );
 
     Light light = {
         light_col, light_pos
@@ -252,13 +258,13 @@ void cornell_box() {
     // main camera
     Camera* cam = new Camera(
         world,
-        vec3( 0.0f, 0.0f, -cube_w ), // pos
+        vec3( 0.0f, 0.0f, -cube_w * 1.2f ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
         vec3( 0.0f, 1.0f, 0.0f ), // up
-        { 1.92f, 1.08f, 0.8f } // P_Plane
+        { 1.6f, 1.2f, 1.3f } // P_Plane
     );
 
-    png::image<png::rgb_pixel> negative( I_WIDTH, I_HEIGHT );
+    png::image<png::rgb_pixel> negative( 1600, 1200 );
 
     std::clock_t start;
     double duration;
@@ -270,9 +276,9 @@ void cornell_box() {
     cam->render( &negative );
     photo_print( negative, "out/test.png" );
 
-    duration = start - std::clock();
+    duration = (std::clock() - start)/CLOCKS_PER_SEC;
 
-    std::cout << "render took " << duration << '\n';
+    std::cout << "render took " << duration << "sec" << '\n';
 
     delete cam;
 }

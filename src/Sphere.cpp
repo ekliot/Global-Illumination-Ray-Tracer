@@ -19,12 +19,12 @@ using glm::vec4;
  PUBLIC MEMBERS
 \**************/
 
-Sphere::Sphere( vec3* c, float r, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), center(c), radius(r) {}
+Sphere::Sphere( vec3 c, float r, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), center(c), radius(r) {}
 
 float Sphere::intersection( Ray* ray ) {
     float t0, t1; // solutions for t if the ray intersects
 
-    vec3 L = *(ray->origin) - *(center);
+    vec3 L = *(ray->origin) - center;
     float a = dot( *(ray->direction), *(ray->direction) );
     float b = 2 * dot( *(ray->direction), L );
     float c = dot( L, L ) - ( radius * radius );
@@ -44,14 +44,14 @@ float Sphere::intersection( Ray* ray ) {
 
 vec3 Sphere::get_normal( Ray* ray, float distance ) {
     vec3 point = *ray->origin + *ray->direction * distance;
-    vec3 normal = point- *this->center;
+    vec3 normal = point - center;
 
     return normalize( normal );
 }
 
 void Sphere::transform( mat4 tmat ) {
-    vec4 _center = tmat * vec4( center->x, center->y, center->z, 1 );
-    *(center) = convert( _center );
+    vec4 _center = tmat * vec4( center.x, center.y, center.z, 1 );
+    center = convert( _center );
 }
 
 // TODO actually implement object space

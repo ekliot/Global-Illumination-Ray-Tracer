@@ -7,8 +7,7 @@ using glm::vec3;
 #include "Object.h"
 
 class Sphere : public Object {
-
-    vec3* center;
+    vec3 center;
 
     float radius;
 
@@ -16,11 +15,10 @@ class Sphere : public Object {
 
     vec3 extract_scale( const mat4 &m );
 
-
     void scale_radius( mat4 tmat );
 
 public:
-    Sphere( vec3* center, float radius, IlluminationModel* _imodel, Material* _mat );
+    Sphere( vec3 center, float radius, IlluminationModel* _imodel, Material* _mat );
 
     void transform( mat4 mat );
     float intersection( Ray* ray );

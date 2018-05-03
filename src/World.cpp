@@ -208,7 +208,6 @@ Object* World::get_intersected_obj( Ray* r, float* distance ){
 
 // return a the colour seen by a given Ray at its point of intersection
 vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Object* last_intersect ) {
-
     float distance = 0;
     Object* intersect_obj = this->get_intersected_obj( ray, &distance );
 
@@ -237,6 +236,17 @@ vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Obj
         float kd = intersect_obj->get_material()->get_kd();
         float kr = intersect_obj->get_material()->get_kr();
 
+        // if the object is transparent...
+        if ( kd > 0 ) {
+            vec3 refract_color = calc_refraction(
+                ray, point, distance,
+                inverse_transform_mat,
+                intersect_obj, last_intersect,
+                depth
+            );
+            cur_color = cur_color + kd * refract_color;
+        }
+
         // if the object is reflective...
         if ( kr > 0 ) {
             // std::cout << "reflectin..." << '\n';
@@ -255,22 +265,9 @@ vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Obj
             vec3 reflect_color = get_intersect( &reflect_ray, inverse_transform_mat, depth+1 );
             cur_color = cur_color + kr * reflect_color;
         }
-
-        // if the object is transparent...
-        if ( kd > 0 ) {
-            vec3 refract_color = calc_refraction(
-                ray, point, distance,
-                inverse_transform_mat,
-                intersect_obj, last_intersect,
-                depth
-            );
-            cur_color = cur_color + kd * refract_color;
-        }
     }
-    else
-    {
+    else {
         std::cout << "max recursion" << '\n';
-
     }
 
     return cur_color;
