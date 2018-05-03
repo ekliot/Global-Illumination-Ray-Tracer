@@ -43,7 +43,7 @@ void init() {
     );
 
     vec3* light1_col = new vec3( 1.0f );
-    vec3* light1_pos = new vec3(1.8f, 2.74f + 2.0f, -4.57);
+    vec3* light1_pos = new vec3(1.8f, 2.74f + 1.8f, -4.57);
 
     Light light1 = {
         light1_col, light1_pos
@@ -106,7 +106,7 @@ void init() {
 
 
      plane_mat = new SolidMaterial(
-        vec3( 0.9f, 0.0f, 0.9f ), // color
+        vec3( 0.9f, 0.9f, 0.9f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
@@ -120,8 +120,7 @@ void init() {
      );
      world->add_object(rect);
 
-    // middle
-
+    // middle plane
 
     // TODO fixup the Object class to not mutate vectors in place so we don't need this wall of bullshit
     vec3 plane_a2 = vec3(llf);
@@ -137,7 +136,7 @@ void init() {
 
 
     plane_mat = new SolidMaterial(
-     vec3( 0.0f, 0.9f, 0.9f ), // color
+     vec3( 0.9f, 0.9f, 0.9f ), // color
      //kr,   kd
      0.0f, 0.0f
     );
@@ -168,7 +167,7 @@ void init() {
 
 
      plane_mat = new SolidMaterial(
-        vec3( 0.9f, 0.0f, 0.9f ), // color
+        vec3( 0.9f, 0.9f, 0.9f ), // color
         //kr,   kd
         0.0f, 0.0f
     );
@@ -182,6 +181,66 @@ void init() {
      );
      world->add_object(rect);
 
+     //
+     // left plane
+     //
+     vec3 plane_a4 = vec3(ulf);
+     vec3 plane_b4 = vec3(llf);
+     vec3 plane_c4 = vec3(llc);
+     vec3 plane_d4 = vec3(ulc);
+
+     plane_imodel = new Phong(
+         vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+         // ka,  kd,   ks,   ke
+         1.0f, 0.8f, 0.0f, 0.0f
+     );
+
+
+      plane_mat = new SolidMaterial(
+         vec3( 0.9f, 0.1f, 0.1f ), // color
+         //kr,   kd
+         0.0f, 0.0f
+     );
+
+
+     rect = new Rectangle(
+         &plane_a4, &plane_d4,
+         &plane_c4, &plane_b4,
+         plane_imodel,
+         plane_mat
+      );
+      world->add_object(rect);
+
+      //
+      // right plane
+      //
+      vec3 plane_a5 = vec3(urf);
+      vec3 plane_b5 = vec3(lrf);
+      vec3 plane_c5 = vec3(lrc);
+      vec3 plane_d5 = vec3(urc);
+
+      plane_imodel = new Phong(
+          vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
+          // ka,  kd,   ks,   ke
+          1.0f, 0.8f, 0.0f, 0.0f
+      );
+
+
+       plane_mat = new SolidMaterial(
+          vec3( 0.1f, 0.1f, 0.9f ), // color
+          //kr,   kd
+          0.0f, 0.0f
+      );
+
+
+      rect = new Rectangle(
+          &plane_a5, &plane_d5,
+          &plane_c5, &plane_b5,
+          plane_imodel,
+          plane_mat
+       );
+       world->add_object(rect);
+
     // =======================
     //         SPHERES
     // =======================
@@ -190,7 +249,7 @@ void init() {
     float sphere_trans = 1.3f;
     float sphere_r = 0.55f * sphere_trans;
 
-    vec3 sphere1_p = vec3( 0.77f, 0.44f + sphere_r, -5.0f );
+    vec3 sphere1_p = vec3( 0.77f, 0.44f + sphere_r, -3.0f );
     Phong* sphere1_imodel = new Phong(
         vec3( 0.0f, 0.0f, 0.0f ), // color
         //ka,   kd,   ks,   ke
@@ -199,10 +258,10 @@ void init() {
     SolidMaterial* sphere1_mat = new SolidMaterial(
         vec3(0.0f, 0.0f, 0.0f), // color
         //kr,   kd,   ir
-        1.0f, 0.0f, 0.8f
+        1.0f, 0.0f
     );
 
-    vec3 sphere2_p = vec3( 1.68f, 0.44f + sphere_r, -3.72f );
+    vec3 sphere2_p = vec3( 3.0f, 0.44f + sphere_r, -4.7f);
     Phong* sphere2_imodel = new Phong(
         vec3( 0.0f, 0.0f, 0.0f ), // color
         //ka,   kd,   ks,   ke
@@ -211,7 +270,7 @@ void init() {
     SolidMaterial* sphere2_mat = new SolidMaterial(
         vec3(0.0f, 0.0f, 0.0f), // color
         //kr,   kd
-        1.0f, 0.0f
+        0.0f, 1.0f, .7f
     );
 
 
@@ -259,7 +318,7 @@ void init() {
     // main camera
     Camera* cam = new Camera(
         world,
-        vec3( 1.0f, 2.53f, -8.38f ), // pos
+        vec3( 1.8f, 2.53f, -8.38f ), // pos
         vec3( 0.0f, 0.0f, 1.0f ), // lookat
         vec3( 0.0f, 1.0f, 0.0f ), // up
         { 1.92f, 1.08f, 0.8f } // P_Plane
