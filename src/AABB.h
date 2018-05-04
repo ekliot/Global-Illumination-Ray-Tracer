@@ -19,6 +19,7 @@ class AABB {
         AABB(vec3 max, vec3 min);
         AABB(AABB* first, AABB* second);
         bool intersectAABB(AABB* aabb);
+        bool intersectPoint(vec3 point);
         float intersectRay(Ray* ray);
         vec3 getMax();
         vec3 getMin();

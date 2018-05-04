@@ -49,6 +49,18 @@ bool AABB::intersectAABB(AABB* aabb)
     //     return false;
 }
 
+bool AABB::intersectPoint(vec3 point)
+{
+    if(x_min < point.x && x_max > point.x &&
+        y_min < point.y && y_max > point.y &&
+        z_min < point.z && z_max > point.z)
+    {
+        return true;
+    }
+    return false;
+    //return false;
+}
+
 float AABB::intersectRay(Ray* ray)
 {
     vec3 dirfrac;

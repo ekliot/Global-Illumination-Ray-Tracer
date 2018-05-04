@@ -20,8 +20,7 @@ using namespace glm;
 #include "Light.h"
 #include "KDTreeNode.h"
 #include "Triangle.h"
-
-
+#include "PhotonKDTreeNode.h"
 
 class World {
 
@@ -30,6 +29,7 @@ private:
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
+    PhotonKDTreeNode* photonKDTree;
     vec3 background;
     vec3 ambient;
     float ir;
@@ -94,6 +94,19 @@ public:
 
     void add_bunny();
 
+    void buildProtonKDTree(std::vector<Photon> photons);
+
+
+    struct compare
+    {
+      bool operator()(const Photon& l, const Photon& r)
+      {
+          return l.position > r.position;
+      }
+    };
+
+    std::priority_queue<Photon,std::vector<Photon>, compare >  getPhotons(vec3 position, float range);
+
 private:
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
     Object* get_intersected_obj( Ray * r, float* distance );
@@ -103,6 +116,8 @@ private:
     Light adjusted_light_to_point( vec3 point, Light light );
 
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat, Object* intersect, Object* last_isect, int depth );
+
+    void getPhotonHelper(std::priority_queue<Photon,std::vector<Photon>, compare >* photons, PhotonKDTreeNode node, vec3 position, float range);
 
 };
 

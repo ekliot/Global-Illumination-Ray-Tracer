@@ -14,7 +14,7 @@
 #include <cstring>
 #include <cmath>
 #include <ctime>
-
+#include <queue>
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -549,4 +549,88 @@ void World::add_bunny()
         std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
     }
 
+}
+void World::buildProtonKDTree(std::vector<Photon> photons)
+{
+    vec3 maxVec = vec3(FLT_MIN);
+    vec3 minVec = vec3(FLT_MAX);
+    for(Photon photon : photons)
+    {
+        maxVec.x = std::max(maxVec.x, photon.position->x);
+        maxVec.y = std::max(maxVec.y, photon.position->y);
+        maxVec.z = std::max(maxVec.z, photon.position->z);
+
+        minVec.x = std::min(minVec.x, photon.position->x);
+        minVec.y = std::min(minVec.y, photon.position->y);
+        minVec.z = std::min(minVec.z, photon.position->z);
+    }
+    AABB* currentAABB = new AABB(maxVec, minVec);
+
+    photonKDTree = new PhotonKDTreeNode(photons, currentAABB, 0);
+}
+
+
+std::priority_queue<Photon,std::vector<Photon>, World::compare > World::getPhotons(vec3 position, float range)
+{
+     std::priority_queue<Photon,std::vector<Photon>, compare > returnPhotons;
+
+     return returnPhotons;
+}
+
+void World::getPhotonHelper(std::priority_queue<Photon,std::vector<Photon>, World::compare >* photons, PhotonKDTreeNode node, vec3 position, float range)
+{
+    if(node.left != NULL)
+    {
+        float delta = 0;
+        // calculate distance
+        if(node.axis == 0)
+        {
+            delta = node.left->aabb->getMax().x - position.x;
+        }
+        else if(node.axis == 1)
+        {
+            delta = node.left->aabb->getMax().y - position.y;
+        }
+        else if( node.axis == 2)
+        {
+            delta = node.left->aabb->getMax().z - position.z;
+        }
+
+
+        if(delta < 0)
+        {
+            getPhotonHelper(photons, *node.left, position, range);
+            if(pow(delta,2) > pow(range,2))
+            {
+                getPhotonHelper(photons, *node.right, position, range);
+            }
+        }
+        else
+        {
+            getPhotonHelper(photons, *node.right, position, range);
+            if(pow(delta,2) > pow(range,2))
+            {
+                getPhotonHelper(photons, *node.left, position, range);
+            }
+        }
+    }
+    else
+    {
+        for(size_t i=0; i < node.photons->size(); i++){
+           Photon oldPhoton = node.photons->at(i);
+           Photon newPhoton = {};
+
+           newPhoton.position = new vec3(*oldPhoton.position);
+           strcpy(oldPhoton.p, newPhoton.p);
+           newPhoton.phi = oldPhoton.phi;
+           newPhoton.theta = oldPhoton.theta;
+           newPhoton.flag = oldPhoton.flag;
+           newPhoton.distance = glm::distance(*newPhoton.position, position);
+
+           photons->push(newPhoton);
+
+        }
+
+        // we are done;
+    }
 }
