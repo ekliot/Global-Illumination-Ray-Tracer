@@ -18,6 +18,10 @@ using namespace glm;
 #include "Object.h"
 #include "Ray.h"
 #include "Light.h"
+#include "KDTreeNode.h"
+#include "Triangle.h"
+
+
 
 class World {
 
@@ -30,7 +34,19 @@ private:
     vec3 ambient;
     float ir;
 
-    const int MAX_DEPTH = 20;
+    KDTreeNode* objectTree;
+
+    // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
+    // std::vector<Attribute> attributes;
+
+    /**
+     * Transforms an object in the scene in place
+     *
+     * @param obj :: Object :: the object to be transformed
+     */
+    // void transform( Object obj );
+
+    const int MAX_DEPTH = 5;
 
 public:
 
@@ -70,6 +86,13 @@ public:
      */
     vec3 get_intersect( Ray* r, mat4 inverse_transform_mat, int depth = 0, Object* lastIntersectionObject = NULL);
 
+    vec3 get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat);
+
+    vec3* get_intersect_kd_tree_helper( Ray *r, KDTreeNode* node, float* returnDist, mat4 inverse_transform_mat);
+
+    void generate_kd_tree();
+
+    void add_bunny();
 
 private:
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );

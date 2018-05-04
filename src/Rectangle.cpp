@@ -47,6 +47,9 @@ void Rectangle::transform( mat4 mat ) {
     vec4 _ll = vec4( ll->x, ll->y, ll->z, 1 );
     _ll = mat * _ll;
     *ll = convert( &_ll );
+
+    tri1->transform(mat);
+    tri2->transform(mat);
 }
 
 float Rectangle::intersection( Ray* ray ) {
@@ -61,6 +64,22 @@ vec3 Rectangle::get_normal( Ray* ray, float distance ) {
     return tri1->get_normal( ray, distance );
 }
 
+AABB* Rectangle::getAABB()
+{
+    vec3 vec_max = vec3(ul->x, ul->y, ul->z);
+    vec3 vec_min = vec3(ul->x, ul->y, ul->z);
+
+    vec_max = maxVecHelper(vec_max, *ur);
+    vec_max = maxVecHelper(vec_max,*ll);
+    vec_max = maxVecHelper(vec_max,*lr);
+
+    vec_min = minVecHelper(vec_min, *ur);
+    vec_min = minVecHelper(vec_min,*ll);
+    vec_min = minVecHelper(vec_min,*lr);
+
+
+    return new AABB(vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y, vec_min.z);
+}
 // TODO actually implement world-to-obj conversion
 vec3 Rectangle::world_to_obj_space( vec3 point ) {
     return point;

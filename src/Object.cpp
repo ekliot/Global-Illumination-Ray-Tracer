@@ -51,6 +51,38 @@ vec3 Object::convert( vec4* vec ) {
     return vec3( vec->x / vec->w, vec->y / vec->w, vec->z / vec->w );
 }
 
+float Object::minHelper(float oldValue, float newValue)
+{
+    if(newValue < oldValue)
+        return newValue;
+    return oldValue;
+}
+
+float Object::maxHelper(float oldValue, float newValue)
+{
+    if(newValue > oldValue)
+        return newValue;
+    return oldValue;
+}
+
+vec3 Object::minVecHelper(vec3 oldValue, vec3 newValue)
+{
+    return vec3(
+        minHelper(oldValue.x, newValue.x),
+        minHelper(oldValue.y, newValue.y),
+        minHelper(oldValue.z, newValue.z)
+    );
+}
+
+vec3 Object::maxVecHelper(vec3 oldValue, vec3 newValue)
+{
+    return vec3(
+        maxHelper(oldValue.x, newValue.x),
+        maxHelper(oldValue.y, newValue.y),
+        maxHelper(oldValue.z, newValue.z)
+    );
+}
+
 // HACK I don't know what to do here
 vec3 Object::world_to_obj_space( vec3 point ) {
     return point;
@@ -58,6 +90,7 @@ vec3 Object::world_to_obj_space( vec3 point ) {
 
 // HACK blech
 vec2 Object::get_uv( vec3 point ) {
+
     return vec2( 0.0f );
 }
 

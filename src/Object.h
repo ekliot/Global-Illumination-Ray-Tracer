@@ -10,6 +10,7 @@
 #include "Ray.h"
 #include "Light.h"
 #include "IlluminationModel.h"
+#include "AABB.h"
 #include "Material.h"
 
 using namespace glm;
@@ -18,6 +19,12 @@ class Object {
 protected:
     IlluminationModel* imodel;
     Material* material;
+
+    float minHelper(float oldValue, float newValue);
+    float maxHelper(float oldValue, float newValue);
+
+    vec3 minVecHelper(vec3 oldValue, vec3 newValue);
+    vec3 maxVecHelper(vec3 oldValue, vec3 newValue);
 
 public:
     Object( IlluminationModel* _imodel, Material* _mat );
@@ -44,6 +51,8 @@ public:
     virtual vec3 world_to_obj_space( vec3 point );
     // vec2 get_uv( vec3 point );
     virtual vec2 get_uv( vec3 point );
+
+    virtual AABB* getAABB() = 0;
 
 };
 
