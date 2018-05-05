@@ -26,8 +26,10 @@ using namespace tinyply;
 using namespace glm;
 
 // dimensions of drawing window
-const int I_WIDTH  = 1920;
-const int I_HEIGHT = 1080;
+const int I_WIDTH  = 1600;
+const int I_HEIGHT = 1200;
+// const int I_WIDTH  = 1920;
+// const int I_HEIGHT = 1080;
 
 void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
     negative.write( filename );
@@ -213,7 +215,7 @@ void cornell_box() {
                               { 1.6f, 1.2f, 1.3f }       // P_Plane
     );
 
-    png::image<png::rgb_pixel> negative( 1600, 1200 );
+    png::image<png::rgb_pixel> negative( I_WIDTH, I_HEIGHT );
 
     std::clock_t start;
     double duration;
