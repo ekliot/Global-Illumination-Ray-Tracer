@@ -28,7 +28,15 @@ class World {
     std::vector<Light*> lights;
 
     KDTreeNode* objectTree;
-    // PhotonKDTreeNode* photonKDTree;
+
+    PhotonKDTreeNode* globalMap;
+    PhotonKDTreeNode* causticMap;
+    PhotonKDTreeNode* volumeMap;
+
+    std::vector<Photon> globalPhotons;
+    std::vector<Photon> causticPhotons;
+    std::vector<Photon> volumePhotons;
+
 
     vec3 background;
     vec3 ambient;

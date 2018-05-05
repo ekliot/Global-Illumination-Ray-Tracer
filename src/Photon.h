@@ -16,14 +16,14 @@ namespace photon {
         vec3 power;
         vec3 dir;
         short flag;
-        // float distance;  // used for min heap
+        float distance;  // used for min heap
     } Photon;
 
     class Compare {
       public:
         bool operator()( const st_Photon& a, const st_Photon& b ) {
             // TODO
-            return false;
+            return a.distance > b.distance;
         }
     };
 }  // namespace photon

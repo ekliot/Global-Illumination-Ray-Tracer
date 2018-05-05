@@ -19,9 +19,10 @@
 
 #include "Phong.h"
 #include "SolidMaterial.h"
-#include "PhotonInteraction.h"
+#include "Photon.h"
 #include "glm/gtx/string_cast.hpp"
 #include "tinyply.h"
+
 
 using namespace tinyply;
 using namespace photon;
@@ -337,11 +338,44 @@ void World::trace_photon( Photon p, bool was_specular, bool diffused)
     if( intersect_obj != NULL )
     {
         vec3 normal_dir = intersect_obj->get_normal( r, distance );
-        PhotonInteraction interaction = PhotonInteraction();
-        interaction.photon = &p;
-        interaction.color = vec3(p.power);
-        //interaction.color = vec3(0);
-        interaction.inc_direction = normal_dir;
+
+        Ray* newDir = r->reflect(&normal_dir);
+        Photon newPhoton = Photon();
+        newPhoton.power = vec3(p.power);
+        newPhoton.position = vec3(*newDir->origin + *newDir->direction *.0001f);
+        newPhoton.dir = vec3(*newDir->direction);
+        newPhoton.flag = p.flag;
+
+        float random = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        if(random > intersect_obj->get_material()->get_kd())
+        {
+            //difuse
+            if(was_specular)
+            {
+                causticPhotons.push_back(p);
+            }
+            if(diffused)
+            {
+                volumePhotons.push_back(p);
+            }
+            globalPhotons.push_back(p);
+            trace_photon(newPhoton, was_specular,true);
+
+
+
+        }
+        else if(random > intersect_obj->get_material()->get_kd() +intersect_obj->get_material()->get_kr())
+        {
+            trace_photon(newPhoton, true ,diffused);
+            // spec reflect
+
+        }
+        else
+        {
+            //absorption
+
+        }
+
 
         // add it to the vector
 
