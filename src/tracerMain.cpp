@@ -217,19 +217,19 @@ void cornell_box() {
 
     png::image<png::rgb_pixel> negative( I_WIDTH, I_HEIGHT );
 
-    std::clock_t start;
-    double duration;
+    // std::clock_t start;
+    // double duration;
 
     cam->set_scene();
 
-    start = std::clock();
+    // start = std::clock();
 
     cam->render( &negative );
     photo_print( negative, "out/test.png" );
 
-    duration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+    //duration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
 
-    std::cout << "render took " << duration << "sec" << '\n';
+    //std::cout << "render took " << duration << "sec" << '\n';
 
     delete cam;
 }

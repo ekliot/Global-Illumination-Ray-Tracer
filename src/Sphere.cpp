@@ -107,6 +107,7 @@ vec3 Sphere::extract_scale( const mat4 &m ) {
 }
 
 AABB *Sphere::get_aabb() {
-    return new AABB( center.x + radius, center.y + radius, center.z + radius,
-                     center.x - radius, center.y - radius, center.z - radius );
+    float realRadius = sqrt(pow(radius,2)*2);
+    return new AABB( center.x + realRadius, center.y + realRadius, center.z + realRadius,
+                     center.x - realRadius, center.y - realRadius, center.z - realRadius );
 }

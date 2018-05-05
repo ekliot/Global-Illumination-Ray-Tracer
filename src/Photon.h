@@ -21,9 +21,9 @@ namespace photon {
 
     class Compare {
       public:
-        bool operator()( const st_Photon& a, const st_Photon& b ) {
+        bool operator()( const st_Photon* a, const st_Photon* b ) {
             // TODO
-            return a.distance > b.distance;
+            return a->distance > b->distance;
         }
     };
 }  // namespace photon

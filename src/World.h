@@ -42,7 +42,7 @@ class World {
     vec3 ambient;
     float ir;
 
-    const int MAX_DEPTH = 5;
+    const int MAX_DEPTH = 25;
 
   public:
     /**
@@ -86,11 +86,10 @@ class World {
 
     void trace_photon( Photon p, bool was_specular, bool diffused);
 
-    vec3 get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat );
+    Object* get_intersect_kd_tree( Ray* r, float* returnDist );
 
-    vec3* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                        float* returnDist,
-                                        mat4 inverse_transform_mat );
+    Object* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
+                                        float* returnDist);
 
     void generate_kd_tree();
 
