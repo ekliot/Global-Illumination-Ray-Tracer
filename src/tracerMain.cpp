@@ -21,7 +21,9 @@
 #include "Sphere.h"
 #include "Triangle.h"
 #include "World.h"
+#include "tinyply.h"
 
+using namespace tinyply;
 using namespace glm;
 
 // dimensions of drawing window
@@ -46,6 +48,20 @@ void cornell_box() {
         vec3( 0.1f )  // ambient light
     );
 
+<<<<<<< HEAD
+=======
+    vec3* light1_col = new vec3( 1.0f );
+    vec3* light1_pos = new vec3(1.8f, 2.74f + 1.8f, -4.57);
+
+    Light light1 = {
+        light1_col, light1_pos
+    };
+
+    world->add_light( &light1 );
+
+
+
+>>>>>>> photon-mapping-chris
     // add objects to the world
 
     // =======================
@@ -270,6 +286,7 @@ void cornell_box() {
     double duration;
 
     cam->set_scene();
+<<<<<<< HEAD
 
     start = std::clock();
 
@@ -279,6 +296,54 @@ void cornell_box() {
     duration = (std::clock() - start)/CLOCKS_PER_SEC;
 
     std::cout << "render took " << duration << "sec" << '\n';
+=======
+    world->generate_kd_tree();
+
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+
+    cam->render( &negative1);
+    photo_print( negative1, "out/test.png" );
+
+
+
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout<< "SS x0 // " << duration << "sec" << '\n';
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+    // cam->render( &negative2, 2 );
+    // photo_print( negative2, "etc/chkpt3_img2.png" );
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout << "SS x4 // " << duration << "sec" << '\n';
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+    // cam->render( &negative3, 4 );
+    // photo_print( negative3, "etc/chkpt3_img3.png" );
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout << "SS x9 // " << duration << "sec" << '\n';
+    //
+    // //
+    //
+    // start = std::clock();
+    //
+    // cam->render( &negative4, 6 );
+    // photo_print( negative4, "etc/chkpt3_img4.png" );
+    //
+    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+    // std::cout << "SS x16 // " << duration << "sec" << '\n';
+>>>>>>> photon-mapping-chris
 
     delete cam;
 }

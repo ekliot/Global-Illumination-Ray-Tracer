@@ -15,18 +15,26 @@ class Triangle : public Object {
     vec3 c;
 
 public:
+<<<<<<< HEAD
     Triangle( vec3 _a, vec3 _b, vec3 _c, IlluminationModel* _imodel, Material* _mat );
 
     vec3 get_a();
     vec3 get_b();
     vec3 get_c();
+=======
+    Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat );
+    ~Triangle();
+>>>>>>> photon-mapping-chris
 
     void transform( mat4 matrix );
     float intersection( Ray* ray );
     vec3 get_normal( Ray* ray, float distance );
 
+    AABB* getAABB();
+
     vec3 world_to_obj_space( vec3 point );
     vec2 get_uv( vec3 point );
+
 };
 
 #endif // _TRIANGLE_H_

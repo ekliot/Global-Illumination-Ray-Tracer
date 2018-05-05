@@ -18,6 +18,9 @@ using namespace glm;
 #include "Object.h"
 #include "Ray.h"
 #include "Light.h"
+#include "KDTreeNode.h"
+#include "Triangle.h"
+#include "PhotonKDTreeNode.h"
 
 class World {
 
@@ -26,11 +29,24 @@ private:
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
+    PhotonKDTreeNode* photonKDTree;
     vec3 background;
     vec3 ambient;
     float ir;
 
-    const int MAX_DEPTH = 20;
+    KDTreeNode* objectTree;
+
+    // TODO wtf is this? it's in the UML, not sure what we need it for, commenting it out for now // ekliot
+    // std::vector<Attribute> attributes;
+
+    /**
+     * Transforms an object in the scene in place
+     *
+     * @param obj :: Object :: the object to be transformed
+     */
+    // void transform( Object obj );
+
+    const int MAX_DEPTH = 5;
 
 public:
 
@@ -70,6 +86,26 @@ public:
      */
     vec3 get_intersect( Ray* r, mat4 inverse_transform_mat, int depth = 0, Object* lastIntersectionObject = NULL);
 
+    vec3 get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat);
+
+    vec3* get_intersect_kd_tree_helper( Ray *r, KDTreeNode* node, float* returnDist, mat4 inverse_transform_mat);
+
+    void generate_kd_tree();
+
+    void add_bunny();
+
+    void buildProtonKDTree(std::vector<Photon> photons);
+
+
+    struct compare
+    {
+      bool operator()(const Photon& l, const Photon& r)
+      {
+          return l.position > r.position;
+      }
+    };
+
+    std::priority_queue<Photon,std::vector<Photon>, compare >  getPhotons(vec3 position, float range);
 
 private:
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
@@ -80,6 +116,8 @@ private:
     Light adjusted_light_to_point( vec3 point, Light light );
 
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat, Object* intersect, Object* last_isect, int depth );
+
+    void getPhotonHelper(std::priority_queue<Photon,std::vector<Photon>, compare >* photons, PhotonKDTreeNode node, vec3 position, float range);
 
 };
 

@@ -8,10 +8,26 @@
 #include "glm/gtx/string_cast.hpp"
 
 #include "Triangle.h"
+#include "AABB.h"
 
 using namespace glm;
 
+<<<<<<< HEAD
 Triangle::Triangle( vec3 _a, vec3 _b, vec3 _c, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), a(_a), b(_b), c(_c) {}
+=======
+Triangle::Triangle( vec3* _a, vec3* _b, vec3* _c, IlluminationModel* _imodel, Material* _mat ) : Object(_imodel,_mat), a(_a), b(_b), c(_c) {
+    a = new vec3(_a->x, _a->y, _a->z);
+    b = new vec3(_b->x, _b->y, _b->z);
+    c = new vec3(_c->x, _c->y, _c->z);
+
+}
+
+Triangle::~Triangle(){
+    delete a;
+    delete b;
+    delete c;
+}
+>>>>>>> photon-mapping-chris
 
 // https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
 float Triangle::intersection( Ray* ray ) {
@@ -43,7 +59,14 @@ float Triangle::intersection( Ray* ray ) {
 
     t = det_inv * dot( edge2, q );
 
-    if ( t > EPS )  return t;
+    if ( t > EPS )
+    {
+        // std::cout<<glm::to_string(firstVec)<<std::endl;
+        // std::cout<<glm::to_string(secondVec)<<std::endl;
+        // std::cout<<glm::to_string(thirdVec)<<std::endl;
+
+        return t;
+    }
     // TODO this should return a float!!!
     else            return INT_MAX;
 }
@@ -92,6 +115,19 @@ vec3 Triangle::get_c() {
     return vec3( c );
 }
 
+AABB* Triangle::getAABB()
+{
+    vec3 vec_max = vec3(a->x, a->y, a->z);
+    vec3 vec_min = vec3(a->x, a->y, a->z);
+
+    vec_max = maxVecHelper(vec_max, *b);
+    vec_max = maxVecHelper(vec_max,*c);
+
+    vec_min = minVecHelper(vec_min, *b);
+    vec_min = minVecHelper(vec_min,*c);
+
+    return new AABB(vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y, vec_min.z);
+}
 // TODO actually implement world-to-obj coords
 vec3 Triangle::world_to_obj_space( vec3 point ) {
     return point;

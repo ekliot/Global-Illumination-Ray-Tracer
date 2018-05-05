@@ -6,16 +6,30 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <sstream>
+#include <thread>
+#include <chrono>
+#include <fstream>
+#include <iostream>
+#include <cstring>
+#include <cmath>
+#include <ctime>
+#include <queue>
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/matrix.hpp>
 #include "glm/gtx/string_cast.hpp"
+#include "tinyply.h"
 
 using namespace glm;
+using namespace tinyply;
+
 
 #include "World.h"
 #include "Light.h"
+#include "Phong.h"
+#include "SolidMaterial.h"
 
 World::World( vec3 bg, vec3 amb, float _ir ) : background(bg), ambient(amb), ir(_ir) {}
 
@@ -206,6 +220,141 @@ Object* World::get_intersected_obj( Ray* r, float* distance ){
     return ret_obj;
 }
 
+
+
+vec3* World::get_intersect_kd_tree_helper( Ray *r, KDTreeNode* node, float* returnDist, mat4 inverse_transform_mat)
+{
+
+    float paramReturnDist = FLT_MAX;
+
+
+    if(node->left == NULL)
+    {
+
+        *returnDist = INT_MAX;
+
+        for ( Object* obj : *node->objects ) {
+
+            float newValue = obj->intersection( r );
+            if ( newValue < *returnDist && newValue > 0.00001 )
+            {
+
+                *returnDist = newValue;
+                vec3 value = vec3(0);
+                //vec3 value = obj->get_color( &*r, *returnDist, &lights, &ambient, inverse_transform_mat );
+
+                //vec3 cur_color = intersect_obj->get_color( ray, distance, ret_lights, &ambient, inverse_transform_mat );
+
+                return new vec3(value);
+            }
+        }
+    }
+    if(node->left == NULL)
+    {
+        return NULL;
+    }
+
+    float a_enter = node->left->aabb->intersectRay(r);
+    // float a_exit = INT_MAX;
+    // if( a_enter != INT_MAX)
+    // {
+    //     vec3 newOrigin = *r->origin + ( a_enter+.01f  * *r->direction ) ;
+    //     Ray enterRay = Ray(&newOrigin, r->direction);
+    //     a_exit = node->left->aabb->intersectRay(&enterRay);
+    //
+    // }
+
+    float b_enter = node->right->aabb->intersectRay(r);
+    // float b_exit = INT_MAX;
+    // if( b_enter != INT_MAX)
+    // {
+    //     vec3 newOrigin = *r->origin + ( b_enter+.01f * *r->direction) ;
+    //     Ray enterRay = Ray(&newOrigin, r->direction);
+    //     a_exit = node->right->aabb->intersectRay(&enterRay);
+    // }
+
+
+    if(a_enter < 0)
+        a_enter = INT_MAX;
+
+    if(b_enter < 0)
+        b_enter = INT_MAX;
+
+    if(a_enter == INT_MAX && b_enter == INT_MAX)
+    {
+        return NULL;
+    }
+
+    if ( abs(a_enter - b_enter) < 0.00001) {
+
+        float a_dist;
+        vec3 *a_vec = get_intersect_kd_tree_helper(r, node->left, &a_dist, inverse_transform_mat);
+
+        float b_dist;
+
+        vec3 *b_vec = get_intersect_kd_tree_helper(r, node->right, &b_dist, inverse_transform_mat);
+        if(a_dist < b_dist)
+        {
+            return a_vec;
+        }
+        else
+        {
+            return b_vec;
+        }
+
+
+
+    }
+    else if(a_enter <= b_enter && a_enter != INT_MAX)
+    {
+        vec3 *a_vec = get_intersect_kd_tree_helper(r, node->left, &paramReturnDist, inverse_transform_mat);
+        if(a_vec != NULL)
+        {
+            return a_vec;
+        }
+        vec3 *b_vec = get_intersect_kd_tree_helper(r, node->right, &paramReturnDist, inverse_transform_mat);
+        if(b_enter != INT_MAX)
+        {
+            return b_vec;
+        }
+    }
+    else if(b_enter < a_enter && b_enter != INT_MAX)
+    {
+
+        vec3 *b_vec = get_intersect_kd_tree_helper(r, node->right, &paramReturnDist, inverse_transform_mat);
+        if(b_vec != NULL)
+        {
+            return b_vec;
+        }
+        vec3 *a_vec = get_intersect_kd_tree_helper(r, node->left, &paramReturnDist, inverse_transform_mat);
+        if(a_enter != INT_MAX)
+        {
+            return a_vec;
+        }
+    }
+
+
+    *returnDist = FLT_MAX;
+    return NULL;
+}
+
+
+vec3 World::get_intersect_kd_tree( Ray *r, mat4 inverse_transform_mat)
+{
+    float returnValue =  FLT_MAX;
+    vec3* color = get_intersect_kd_tree_helper(r,objectTree, &returnValue, inverse_transform_mat);
+    if(color != NULL)
+    {
+        return *color;
+    }
+    else
+    {
+        return background;
+    }
+
+    return vec3(0,0,0);
+}
+
 // return a the colour seen by a given Ray at its point of intersection
 vec3 World::get_intersect( Ray *ray , mat4 inverse_transform_mat, int depth, Object* last_intersect ) {
     float distance = 0;
@@ -312,4 +461,173 @@ vec3 World::calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_ma
     // std::cout << '\n';
 
     return get_intersect( &refract_ray, inv_trans_mat, depth+1, intersect );
+}
+
+void World::generate_kd_tree()
+{
+    AABB* currentAABB = new AABB(-FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+    for ( Object* obj : objects ) {
+        currentAABB = new AABB(currentAABB, obj->getAABB());
+    }
+    objectTree = new KDTreeNode(objects, currentAABB, 0);
+
+}
+
+void World::add_bunny()
+{
+    try
+    {
+        const std::string filename = "src/tinyply/bunny.ply";
+        // Read the file and create a std::istringstream suitable
+        // for the lib -- tinyply does not perform any file i/o.
+        std::ifstream ss(filename, std::ios::binary);
+
+        if (ss.fail())
+        {
+            throw std::runtime_error("failed to open ");
+        }
+
+        PlyFile file;
+        std::shared_ptr<PlyData> vertices, faces;
+
+        file.parse_header(ss);
+
+        try { vertices = file.request_properties_from_element("vertex", { "x", "y", "z" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+        try { faces = file.request_properties_from_element("face", { "vertex_indices" }); }
+        catch (const std::exception & e) { std::cerr << "tinyply exception: " << e.what() << std::endl; }
+
+
+        file.read(ss);
+
+        const size_t numVerticesBytes = vertices->buffer.size_bytes();
+
+        struct float3 { float x, y, z; };
+        std::vector<float3> verts(vertices->count);
+        std::memcpy(verts.data(), vertices->buffer.get(), numVerticesBytes);
+
+        const size_t numFacesBytes = faces->buffer.size_bytes();
+        struct int3 { uint x, y, z; };
+        std::vector<int3> triangles(faces->count);
+        std::memcpy(triangles.data(), faces->buffer.get(), numFacesBytes);
+
+        std::vector<Triangle*> tris;
+
+        for (size_t count = 0; triangles.size() > count; count++) {
+            float3 firstVert = verts[triangles[count].x];
+            vec3 firstVec = vec3(firstVert.x, firstVert.y, firstVert.z) + vec3( 0.77f, 2.7f, -5.0f );
+
+            float3 secondVert = verts[triangles[count].y];
+            vec3 secondVec = vec3(secondVert.x, secondVert.y, secondVert.z) + vec3( 0.77f, 2.7f, -5.0f );
+
+            float3 thirdVert = verts[triangles[count].z];
+            vec3 thirdVec = vec3(thirdVert.x, thirdVert.y, thirdVert.z) + vec3( 0.77f, 2.7f, -5.0f );
+
+            Phong* bunny_imodel = new Phong(
+                vec3( 1.0f, 1.0f, 1.0f ),
+                // ka,  kd,   ks,   ke
+                0.1f, 0.5f, 0.1f, 20.0f
+            );
+            SolidMaterial* bunny_mat = new SolidMaterial( vec3( 0.8f, 0.2f, 0.2f ), 0.0f, 0.0f );
+
+
+            //add triangle here
+            Triangle* triangle = new Triangle(&firstVec, &secondVec, &thirdVec, bunny_imodel, bunny_mat);
+            add_object(triangle);
+            //return_objects->push_back(triangle);
+            //tris.push_back(triangle);
+
+            //add triangle to the world here
+        }
+    }
+    catch (const std::exception & e)
+    {
+        std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
+    }
+
+}
+void World::buildProtonKDTree(std::vector<Photon> photons)
+{
+    vec3 maxVec = vec3(FLT_MIN);
+    vec3 minVec = vec3(FLT_MAX);
+    for(Photon photon : photons)
+    {
+        maxVec.x = std::max(maxVec.x, photon.position->x);
+        maxVec.y = std::max(maxVec.y, photon.position->y);
+        maxVec.z = std::max(maxVec.z, photon.position->z);
+
+        minVec.x = std::min(minVec.x, photon.position->x);
+        minVec.y = std::min(minVec.y, photon.position->y);
+        minVec.z = std::min(minVec.z, photon.position->z);
+    }
+    AABB* currentAABB = new AABB(maxVec, minVec);
+
+    photonKDTree = new PhotonKDTreeNode(photons, currentAABB, 0);
+}
+
+
+std::priority_queue<Photon,std::vector<Photon>, World::compare > World::getPhotons(vec3 position, float range)
+{
+     std::priority_queue<Photon,std::vector<Photon>, compare > returnPhotons;
+
+     return returnPhotons;
+}
+
+void World::getPhotonHelper(std::priority_queue<Photon,std::vector<Photon>, World::compare >* photons, PhotonKDTreeNode node, vec3 position, float range)
+{
+    if(node.left != NULL)
+    {
+        float delta = 0;
+        // calculate distance
+        if(node.axis == 0)
+        {
+            delta = node.left->aabb->getMax().x - position.x;
+        }
+        else if(node.axis == 1)
+        {
+            delta = node.left->aabb->getMax().y - position.y;
+        }
+        else if( node.axis == 2)
+        {
+            delta = node.left->aabb->getMax().z - position.z;
+        }
+
+
+        if(delta < 0)
+        {
+            getPhotonHelper(photons, *node.left, position, range);
+            if(pow(delta,2) > pow(range,2))
+            {
+                getPhotonHelper(photons, *node.right, position, range);
+            }
+        }
+        else
+        {
+            getPhotonHelper(photons, *node.right, position, range);
+            if(pow(delta,2) > pow(range,2))
+            {
+                getPhotonHelper(photons, *node.left, position, range);
+            }
+        }
+    }
+    else
+    {
+        for(size_t i=0; i < node.photons->size(); i++){
+           Photon oldPhoton = node.photons->at(i);
+           Photon newPhoton = {};
+
+           newPhoton.position = new vec3(*oldPhoton.position);
+           strcpy(oldPhoton.p, newPhoton.p);
+           newPhoton.phi = oldPhoton.phi;
+           newPhoton.theta = oldPhoton.theta;
+           newPhoton.flag = oldPhoton.flag;
+           newPhoton.distance = glm::distance(*newPhoton.position, position);
+
+           photons->push(newPhoton);
+
+        }
+
+        // we are done;
+    }
 }

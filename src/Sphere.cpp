@@ -109,3 +109,9 @@ vec3 Sphere::extract_scale( const mat4 &m ) {
                  length2( vec3( m[1] ) ),
                  length2( vec3( m[2] ) ) );
 }
+
+AABB* Sphere::getAABB()
+{
+    return new AABB(center->x + radius, center->y + radius, center->z + radius,
+    center->x - radius, center->y - radius, center->z - radius);
+}
