@@ -13,8 +13,6 @@
 #include <glm/vec3.hpp>
 #include <vector>
 
-using namespace glm;
-
 #include "KDTreeNode.h"
 #include "Light.h"
 #include "Object.h"
@@ -22,13 +20,15 @@ using namespace glm;
 #include "Ray.h"
 #include "Triangle.h"
 
+using namespace glm;
+
 class World {
   private:
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
     KDTreeNode* objectTree;
-    PhotonKDTreeNode* photonKDTree;
+    // PhotonKDTreeNode* photonKDTree;
 
     vec3 background;
     vec3 ambient;
@@ -85,17 +85,6 @@ class World {
 
     void add_bunny();
 
-    void buildProtonKDTree( std::vector<Photon> photons );
-
-    struct compare {
-        bool operator()( const Photon& l, const Photon& r ) {
-            return l.position > r.position;
-        }
-    };
-
-    std::priority_queue<Photon, std::vector<Photon>, compare> getPhotons(
-        vec3 position, float range );
-
   private:
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
     Object* get_intersected_obj( Ray* r, float* distance );
@@ -106,10 +95,6 @@ class World {
 
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat,
                           Object* intersect, Object* last_isect, int depth );
-
-    void getPhotonHelper(
-        std::priority_queue<Photon, std::vector<Photon>, compare>* photons,
-        PhotonKDTreeNode node, vec3 position, float range );
 };
 
 #endif

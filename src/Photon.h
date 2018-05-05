@@ -1,16 +1,31 @@
+/**
+ *
+ */
+
 #ifndef _PHOTON_H_
 #define _PHOTON_H_
 
+#include <glm/detail/func_vector_relational.hpp>
 #include <glm/vec3.hpp>
 
 using namespace glm;
 
-typedef struct st_Photon {
-    vec3 position;
-    vec3 power;
-    char phi, theta;
-    short flag;
-    float distance;  // used for min heap
-} Photon;
+namespace photon {
+    typedef struct st_Photon {
+        vec3 position;
+        vec3 power;
+        vec3 dir;
+        short flag;
+        // float distance;  // used for min heap
+    } Photon;
+
+    class Compare {
+      public:
+        bool operator()( const st_Photon& a, const st_Photon& b ) {
+            // TODO
+            return false;
+        }
+    };
+}  // namespace photon
 
 #endif
