@@ -2,15 +2,11 @@
  *
  */
 
+#include "Rectangle.h"
+
 #include <iostream>
 
 #include "glm/gtx/string_cast.hpp"
-
-using glm::vec3;
-using glm::vec4;
-using namespace std;
-
-#include "Rectangle.h"
 
 /**************\
  PUBLIC MEMBERS
@@ -59,17 +55,17 @@ vec3 Rectangle::get_normal( Ray* ray, float distance ) {
     return tri1->get_normal( ray, distance );
 }
 
-AABB* Rectangle::getAABB() {
-    vec3 vec_max = vec3( ul->x, ul->y, ul->z );
-    vec3 vec_min = vec3( ul->x, ul->y, ul->z );
+AABB* Rectangle::get_aabb() {
+    vec3 vec_max = vec3( get_a().x, get_a().y, get_a().z );
+    vec3 vec_min = vec3( get_a().x, get_a().y, get_a().z );
 
-    vec_max = maxVecHelper( vec_max, *ur );
-    vec_max = maxVecHelper( vec_max, *ll );
-    vec_max = maxVecHelper( vec_max, *lr );
+    vec_max = max_vec( vec_max, get_b() );
+    vec_max = max_vec( vec_max, get_c() );
+    vec_max = max_vec( vec_max, get_d() );
 
-    vec_min = minVecHelper( vec_min, *ur );
-    vec_min = minVecHelper( vec_min, *ll );
-    vec_min = minVecHelper( vec_min, *lr );
+    vec_min = min_vec( vec_min, get_b() );
+    vec_min = min_vec( vec_min, get_c() );
+    vec_min = min_vec( vec_min, get_d() );
 
     return new AABB( vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y,
                      vec_min.z );

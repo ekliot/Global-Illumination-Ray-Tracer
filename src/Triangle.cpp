@@ -1,12 +1,13 @@
-#if defined( _WIN32 ) || defined( _WIN64 )
-#include <windows.h>
-#endif
+/**
+ *
+ */
+
+#include "Triangle.h"
 
 #include <climits>
 #include <iostream>
 
 #include "AABB.h"
-#include "Triangle.h"
 #include "glm/gtx/string_cast.hpp"
 
 using namespace glm;
@@ -100,15 +101,15 @@ vec3 Triangle::get_b() { return vec3( b ); }
 
 vec3 Triangle::get_c() { return vec3( c ); }
 
-AABB* Triangle::getAABB() {
-    vec3 vec_max = vec3( a->x, a->y, a->z );
-    vec3 vec_min = vec3( a->x, a->y, a->z );
+AABB* Triangle::get_aabb() {
+    vec3 vec_max = vec3( a.x, a.y, a.z );
+    vec3 vec_min = vec3( a.x, a.y, a.z );
 
-    vec_max = maxVecHelper( vec_max, *b );
-    vec_max = maxVecHelper( vec_max, *c );
+    vec_max = max_vec( vec_max, b );
+    vec_max = max_vec( vec_max, c );
 
-    vec_min = minVecHelper( vec_min, *b );
-    vec_min = minVecHelper( vec_min, *c );
+    vec_min = min_vec( vec_min, b );
+    vec_min = min_vec( vec_min, c );
 
     return new AABB( vec_max.x, vec_max.y, vec_max.z, vec_min.x, vec_min.y,
                      vec_min.z );

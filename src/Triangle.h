@@ -26,7 +26,7 @@ class Triangle : public Object {
     float intersection( Ray* ray );
     vec3 get_normal( Ray* ray, float distance );
 
-    AABB* getAABB();
+    AABB* get_aabb();
 
     vec3 world_to_obj_space( vec3 point );
     vec2 get_uv( vec3 point );
