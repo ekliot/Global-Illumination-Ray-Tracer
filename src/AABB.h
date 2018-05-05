@@ -1,30 +1,32 @@
+/**
+ *
+ */
+
 #ifndef _AABB_H_
 #define _AABB_H_
 
-#include "Ray.h"
 #include <iostream>
 
+#include "Ray.h"
+
 class AABB {
+    vec3 max;
+    vec3 min;
 
-        float x_max;
-        float y_max;
-        float z_max;
-        float x_min;
-        float y_min;
-        float z_min;
+  public:
+    AABB( float max_x, float max_y, float max_z, float min_x, float min_y,
+          float min_z );
+    AABB( vec3 max, vec3 min );
+    AABB( AABB* first, AABB* second );
 
-    public:
+    bool intersect_aabb( AABB* aabb );
+    bool intersect_point( vec3 point );
+    float intersect_ray( Ray* ray );
 
-        AABB(float _x_max, float _y_max, float _z_max, float _x_min, float _y_min, float z__min);
-        AABB(vec3 max, vec3 min);
-        AABB(AABB* first, AABB* second);
-        bool intersectAABB(AABB* aabb);
-        bool intersectPoint(vec3 point);
-        float intersectRay(Ray* ray);
-        vec3 getMax();
-        vec3 getMin();
-        void print();
+    vec3 get_max();
+    vec3 get_min();
 
+    void print();
 };
 
 #endif

@@ -18,9 +18,9 @@ using glm::vec3;
 
 Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp )
     : world( _w ), plane( _pp ) {
+    // this is how it should be but we don't like it that way
+    // vec3 n = normalize( pos - look );
     vec3 n = normalize( _look );
-    // vec3 n = normalize( pos - look ); // this is how it should be but we
-    // don't like it that way
     vec3 u = normalize( cross( _up, n ) );
     vec3 v = normalize( cross( n, u ) );
 

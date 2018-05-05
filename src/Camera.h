@@ -13,24 +13,22 @@
 
 #include <glm/vec3.hpp>
 
-#include "png++/png.hpp"
-
 #include "PPlane.h"
 #include "World.h"
+#include "png++/png.hpp"
 
 using namespace png;
-using glm::vec3;
 using glm::mat4;
+using glm::vec3;
 
 class Camera {
-
     World* world;
     mat4 transform_mat;
     mat4 reverse_transform_mat;
     PPlane plane;
     bool is_set = false;
 
-public:
+  public:
     /**
      * Constructor
      *
@@ -40,7 +38,7 @@ public:
      * @param u  :: vec3   :: the up vector of the camera
      * @param pp :: PPlane :: the projection plane for the camera
      */
-    Camera( World *w, vec3 p, vec3 l, vec3 u, PPlane pp );
+    Camera( World* w, vec3 p, vec3 l, vec3 u, PPlane pp );
 
     /**
      * Destructor
@@ -55,7 +53,6 @@ public:
      * SS level // x0  x2  x4  x6  x9 x12 x16
      */
     void render( image<rgb_pixel>* negative, uint ss_rate = 0 );
-
 };
 
 #endif

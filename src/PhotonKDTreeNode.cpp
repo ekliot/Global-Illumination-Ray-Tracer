@@ -1,99 +1,109 @@
 
 #include "PhotonKDTreeNode.h"
+
 #include <glm/glm.hpp>
 #include <iostream>
 using namespace std;
 
-PhotonKDTreeNode::PhotonKDTreeNode(std::vector<Photon> _photons, AABB* _aabb, int count)
-:aabb(_aabb)
-{
-    photons = new vector<Photon>();
-    for(Photon photon : _photons)
-    {
-        photons->push_back(photon);
-    }
+PhotonKDTreeNode::PhotonKDTreeNode( std::vector<Photon*> _photons, AABB* _aabb,
+                                    int depth )
+    : aabb( _aabb ) {
+    photons = vector<Photon*>( _photons );
 
-    if(photons->size() < 2 && count < 25)
-    {
-        vector<Photon> firstList = vector<Photon>();
-        vector<Photon> secondList = vector<Photon>();
+    if ( photons.size() < 2 && depth < MAX_DEPTH ) {
+        vector<Photon*> list_left = vector<Photon*>();
+        vector<Photon*> list_rite = vector<Photon*>();
 
-        vec3 maxVec = vec3(FLT_MIN);
-        vec3 minVec = vec3(FLT_MAX);
-        for(Photon photon : _photons)
-        {
-            maxVec.x = std::max(maxVec.x, photon.position->x);
-            maxVec.y = std::max(maxVec.y, photon.position->y);
-            maxVec.z = std::max(maxVec.z, photon.position->z);
+        vec3 maxVec = vec3( FLT_MIN );
+        vec3 minVec = vec3( FLT_MAX );
 
-            minVec.x = std::min(minVec.x, photon.position->x);
-            minVec.y = std::min(minVec.y, photon.position->y);
-            minVec.z = std::min(minVec.z, photon.position->z);
+        for ( Photon* photon : _photons ) {
+            maxVec.x = std::max( maxVec.x, photon->position.x );
+            maxVec.y = std::max( maxVec.y, photon->position.y );
+            maxVec.z = std::max( maxVec.z, photon->position.z );
+
+            minVec.x = std::min( minVec.x, photon->position.x );
+            minVec.y = std::min( minVec.y, photon->position.y );
+            minVec.z = std::min( minVec.z, photon->position.z );
         }
-        float deltaX = abs(minVec.x - maxVec.x);
-        float deltaY = abs(minVec.y - maxVec.y);
-        float deltaZ = abs(minVec.z - maxVec.z);
 
-        AABB* firstAABB = NULL;
-        AABB* secondAABB = NULL;
+        float dx = abs( minVec.x - maxVec.x );
+        float dy = abs( minVec.y - maxVec.y );
+        float dz = abs( minVec.z - maxVec.z );
+
+        AABB* aabb_left  = NULL;
+        AABB* aabb_right = NULL;
 
         // make aabbs here
-        if(deltaX > deltaY && deltaX > deltaZ)
-        {
-            axis = 0;
+        axis = set_aabbs( aabb, aabb_left, aabb_right, dx, dy, dz );
 
-            float xLength = (aabb->getMax().x - aabb->getMin().x)/2;
-
-            firstAABB = new AABB(aabb->getMax().x - xLength, aabb->getMax().y, aabb->getMax().z,
-            aabb->getMin().x, aabb->getMin().y, aabb->getMin().z);
-            secondAABB = new AABB(aabb->getMax().x, aabb->getMax().y, aabb->getMax().z,
-            aabb->getMin().x + xLength, aabb->getMin().y, aabb->getMin().z);
-        }
-        else if( deltaY > deltaX && deltaY > deltaZ)
-        {
-            axis = 1;
-
-            float yLength = (aabb->getMax().y - aabb->getMin().y)/2;
-
-            firstAABB = new AABB(aabb->getMax().x, aabb->getMax().y - yLength, aabb->getMax().z,
-            aabb->getMin().x, aabb->getMin().y, aabb->getMin().z);
-            secondAABB = new AABB(aabb->getMax().x, aabb->getMax().y, aabb->getMax().z,
-            aabb->getMin().x, aabb->getMin().y + yLength, aabb->getMin().z);
-        }
-        else
-        {
-            axis = 2;
-
-            float zLength = (aabb->getMax().z - aabb->getMin().z)/2;
-
-            firstAABB = new AABB(aabb->getMax().x, aabb->getMax().y, aabb->getMax().z - zLength,
-            aabb->getMin().x, aabb->getMin().y, aabb->getMin().z);
-            secondAABB = new AABB(aabb->getMax().x, aabb->getMax().y, aabb->getMax().z,
-            aabb->getMin().x, aabb->getMin().y, aabb->getMin().z + zLength);
-        }
-
-        for(size_t i=0; i < photons->size(); i++){
-            Photon currentPhoton = photons->at(i);
-            if(firstAABB->intersectPoint(* currentPhoton.position))
-            {
-                firstList.push_back(currentPhoton);
+        for ( size_t i = 0; i < photons.size(); i++ ) {
+            Photon* p = photons.at( i );
+            if ( aabb_left->intersect_point( p->position ) ) {
+                list_left.push_back( p );
             }
-            if(secondAABB->intersectPoint(* currentPhoton.position))
-            {
-                secondList.push_back(currentPhoton);
+            if ( aabb_right->intersect_point( p->position ) ) {
+                list_rite.push_back( p );
             }
         }
-        count++;
+        depth++;
 
-        left = new PhotonKDTreeNode(firstList, firstAABB, count);
-        right = new PhotonKDTreeNode(secondList, secondAABB, count);
+        left  = new PhotonKDTreeNode( list_left, aabb_left, depth );
+        right = new PhotonKDTreeNode( list_rite, aabb_right, depth );
 
-    }
-    else
-    {
-        left = NULL;
+    } else {
+        left  = NULL;
         right = NULL;
     }
+}
 
+// returns the splitting axis
+int set_aabbs( AABB* src, AABB* left, AABB* right, float dx, float dy,
+               float dz ) {
+    int axis;
+    float len;
 
+    // make aabbs here
+    if ( dx > dy && dx > dz ) {
+        axis = 0;
+
+        len = ( src->get_max().x - src->get_min().x ) / 2;
+
+        left  = new AABB( src->get_max().x - len, src->get_max().y,
+                         src->get_max().z, src->get_min().x, src->get_min().y,
+                         src->get_min().z );
+        right = new AABB( src->get_max().x, src->get_max().y, src->get_max().z,
+                          src->get_min().x + len, src->get_min().y,
+                          src->get_min().z );
+    } else if ( dy > dx && dy > dz ) {
+        axis = 1;
+
+        len = ( src->get_max().y - src->get_min().y ) / 2;
+
+        left  = new AABB( src->get_max().x, src->get_max().y - len,
+                         src->get_max().z, src->get_min().x, src->get_min().y,
+                         src->get_min().z );
+        right = new AABB( src->get_max().x, src->get_max().y, src->get_max().z,
+                          src->get_min().x, src->get_min().y + len,
+                          src->get_min().z );
+    } else {
+        axis = 2;
+
+        len = ( src->get_max().z - src->get_min().z ) / 2;
+
+        left  = new AABB( src->get_max().x, src->get_max().y,
+                         src->get_max().z - len, src->get_min().x,
+                         src->get_min().y, src->get_min().z );
+        right = new AABB( src->get_max().x, src->get_max().y, src->get_max().z,
+                          src->get_min().x, src->get_min().y,
+                          src->get_min().z + len );
+    }
+
+    return axis;
+}
+
+PhotonKDTreeNode::~PhotonKDTreeNode() {
+    delete left;
+    delete right;
+    delete aabb;
 }

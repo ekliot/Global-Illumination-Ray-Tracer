@@ -9,9 +9,6 @@
 // Include GLM vector
 #include <glm/vec3.hpp>
 
-#include "glm/gtx/string_cast.hpp"
-
-#include "png++/png.hpp"
 #include "Camera.h"
 #include "CheckerBoard.h"
 #include "PPlane.h"
@@ -21,6 +18,8 @@
 #include "Sphere.h"
 #include "Triangle.h"
 #include "World.h"
+#include "glm/gtx/string_cast.hpp"
+#include "png++/png.hpp"
 #include "tinyply.h"
 
 using namespace tinyply;
@@ -38,30 +37,13 @@ void photo_print( png::image<png::rgb_pixel> negative, std::string filename ) {
  * Build the world scene and camera, then render the camera
  * into a pixel buffer
  */
-void init() {
-
-}
+void init() {}
 
 void cornell_box() {
-    World *world = new World(
-        vec3( 0.0f ), // background
-        vec3( 0.1f )  // ambient light
+    World* world = new World( vec3( 0.0f ),  // background
+                              vec3( 0.1f )   // ambient light
     );
 
-<<<<<<< HEAD
-=======
-    vec3* light1_col = new vec3( 1.0f );
-    vec3* light1_pos = new vec3(1.8f, 2.74f + 1.8f, -4.57);
-
-    Light light1 = {
-        light1_col, light1_pos
-    };
-
-    world->add_light( &light1 );
-
-
-
->>>>>>> photon-mapping-chris
     // add objects to the world
 
     // =======================
@@ -78,19 +60,19 @@ void cornell_box() {
         D-------C
     */
 
-    float cube_w = 2.0f;
-    float cube_r = cube_w / 2;
+    float cube_w     = 2.0f;
+    float cube_r     = cube_w / 2;
     vec3 cube_center = vec3( 0.0f );
 
     // llf = lower left far
-    vec3 pt_a = cube_center + vec3( -cube_r,  cube_r * 0.9, -cube_r );
-    vec3 pt_b = cube_center + vec3(  cube_r,  cube_r * 0.9, -cube_r );
-    vec3 pt_c = cube_center + vec3(  cube_r, -cube_r * 0.9, -cube_r );
+    vec3 pt_a = cube_center + vec3( -cube_r, cube_r * 0.9, -cube_r );
+    vec3 pt_b = cube_center + vec3( cube_r, cube_r * 0.9, -cube_r );
+    vec3 pt_c = cube_center + vec3( cube_r, -cube_r * 0.9, -cube_r );
     vec3 pt_d = cube_center + vec3( -cube_r, -cube_r * 0.9, -cube_r );
-    vec3 pt_e = cube_center + vec3( -cube_r,  cube_r * 0.9,  cube_r );
-    vec3 pt_f = cube_center + vec3(  cube_r,  cube_r * 0.9,  cube_r );
-    vec3 pt_g = cube_center + vec3(  cube_r, -cube_r * 0.9,  cube_r );
-    vec3 pt_h = cube_center + vec3( -cube_r, -cube_r * 0.9,  cube_r );
+    vec3 pt_e = cube_center + vec3( -cube_r, cube_r * 0.9, cube_r );
+    vec3 pt_f = cube_center + vec3( cube_r, cube_r * 0.9, cube_r );
+    vec3 pt_g = cube_center + vec3( cube_r, -cube_r * 0.9, cube_r );
+    vec3 pt_h = cube_center + vec3( -cube_r, -cube_r * 0.9, cube_r );
 
     Phong* plane_imodel;
     SolidMaterial* plane_mat;
@@ -100,160 +82,115 @@ void cornell_box() {
     // floor
     //
 
-    plane_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        0.0f, 0.8f, 0.0f, 0.0f
-    );
-    plane_mat = new SolidMaterial(
-        vec3( 0.7f ), // color
-        //kr,   kd
-        0.0f, 0.0f
-    );
-    rect = new Rectangle(
-        pt_h, pt_g, pt_c, pt_d,
-        plane_imodel,
-        plane_mat
-    );
+    plane_imodel =
+        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
+                                              // ka,  kd,   ks,   ke
+                   0.0f, 0.8f, 0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.7f ),  // color
+                                                  // kr,   kd
+                                   0.0f, 0.0f );
+    rect = new Rectangle( pt_h, pt_g, pt_c, pt_d, plane_imodel, plane_mat );
     world->add_object( rect );
 
     //
     // back wall
     //
 
-    plane_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        0.0f, 0.8f, 0.0f, 0.0f
-    );
-    plane_mat = new SolidMaterial(
-        vec3( 0.7f ), // color
-        //kr,   kd
-        0.0f, 0.0f
-    );
-    rect = new Rectangle(
-        pt_e, pt_f, pt_g, pt_h,
-        plane_imodel,
-        plane_mat
-    );
-    world->add_object(rect);
+    plane_imodel =
+        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
+                                              // ka,  kd,   ks,   ke
+                   0.0f, 0.8f, 0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.7f ),  // color
+                                                  // kr,   kd
+                                   0.0f, 0.0f );
+    rect = new Rectangle( pt_e, pt_f, pt_g, pt_h, plane_imodel, plane_mat );
+    world->add_object( rect );
 
     //
     // ceiling
     //
 
-    plane_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        0.0f, 0.8f, 0.0f, 0.0f
-    );
-    plane_mat = new SolidMaterial(
-        vec3( 0.7f ), // color
-        //kr,   kd
-        0.0f, 0.0f
-    );
-    rect = new Rectangle(
-        pt_a, pt_b, pt_f, pt_e,
-        plane_imodel,
-        plane_mat
-    );
-    world->add_object(rect);
+    plane_imodel =
+        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
+                                              // ka,  kd,   ks,   ke
+                   0.0f, 0.8f, 0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.7f ),  // color
+                                                  // kr,   kd
+                                   0.0f, 0.0f );
+    rect = new Rectangle( pt_a, pt_b, pt_f, pt_e, plane_imodel, plane_mat );
+    world->add_object( rect );
 
     //
     // left wall
     //
 
-    plane_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        0.0f, 0.8f, 0.0f, 0.0f
-    );
+    plane_imodel =
+        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
+                                              // ka,  kd,   ks,   ke
+                   0.0f, 0.8f, 0.0f, 0.0f );
     // TODO refine this colour
-    plane_mat = new SolidMaterial(
-        vec3( 0.8f, 0.1f, 0.1f ), // color
-        //kr,   kd
-        0.0f, 0.0f
-    );
-    rect = new Rectangle(
-        pt_a, pt_e, pt_h, pt_d,
-        plane_imodel,
-        plane_mat
-    );
-    world->add_object(rect);
+    plane_mat = new SolidMaterial( vec3( 0.8f, 0.1f, 0.1f ),  // color
+                                                              // kr,   kd
+                                   0.0f, 0.0f );
+    rect = new Rectangle( pt_a, pt_e, pt_h, pt_d, plane_imodel, plane_mat );
+    world->add_object( rect );
 
     //
     // right wall
     //
 
-    plane_imodel = new Phong(
-        vec3( 1.0f, 1.0f, 1.0f ), // specular color -- white
-        // ka,  kd,   ks,   ke
-        0.0f, 0.8f, 0.0f, 0.0f
-    );
+    plane_imodel =
+        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
+                                              // ka,  kd,   ks,   ke
+                   0.0f, 0.8f, 0.0f, 0.0f );
     // TODO refine this colour
-    plane_mat = new SolidMaterial(
-        vec3( 0.3f, 0.1f, 0.8f ), // color
-        //kr,   kd
-        0.0f, 0.0f
-    );
-    rect = new Rectangle(
-        pt_f, pt_b, pt_c, pt_g,
-        plane_imodel,
-        plane_mat
-    );
-    world->add_object(rect);
+    plane_mat = new SolidMaterial( vec3( 0.3f, 0.1f, 0.8f ),  // color
+                                                              // kr,   kd
+                                   0.0f, 0.0f );
+    rect = new Rectangle( pt_f, pt_b, pt_c, pt_g, plane_imodel, plane_mat );
+    world->add_object( rect );
 
     // =======================
     //         SPHERES
     // =======================
 
     float sphere_trans = 1.0;
-    float sphere_r = ( cube_r / 3 ) * sphere_trans;
-    float sphere_lift = 0.03f;
-    float sphere_y = pt_d.y + sphere_r + sphere_lift;
+    float sphere_r     = ( cube_r / 3 ) * sphere_trans;
+    float sphere_lift  = 0.03f;
+    float sphere_y     = pt_d.y + sphere_r + sphere_lift;
 
     //
     // REFLECTIVE
     //
 
-    vec3 sphere1_p = vec3(
-        -cube_r/2.1,
-        sphere_y,
-        sphere_r
-    );
-    Phong* sphere1_imodel = new Phong(
-        vec3( 0.0f, 0.0f, 0.0f ), // specular color
-        //ka,   kd,   ks,   ke
-        0.1f, 0.5f, 0.1f, 20.0f
-    );
-    SolidMaterial* sphere1_mat = new SolidMaterial(
-        vec3( 0.0f, 0.0f, 0.0f ), // color
-        //kr,   kd
-        1.0f, 0.0f
-    );
+    vec3 sphere1_p = vec3( -cube_r / 2.1, sphere_y, sphere_r );
+    Phong* sphere1_imodel =
+        new Phong( vec3( 0.0f, 0.0f, 0.0f ),  // specular color
+                                              // ka,   kd,   ks,   ke
+                   0.1f, 0.5f, 0.1f, 20.0f );
+    SolidMaterial* sphere1_mat =
+        new SolidMaterial( vec3( 0.0f, 0.0f, 0.0f ),  // color
+                                                      // kr,   kd
+                           1.0f, 0.0f );
 
     //
     // TRANSMISSIVE
     //
 
-    vec3 sphere2_p = vec3(
-        cube_r/2.1,
-        sphere_y,
-        0.0f
-    );
-    Phong* sphere2_imodel = new Phong(
-        vec3( 0.0f, 0.0f, 0.0f ), // specular color
-        //ka,   kd,   ks,   ke
-        0.1f, 0.6f, 0.35f, 20.0f
-    );
-    SolidMaterial* sphere2_mat = new SolidMaterial(
-        vec3( 0.1f, 0.1f, 0.1f ), // color
-        //kr,   kd,   ir
-        0.0f, 0.8f, 1.9f
-    );
+    vec3 sphere2_p = vec3( cube_r / 2.1, sphere_y, 0.0f );
+    Phong* sphere2_imodel =
+        new Phong( vec3( 0.0f, 0.0f, 0.0f ),  // specular color
+                                              // ka,   kd,   ks,   ke
+                   0.1f, 0.6f, 0.35f, 20.0f );
+    SolidMaterial* sphere2_mat =
+        new SolidMaterial( vec3( 0.1f, 0.1f, 0.1f ),  // color
+                                                      // kr,   kd,   ir
+                           0.0f, 0.8f, 1.9f );
 
-    Sphere* sphere1 = new Sphere( sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
-    Sphere* sphere2 = new Sphere( sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
+    Sphere* sphere1 =
+        new Sphere( sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
+    Sphere* sphere2 =
+        new Sphere( sphere2_p, sphere_r, sphere2_imodel, sphere2_mat );
 
     world->add_object( sphere1 );
     world->add_object( sphere2 );
@@ -263,21 +200,17 @@ void cornell_box() {
     // =======================
 
     vec3* light_col = new vec3( 0.9f );
-    vec3* light_pos = new vec3( 0.0f, pt_a.y * 0.95, -cube_r/2 );
+    vec3* light_pos = new vec3( 0.0f, pt_a.y * 0.95, -cube_r / 2 );
 
-    Light light = {
-        light_col, light_pos
-    };
+    Light light = { light_col, light_pos };
 
     world->add_light( &light );
 
     // main camera
-    Camera* cam = new Camera(
-        world,
-        vec3( 0.0f, 0.0f, -cube_w * 1.2f ), // pos
-        vec3( 0.0f, 0.0f, 1.0f ), // lookat
-        vec3( 0.0f, 1.0f, 0.0f ), // up
-        { 1.6f, 1.2f, 1.3f } // P_Plane
+    Camera* cam = new Camera( world, vec3( 0.0f, 0.0f, -cube_w * 1.2f ),  // pos
+                              vec3( 0.0f, 0.0f, 1.0f ),  // lookat
+                              vec3( 0.0f, 1.0f, 0.0f ),  // up
+                              { 1.6f, 1.2f, 1.3f }       // P_Plane
     );
 
     png::image<png::rgb_pixel> negative( 1600, 1200 );
@@ -286,70 +219,20 @@ void cornell_box() {
     double duration;
 
     cam->set_scene();
-<<<<<<< HEAD
 
     start = std::clock();
 
     cam->render( &negative );
     photo_print( negative, "out/test.png" );
 
-    duration = (std::clock() - start)/CLOCKS_PER_SEC;
+    duration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
 
     std::cout << "render took " << duration << "sec" << '\n';
-=======
-    world->generate_kd_tree();
-
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-
-    cam->render( &negative1);
-    photo_print( negative1, "out/test.png" );
-
-
-
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout<< "SS x0 // " << duration << "sec" << '\n';
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    // cam->render( &negative2, 2 );
-    // photo_print( negative2, "etc/chkpt3_img2.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout << "SS x4 // " << duration << "sec" << '\n';
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    // cam->render( &negative3, 4 );
-    // photo_print( negative3, "etc/chkpt3_img3.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout << "SS x9 // " << duration << "sec" << '\n';
-    //
-    // //
-    //
-    // start = std::clock();
-    //
-    // cam->render( &negative4, 6 );
-    // photo_print( negative4, "etc/chkpt3_img4.png" );
-    //
-    // duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    // std::cout << "SS x16 // " << duration << "sec" << '\n';
->>>>>>> photon-mapping-chris
 
     delete cam;
 }
 
 int main( void ) {
-
     // initialize the stuff we need for our rendering
     cornell_box();
 

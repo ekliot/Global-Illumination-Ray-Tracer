@@ -6,11 +6,11 @@
 using namespace glm;
 
 typedef struct st_Photon {
-    vec3* position;
-    char p[4];
+    vec3 position;
+    vec3 power;
     char phi, theta;
     short flag;
-    float distance; // used for min heap
+    float distance;  // used for min heap
 } Photon;
 
 #endif

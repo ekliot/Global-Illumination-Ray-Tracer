@@ -1,116 +1,87 @@
+/**
+ *
+ */
+
 #include "AABB.h"
+
 #include <glm/glm.hpp>
+
+#include "glm/gtx/string_cast.hpp"
+
 using namespace glm;
 
-
-AABB::AABB(float _x_max, float _y_max, float _z_max, float _x_min, float _y_min, float _z_min):
-x_max(_x_max), y_max(_y_max), z_max(_z_max), x_min(_x_min), y_min(_y_min), z_min(_z_min) {}
-
-AABB::AABB(vec3 max, vec3 min):
-x_max(max.x), y_max(max.y), z_max(max.z), x_min(min.x), y_min(min.y), z_min(min.z) {}
-
-AABB::AABB(AABB* first, AABB* second)
-{
-    x_max = max(first->x_max, second->x_max);
-    y_max = max(first->y_max, second->y_max);
-    z_max = max(first->z_max, second->z_max);
-
-    x_min = min(first->x_min, second->x_min);
-    y_min = min(first->y_min, second->y_min);
-    z_min = min(first->z_min, second->z_min);
+AABB::AABB( float max_x, float max_y, float max_z, float min_x, float min_y,
+            float min_z ) {
+    max = vec3( max_x, max_y, max_z );
+    min = vec3( min_x, min_y, min_z );
 }
 
-bool AABB::intersectAABB(AABB* aabb)
-{
+AABB::AABB( vec3 _max, vec3 _min ) : max( _max ), min( _min ) {}
 
+AABB::AABB( AABB* a, AABB* b ) {
+    max = vec3( std::max( a->max.x, b->max.x ), std::max( a->max.y, b->max.y ),
+                std::max( a->max.z, b->max.z ) );
+    min = vec3( std::min( a->min.x, b->min.x ), std::min( a->min.y, b->min.y ),
+                std::min( a->min.z, b->min.z ) );
+}
+
+bool AABB::intersect_aabb( AABB* aabb ) {
     // if (Aaxis.min > Baxis.max)
     // or
     //    (Baxis.min > Aaxis.max) return FALSE
 
-    if( x_min > aabb->x_max ||
-        aabb->x_min > x_max ||
-        y_min > aabb->y_max ||
-        aabb->y_min > y_max ||
-        z_min > aabb->z_max ||
-        aabb->z_min > z_max
-     )
+    if ( min.x > aabb->max.x || aabb->min.x > max.x || min.y > aabb->max.y ||
+         aabb->min.y > max.y || min.z > aabb->max.z || aabb->min.z > max.z )
         return false;
 
     return true;
-    // if( x_min < aabb->x_max &&
-    //     aabb->x_min < x_max &&
-    //     y_min < aabb->y_max &&
-    //     aabb->y_min < y_max &&
-    //     z_min < aabb->z_max &&
-    //     aabb->z_min < z_max)
-    //
-    //     return true;
-    // else
-    //     return false;
 }
 
-bool AABB::intersectPoint(vec3 point)
-{
-    if(x_min < point.x && x_max > point.x &&
-        y_min < point.y && y_max > point.y &&
-        z_min < point.z && z_max > point.z)
-    {
+bool AABB::intersect_point( vec3 point ) {
+    if ( min.x < point.x && max.x > point.x && min.y < point.y &&
+         max.y > point.y && min.z < point.z && max.z > point.z ) {
         return true;
     }
     return false;
-    //return false;
 }
 
-float AABB::intersectRay(Ray* ray)
-{
+float AABB::intersect_ray( Ray* ray ) {
     vec3 dirfrac;
     // r.dir is unit direction vector of ray
     dirfrac.x = 1.0f / ray->direction->x;
     dirfrac.y = 1.0f / ray->direction->y;
-    dirfrac.z = 1.0f /ray->direction->z;
+    dirfrac.z = 1.0f / ray->direction->z;
 
-    // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
-    // r.org is origin of ray
-    float t1 = (x_min - ray->origin->x)*dirfrac.x;
-    float t2 = (x_max - ray->origin->x)*dirfrac.x;
-    float t3 = (y_min - ray->origin->y)*dirfrac.y;
-    float t4 = (y_max - ray->origin->y)*dirfrac.y;
-    float t5 = (z_min - ray->origin->z)*dirfrac.z;
-    float t6 = (z_max - ray->origin->z)*dirfrac.z;
+    // lb is the corner of AABB with minimal coordinates - left bottom, rt is
+    // maximal corner r.org is origin of ray
+    float t1 = ( min.x - ray->origin->x ) * dirfrac.x;
+    float t2 = ( max.x - ray->origin->x ) * dirfrac.x;
+    float t3 = ( min.y - ray->origin->y ) * dirfrac.y;
+    float t4 = ( max.y - ray->origin->y ) * dirfrac.y;
+    float t5 = ( min.z - ray->origin->z ) * dirfrac.z;
+    float t6 = ( max.z - ray->origin->z ) * dirfrac.z;
 
-    float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
-    float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+    float tmin = std::max( std::max( std::min( t1, t2 ), std::min( t3, t4 ) ),
+                           std::min( t5, t6 ) );
+    float tmax = std::min( std::min( std::max( t1, t2 ), std::max( t3, t4 ) ),
+                           std::max( t5, t6 ) );
 
-    // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
-    if (tmax < 0)
-    {
-        return tmax;
-    }
-
+    // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is
+    // behind us
     // if tmin > tmax, ray doesn't intersect AABB
-    if (tmin > tmax)
-    {
+    if ( tmax >= 0 && tmin > tmax ) {
         return INT_MAX;
     }
+
     return tmax;
 }
 
-vec3 AABB::getMax()
-{
-    return vec3(x_max, y_max, z_max);
-}
+vec3 AABB::get_max() { return vec3( max ); }
 
-vec3 AABB::getMin()
-{
-    return vec3(x_min, y_min, z_min);
-}
+vec3 AABB::get_min() { return vec3( min ); }
 
-void AABB::print()
-{
-    std::cout << "xmax: " << x_max << ' ';
-    std::cout << "ymax: " << y_max << ' ';
-    std::cout << "zmax: " << z_max << '\n';
-    std::cout << "xmin: " << x_min << ' ';
-    std::cout << "ymin: " << y_min << ' ';
-    std::cout << "zmin: " << z_min << '\n';
+void AABB::print() {
+    std::cout << "AABB:" << '\n';
+    std::cout << "\tmax: " << glm::to_string( max ) << '\n';
+    std::cout << "\tmin: " << glm::to_string( min ) << '\n';
 }
