@@ -550,6 +550,7 @@ World::getPhotons( vec3 position, float range ) {
     std::priority_queue<Photon, std::vector<Photon>, compare> returnPhotons;
     return returnPhotons;
 }
+
 void World::getPhotonHelper(
     std::priority_queue<Photon, std::vector<Photon>, World::compare>* photons,
     PhotonKDTreeNode node, vec3 position, float range ) {
