@@ -16,7 +16,7 @@ using namespace std;
 using namespace photon;
 using glm::vec3;
 
-using PhotonHeap = priority_queue<Photon*, vector<Photon*>, Compare>;
+using PhotonHeap = priority_queue<Photon*, vector<Photon*>, compare>;
 
 class PhotonKDTreeNode {
     const int MAX_DEPTH = 25;
@@ -35,6 +35,6 @@ class PhotonKDTreeNode {
 
     int set_aabbs( AABB* left, AABB* right, float dx, float dy, float dz );
 
-    PhotonHeap get_photons_near_pt( vec3 position, float range );
+    void get_photons_near_pt( PhotonHeap* heap, vec3 position, float range );
 };
 #endif
