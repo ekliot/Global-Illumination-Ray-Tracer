@@ -75,6 +75,9 @@ class World {
     vec3 get_intersect( Ray* r, mat4 inverse_transform_mat, int depth = 0,
                         Object* lastIntersectionObject = NULL );
 
+
+    void trace_photon( Photon p, bool was_specular, bool diffused);
+
     vec3 get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat );
 
     vec3* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,

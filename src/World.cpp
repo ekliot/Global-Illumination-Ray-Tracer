@@ -19,6 +19,7 @@
 
 #include "Phong.h"
 #include "SolidMaterial.h"
+#include "PhotonInteraction.h"
 #include "glm/gtx/string_cast.hpp"
 #include "tinyply.h"
 
@@ -323,6 +324,31 @@ vec3 World::get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat ) {
     }
 
     return vec3( 0, 0, 0 );
+}
+
+void World::trace_photon( Photon p, bool was_specular, bool diffused)
+{
+    Ray* r = new Ray(new vec3(p.position), new vec3(p.dir));
+
+    float distance        = 0;
+    Object* intersect_obj = this->get_intersected_obj( r, &distance );
+
+
+    if( intersect_obj != NULL )
+    {
+        vec3 normal_dir = intersect_obj->get_normal( r, distance );
+        PhotonInteraction interaction = PhotonInteraction();
+        interaction.photon = &p;
+        interaction.color = vec3(p.power);
+        //interaction.color = vec3(0);
+        interaction.inc_direction = normal_dir;
+
+        // add it to the vector
+
+
+    }
+
+
 }
 
 // return a the colour seen by a given Ray at its point of intersection
