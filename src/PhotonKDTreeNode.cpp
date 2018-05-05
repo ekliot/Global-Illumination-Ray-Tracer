@@ -40,7 +40,7 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
     using std::min;
 
     if ( photons.size() < 2 && depth < MAX_DEPTH ) {
-        vector<Photon*> list_left = vector<Photon*>();
+        vector<Photon*> list_left  = vector<Photon*>();
         vector<Photon*> list_right = vector<Photon*>();
 
         vec3 v_max = vec3( FLT_MIN );
@@ -131,9 +131,8 @@ int PhotonKDTreeNode::set_aabbs( AABB* _left, AABB* _right, float dx, float dy,
     return _axis;
 }
 
-PhotonHeap PhotonKDTreeNode::get_photons_near_pt( vec3 position, float range ) {
-    PhotonHeap heap = PhotonHeap();
-
+void PhotonKDTreeNode::get_photons_near_pt( PhotonHeap* heap, vec3 position,
+                                            float range ) {
     if ( left != NULL ) {
         float delta = 0;
 
@@ -147,34 +146,33 @@ PhotonHeap PhotonKDTreeNode::get_photons_near_pt( vec3 position, float range ) {
         }
 
         if ( delta < 0 ) {
-            // left->get_photons_near_pt( position, range );
+            left->get_photons_near_pt( heap, position, range );
             if ( pow( delta, 2 ) > pow( range, 2 ) ) {
-                // right->get_photons_near_pt( position, range );
+                right->get_photons_near_pt( heap, position, range );
             }
         } else {
-            // right->get_photons_near_pt( position, range );
+            right->get_photons_near_pt( heap, position, range );
             if ( pow( delta, 2 ) > pow( range, 2 ) ) {
-                // left->get_photons_near_pt( position, range );
+                left->get_photons_near_pt( heap, position, range );
             }
         }
     } else {
-        for ( size_t i = 0; i < photons.size(); i++ ) {
-            Photon* oldPhoton = photons.at( i );
-            Photon newPhoton  = {};
+        for ( Photon* old_p : photons ) {
+            Photon new_p = {};
 
-            newPhoton.position = vec3( oldPhoton->position );
-            newPhoton.power    = vec3( oldPhoton->power );
-            newPhoton.dir      = vec3( oldPhoton->dir );
-            newPhoton.flag     = oldPhoton->flag;
+            new_p.position = vec3( old_p->position );
+            new_p.power    = vec3( old_p->power );
+            new_p.dir      = vec3( old_p->dir );
+            // newPhoton.flag     = oldPhoton->flag;
             // newPhoton.distance  = glm::distance( newPhoton.position, position
             // );
 
-            // photons->push( &newPhoton );
+            heap->push( &new_p );
         }
     }
-
-    return heap;
 }
+
+
 
 PhotonKDTreeNode::~PhotonKDTreeNode() {
     delete left;

@@ -228,15 +228,8 @@ Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
             float newValue = obj->intersection( r );
             if ( newValue < *returnDist && newValue > 0.00001 ) {
                 *returnDist = newValue;
-
-                // vec3 value = obj->get_color( &*r, *returnDist, &lights,
-                // &ambient, inverse_transform_mat );
-
-                // vec3 cur_color = intersect_obj->get_color( ray, distance,
-                // ret_lights, &ambient, inverse_transform_mat );
                 return obj;
 
-                //return new vec3( value );
             }
         }
     }
@@ -245,23 +238,7 @@ Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
     }
 
     float a_enter = node->left->aabb->intersect_ray( r );
-    // float a_exit = INT_MAX;
-    // if( a_enter != INT_MAX)
-    // {
-    //     vec3 newOrigin = *r->origin + ( a_enter+.01f  * *r->direction ) ;
-    //     Ray enterRay = Ray(&newOrigin, r->direction);
-    //     a_exit = node->left->aabb->intersect_ray(&enterRay);
-    //
-    // }
-
     float b_enter = node->right->aabb->intersect_ray( r );
-    // float b_exit = INT_MAX;
-    // if( b_enter != INT_MAX)
-    // {
-    //     vec3 newOrigin = *r->origin + ( b_enter+.01f * *r->direction) ;
-    //     Ray enterRay = Ray(&newOrigin, r->direction);
-    //     a_exit = node->right->aabb->intersect_ray(&enterRay);
-    // }
 
     if ( a_enter < 0 ) a_enter = INT_MAX;
 
@@ -316,7 +293,6 @@ Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
 
 Object* World::get_intersect_kd_tree( Ray* r, float* returnDist  ) {
     Object* obj =  get_intersect_kd_tree_helper( r, objectTree, returnDist );
-    //std::cout<< *returnDist << "-";
     return obj;
 
 }
