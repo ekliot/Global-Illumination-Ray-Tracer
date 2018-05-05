@@ -60,7 +60,7 @@ KDTreeNode::KDTreeNode( std::vector<Object*> _objects, AABB* _aabb, int depth )
         // std::cout << "secondAABB" << '\n';
         // secondAABB->print();
         for ( Object* object : objects ) {
-            AABB* currentAABB = object->getAABB();
+            AABB* currentAABB = object->get_aabb();
             // std::cout << "currentAABB" << '\n';
             // currentAABB->print();
             if ( currentAABB->intersect_aabb( firstAABB ) ) {
