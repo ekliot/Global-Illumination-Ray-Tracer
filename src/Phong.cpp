@@ -15,7 +15,7 @@
 using glm::vec3;
 
 Phong::Phong( vec3 _col_s, float _ka, float _kd, float _ks, float _ke )
-    : color_spec( _col_s ), ka( _ka ), kd( _kd ), ks( _ks ), ke( _ke ) {
+    : spec_col( _col_s ), ka( _ka ), kd( _kd ), ks( _ks ), ke( _ke ) {
     if ( _kd + _ks >= 1 ) {
         std::string except = "Phong ks + kd must be < 1 (provided " +
                              std::to_string( _ks ) + " and " +
@@ -51,13 +51,11 @@ vec3 Phong::intersect( IntersectData idata ) {
         Ray* source  = new Ray( &l_pos, &l_dir );
         Ray* reflect = source->reflect( idata.normal );
 
-        diffuse = diffuse +
-                  l_col * *( idata.obj_color ) *
-                      abs( dot( *( idata.normal ), *( source->direction ) ) );
+        diffuse = diffuse + get_diffuse( l_col, *idata.obj_color, *idata.normal,
+                                         *source->direction );
         specular =
-            specular +
-            l_col * color_spec *
-                pow( dot( *( reflect->direction ), *( idata.incoming ) ), ke );
+            specular + get_specular( l_col, spec_col, *reflect->direction,
+                                     *idata.incoming, ke );
 
         delete source;
         delete reflect;
@@ -82,6 +80,11 @@ vec3 Phong::intersect( IntersectData idata ) {
     return light;
 }
 
-vec3 get_diffuse() { return vec3( 0.0f ); }
+vec3 Phong::get_diffuse( vec3 l_col, vec3 obj_col, vec3 norm, vec3 dir ) {
+    return l_col * obj_col * abs( dot( norm, dir ) );
+}
 
-vec3 get_specular() { return vec3( 0.0f ); }
+vec3 Phong::get_specular( vec3 l_col, vec3 spec, vec3 ref_dir, vec3 in_dir,
+                          float _ke ) {
+    return l_col * spec * pow( dot( ref_dir, in_dir ), _ke );
+}

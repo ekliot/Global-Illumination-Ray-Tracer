@@ -260,97 +260,6 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
     return ret_obj;
 }
 
-vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                           float* returnDist ) {
-    float paramReturnDist = FLT_MAX;
-
-    if ( node->left == NULL ) {
-        *returnDist = INT_MAX;
-
-        for ( Object* obj : node->objects ) {
-            float newValue = obj->intersection( r );
-            if ( newValue < *returnDist && newValue > 0.00001 ) {
-                *returnDist = newValue;
-                vec3 value  = vec3( 0 );
-                // vec3 value = obj->get_color( &*r, *returnDist, &lights,
-                // &ambient );
-
-                // vec3 cur_color = intersect_obj->get_color( ray, distance,
-                // ret_lights, &ambient );
-
-                return new vec3( value );
-            }
-        }
-    }
-
-    if ( node->left == NULL ) {
-        return NULL;
-    }
-
-    float a_enter = node->left->aabb->intersect_ray( r );
-    float b_enter = node->right->aabb->intersect_ray( r );
-
-    if ( a_enter < 0 ) a_enter = INT_MAX;
-
-    if ( b_enter < 0 ) b_enter = INT_MAX;
-
-    if ( a_enter == INT_MAX && b_enter == INT_MAX ) {
-        return NULL;
-    }
-
-    if ( abs( a_enter - b_enter ) < 0.00001 ) {
-        float a_dist;
-        vec3* a_vec = get_intersect_kd_tree_helper( r, node->left, &a_dist );
-
-        float b_dist;
-
-        vec3* b_vec = get_intersect_kd_tree_helper( r, node->right, &b_dist );
-        if ( a_dist < b_dist ) {
-            return a_vec;
-        } else {
-            return b_vec;
-        }
-
-    } else if ( a_enter <= b_enter && a_enter != INT_MAX ) {
-        vec3* a_vec =
-            get_intersect_kd_tree_helper( r, node->left, &paramReturnDist );
-        if ( a_vec != NULL ) {
-            return a_vec;
-        }
-        vec3* b_vec =
-            get_intersect_kd_tree_helper( r, node->right, &paramReturnDist );
-        if ( b_enter != INT_MAX ) {
-            return b_vec;
-        }
-    } else if ( b_enter < a_enter && b_enter != INT_MAX ) {
-        vec3* b_vec =
-            get_intersect_kd_tree_helper( r, node->right, &paramReturnDist );
-        if ( b_vec != NULL ) {
-            return b_vec;
-        }
-        vec3* a_vec =
-            get_intersect_kd_tree_helper( r, node->left, &paramReturnDist );
-        if ( a_enter != INT_MAX ) {
-            return a_vec;
-        }
-    }
-
-    *returnDist = FLT_MAX;
-    return NULL;
-}
-
-vec3 World::get_intersect_kd_tree( Ray* r ) {
-    float returnValue = FLT_MAX;
-    vec3* color = get_intersect_kd_tree_helper( r, objectTree, &returnValue );
-    if ( color != NULL ) {
-        return *color;
-    } else {
-        return background;
-    }
-
-    return vec3( 0, 0, 0 );
-}
-
 // return a the colour seen by a given Ray at its point of intersection
 vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     float distance = 0;
@@ -420,28 +329,16 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
 
         // if the object is transparent...
         if ( kd > 0 ) {
-            vec3 refract_color = calc_refraction( ray, point, distance, obj,
-                                                  last_intersect, depth );
-            cur_color          = cur_color + kd * refract_color;
+            vec3 refraction = calc_refraction( ray, point, distance, obj,
+                                               last_intersect, depth );
+            cur_color       = cur_color + kd * refraction;
         }
 
         // if the object is reflective...
         if ( kr > 0 ) {
-            // std::cout << "reflectin..." << '\n';
-
-            vec3 normal_dir = obj->get_normal( ray, distance );
-
-            vec3 reflect_dir = glm::reflect( *ray->direction, normal_dir );
-            vec3 newPoint    = point + .1f * reflect_dir;
-
-            Ray reflect_ray = Ray( &newPoint, &reflect_dir );
-
-            // std::cout << "reflect ray:" << '\n';
-            // reflect_ray.print();
-            // std::cout << '\n';
-
-            vec3 reflect_color = get_intersect( &reflect_ray, depth + 1 );
-            cur_color          = cur_color + kr * reflect_color;
+            vec3 reflection =
+                calc_reflection( ray, point, distance, obj, depth );
+            cur_color = cur_color + kr * reflection;
         }
     } else {
         std::cout << "max recursion" << '\n';
@@ -493,6 +390,28 @@ vec3 World::calc_refraction( Ray* ray, vec3 point, float dist,
     return get_intersect( &refract_ray, depth + 1, intersect );
 }
 
+vec3 World::calc_reflection( Ray* ray, vec3 point, float dist,
+                             Object* intersect, int depth ) {
+    // std::cout << "reflectin..." << '\n';
+
+    vec3 normal_dir = intersect->get_normal( ray, dist );
+
+    vec3 reflect_dir = glm::reflect( *ray->direction, normal_dir );
+    vec3 newPoint    = point + .1f * reflect_dir;
+
+    Ray reflect_ray = Ray( &newPoint, &reflect_dir );
+
+    // std::cout << "reflect ray:" << '\n';
+    // reflect_ray.print();
+    // std::cout << '\n';
+
+    return get_intersect( &reflect_ray, depth + 1, intersect );
+}
+
+/**********\
+  K-D TREE
+\**********/
+
 void World::generate_kd_tree() {
     AABB* currentAABB =
         new AABB( -FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX );
@@ -500,6 +419,112 @@ void World::generate_kd_tree() {
         currentAABB = new AABB( currentAABB, obj->get_aabb() );
     }
     objectTree = new KDTreeNode( objects, currentAABB, 0 );
+}
+
+vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
+                                           float* returnDist ) {
+    float paramReturnDist = FLT_MAX;
+
+    if ( node->left == NULL ) {
+        *returnDist = INT_MAX;
+
+        for ( Object* obj : node->objects ) {
+            float newValue = obj->intersection( r );
+            if ( newValue < *returnDist && newValue > 0.00001 ) {
+                *returnDist = newValue;
+                vec3 value  = vec3( 0 );
+                // vec3 value = obj->get_color( &*r, *returnDist, &lights,
+                // &ambient );
+
+                // vec3 cur_color = intersect_obj->get_color( ray, distance,
+                // ret_lights, &ambient );
+
+                return new vec3( value );
+            }
+        }
+    }
+    if ( node->left == NULL ) {
+        return NULL;
+    }
+
+    float a_enter = node->left->aabb->intersect_ray( r );
+    // float a_exit = INT_MAX;
+    // if( a_enter != INT_MAX)
+    // {
+    //     vec3 newOrigin = *r->origin + ( a_enter+.01f  * *r->direction ) ;
+    //     Ray enterRay = Ray(&newOrigin, r->direction);
+    //     a_exit = node->left->aabb->intersect_ray(&enterRay);
+    //
+    // }
+
+    float b_enter = node->right->aabb->intersect_ray( r );
+    // float b_exit = INT_MAX;
+    // if( b_enter != INT_MAX)
+    // {
+    //     vec3 newOrigin = *r->origin + ( b_enter+.01f * *r->direction) ;
+    //     Ray enterRay = Ray(&newOrigin, r->direction);
+    //     a_exit = node->right->aabb->intersect_ray(&enterRay);
+    // }
+
+    if ( a_enter < 0 ) a_enter = INT_MAX;
+
+    if ( b_enter < 0 ) b_enter = INT_MAX;
+
+    if ( a_enter == INT_MAX && b_enter == INT_MAX ) {
+        return NULL;
+    }
+
+    if ( abs( a_enter - b_enter ) < 0.00001 ) {
+        float a_dist;
+        vec3* a_vec = get_intersect_kd_tree_helper( r, node->left, &a_dist );
+
+        float b_dist;
+
+        vec3* b_vec = get_intersect_kd_tree_helper( r, node->right, &b_dist );
+        if ( a_dist < b_dist ) {
+            return a_vec;
+        } else {
+            return b_vec;
+        }
+
+    } else if ( a_enter <= b_enter && a_enter != INT_MAX ) {
+        vec3* a_vec =
+            get_intersect_kd_tree_helper( r, node->left, &paramReturnDist );
+        if ( a_vec != NULL ) {
+            return a_vec;
+        }
+        vec3* b_vec =
+            get_intersect_kd_tree_helper( r, node->right, &paramReturnDist );
+        if ( b_enter != INT_MAX ) {
+            return b_vec;
+        }
+    } else if ( b_enter < a_enter && b_enter != INT_MAX ) {
+        vec3* b_vec =
+            get_intersect_kd_tree_helper( r, node->right, &paramReturnDist );
+        if ( b_vec != NULL ) {
+            return b_vec;
+        }
+        vec3* a_vec =
+            get_intersect_kd_tree_helper( r, node->left, &paramReturnDist );
+        if ( a_enter != INT_MAX ) {
+            return a_vec;
+        }
+    }
+
+    *returnDist = FLT_MAX;
+    return NULL;
+}
+
+vec3 World::get_intersect_kd_tree( Ray* r ) {
+    float returnValue = FLT_MAX;
+    vec3* color = get_intersect_kd_tree_helper( r, objectTree, &returnValue );
+    if ( color != NULL ) {
+        return *color;
+    } else {
+        return background;
+    }
+
+    return vec3( 0, 0, 0 );
 }
 
 void World::add_bunny() {
@@ -580,4 +605,76 @@ void World::add_bunny() {
     } catch ( const std::exception& e ) {
         std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
     }
+}
+
+/*****************\
+  PHOTON RADIANCE
+\*****************/
+
+vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
+                      int max_photons, int depth ) {
+    vec3 rad = emitted_radiance( pt ) +
+               reflected_radance( pt, ray, dist, obj, max_photons, depth );
+
+    return rad;
+}
+
+vec3 World::emitted_radiance( vec3 pt ) {
+    //
+    return vec3( 0.0f );
+}
+
+vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
+                               int max_photons, int depth ) {
+    vec3 radiance = direct_illumination( pt ) +
+                    specular_reflection( pt, ray, dist, obj, depth ) +
+                    caustics( pt, max_photons ) +
+                    multi_diffuse( pt, max_photons );
+    return radiance;
+}
+
+vec3 World::direct_illumination( vec3 pt ) {
+    vec3 illum = vec3( 0.0f );
+    // calculate the direct illumination from light sources at pt
+    // shadow rays, or shadow maps?
+    return illum;
+}
+
+vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
+                                 int depth ) {
+    // spawn a reflection ray
+    float kr = obj->get_material()->get_kr();
+    return calc_reflection( ray, pt, dist, obj, depth ) * kr;
+}
+
+vec3 World::caustics( vec3 pt, int max_photons ) {
+    photon::PhotonHeap* heap = new PhotonHeap();
+    // caustic_pmap.get_photons_near_pt( heap, pt, max_photons );
+
+    vec3 caustic = vec3( 0.0f );
+    while ( !heap->empty() ) {
+        Photon* p = heap->top();
+        // do stuffs
+        heap->pop();
+    }
+
+    delete heap;
+
+    return caustic;
+}
+
+vec3 World::multi_diffuse( vec3 pt, int max_photons ) {
+    photon::PhotonHeap* heap = new PhotonHeap();
+    // global_pmap.get_photons_near_pt( heap, pt, max_photons );
+
+    vec3 diffuse = vec3( 0.0f );
+    while ( !heap->empty() ) {
+        Photon* p = heap->top();
+        // do stuffs
+        heap->pop();
+    }
+
+    delete heap;
+
+    return diffuse;
 }
