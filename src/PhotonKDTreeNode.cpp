@@ -86,6 +86,12 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
     }
 }
 
+PhotonKDTreeNode::~PhotonKDTreeNode() {
+    delete left;
+    delete right;
+    delete aabb;
+}
+
 // returns the splitting axis
 int PhotonKDTreeNode::set_aabbs( AABB* _left, AABB* _right, float dx, float dy,
                                  float dz ) {
@@ -163,17 +169,47 @@ void PhotonKDTreeNode::get_photons_near_pt( PhotonHeap* heap, vec3 position,
             new_p.position = vec3( old_p->position );
             new_p.power    = vec3( old_p->power );
             new_p.dir      = vec3( old_p->dir );
-            // newPhoton.flag     = oldPhoton->flag;
-            // newPhoton.distance  = glm::distance( newPhoton.position, position
-            // );
+            new_p.distance = glm::distance( new_p.position, position );
 
             heap->push( &new_p );
         }
     }
 }
 
-PhotonKDTreeNode::~PhotonKDTreeNode() {
-    delete left;
-    delete right;
-    delete aabb;
+void PhotonKDTreeNode::get_photons_near_pt_n( PhotonHeap* heap, vec3 position,
+                                              float* range, size_t size ) {
+    if ( left != NULL && heap->size() <= size ) {
+        float delta = 0;
+
+        // calculate distance
+        if ( axis == 0 ) {
+            delta = left->aabb->get_max().x - position.x;
+        } else if ( axis == 1 ) {
+            delta = left->aabb->get_max().y - position.y;
+        } else if ( axis == 2 ) {
+            delta = left->aabb->get_max().z - position.z;
+        }
+
+        if ( delta < 0 ) {
+            left->get_photons_near_pt_n( heap, position, range, size );
+            right->get_photons_near_pt_n( heap, position, range, size );
+
+        } else {
+            right->get_photons_near_pt_n( heap, position, range, size );
+            left->get_photons_near_pt_n( heap, position, range, size );
+        }
+    } else {
+        for ( Photon* old_p : photons ) {
+            if ( heap->size() <= size ) {
+                Photon new_p = {};
+
+                new_p.position = vec3( old_p->position );
+                new_p.power    = vec3( old_p->power );
+                new_p.dir      = vec3( old_p->dir );
+                new_p.distance = glm::distance( new_p.position, position );
+
+                heap->push( &new_p );
+            }
+        }
+    }
 }

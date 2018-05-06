@@ -25,7 +25,7 @@ namespace photon {
     struct compare {
         bool operator()( const st_Photon* a, const st_Photon* b ) {
             // TODO
-            return false;
+            return a->distance > b->distance;
         }
     };
 

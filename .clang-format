@@ -93,7 +93,7 @@ RawStringFormats:
   - Delimiter:                                  pb
     Language:                                   TextProto
     BasedOnStyle:                               google
-ReflowComments:                                 false
+ReflowComments:                                 true
 SortIncludes:                                   true
 SortUsingDeclarations:                          true
 SpaceAfterCStyleCast:                           false

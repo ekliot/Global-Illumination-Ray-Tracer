@@ -1,6 +1,6 @@
 #!/bin/bash
 
 cd src/
-clang++ -std=c++11 -Wall -Werror -pedantic -c *.cpp  `libpng-config --cflags` && \
-clang++ -std=c++11 -Wall -Werror -pedantic -o ../tracerMain *.o -lm `libpng-config --ldflags`
+clang -std=c++11 -Wall -Werror -pedantic -c *.cpp  `libpng-config --cflags` && \
+clang -std=c++11 -Wall -Werror -pedantic -o ../tracerMain *.o -lm `libpng-config --ldflags`
 cd ..

@@ -24,19 +24,27 @@ using namespace glm;
 
 class World {
   private:
-    const int MAX_DEPTH = 5;
-
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
     KDTreeNode* objectTree;
-    // PhotonKDTreeNode* photonKDTree;
+
+    PhotonKDTreeNode* globalMap;
+    PhotonKDTreeNode* causticMap;
+    PhotonKDTreeNode* volumeMap;
+
+    std::vector<Photon> globalPhotons;
+    std::vector<Photon> causticPhotons;
+    std::vector<Photon> volumePhotons;
 
     vec3 background;
     vec3 ambient;
     float ir;
 
+    const int MAX_DEPTH = 25;
+
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
+
     Object* get_intersected_obj( Ray* r, float* distance );
 
     std::vector<Light*> get_pruned_lights( vec3 point );
@@ -44,14 +52,16 @@ class World {
     // Light* adjusted_light_to_point( vec3 point, Light* light );
     bool can_see_light( vec3 point, Light* light );
 
+    void trace_photon( Photon p, bool was_specular, bool diffused );
+
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, Object* intersect,
                           Object* last_isect, int depth );
 
     vec3 calc_reflection( Ray* ray, vec3 point, float dist, Object* intersect,
                           int depth );
 
-    vec3* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                        float* returnDist );
+    Object* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
+                                          float* returnDist );
 
     vec3 radiance( vec3 pt, Ray* ray, float dist, Object* obj, int max_photons,
                    int depth );
@@ -99,17 +109,17 @@ class World {
     void transform_all( mat4 tmat );
 
     /**
-    * Returns the color a ray intersects in the scene
-    *
-    * @param r :: Ray :: a Ray spawned by the Camera that needs intersection
-    * calculated
-    *
-    * @return :: vec3 :: the RGB value of the color intersected by a Ray
-    */
+     * Returns the color a ray intersects in the scene
+     *
+     * @param r :: Ray :: a Ray spawned by the Camera that needs intersection
+     * calculated
+     *
+     * @return :: vec3 :: the RGB value of the color intersected by a Ray
+     */
     vec3 get_intersect( Ray* r, int depth = 0,
                         Object* lastIntersectionObject = NULL );
 
-    vec3 get_intersect_kd_tree( Ray* r );
+    Object* get_intersect_kd_tree( Ray* r, float* returnDist );
 
     void generate_kd_tree();
 
