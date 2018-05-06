@@ -15,12 +15,11 @@ namespace photon {
         vec3 position;
         vec3 power;
         vec3 dir;
-        short flag;
+        // short flag;
         float distance;  // used for min heap
     } Photon;
 
-    class Compare {
-      public:
+    struct compare {
         bool operator()( const st_Photon* a, const st_Photon* b ) {
             // TODO
             return a->distance > b->distance;
