@@ -196,17 +196,6 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float dist ) {
         }
     }
 
-    for ( Light* l : lights ) {
-        _dist = l->intersection( r );
-
-        // if ( _dist > 0.00001 && _dist <= dist ) {
-        //     std::cout << "/* message */" << '\n';
-        //     // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
-        //     if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-        //         ods.push_back( { sq_light->get_obj(), _dist } );
-        //     }
-        // }
-    }
 
     // then, sort them in ascending distance from the ray origin
 
@@ -334,7 +323,7 @@ Object* World::get_intersect_kd_tree( Ray* r, float* returnDist  ) {
 
 }
 
-void World::trace_photon( Photon p, bool was_specular, bool diffused)
+void World::trace_photon( Photon p, bool was_specular, bool diffused, bool shadow )
 {
     Ray* r = new Ray(new vec3(p.position), new vec3(p.dir));
 
@@ -346,44 +335,58 @@ void World::trace_photon( Photon p, bool was_specular, bool diffused)
     {
         vec3 normal_dir = intersect_obj->get_normal( r, distance );
 
-        Ray* newDir = r->reflect(&normal_dir);
+
+
+        vec3 reflectPos = *r->origin + ( distance * *r->direction);
+        vec3 reflectDir = *r->origin - (reflectPos);
+        Ray reflectHelperRay = Ray(&reflectPos, &reflectDir);
+
+        Ray* newDir = reflectHelperRay.reflect(&normal_dir);
         Photon newPhoton = Photon();
         newPhoton.power = vec3(p.power);
         newPhoton.position = vec3(*newDir->origin + *newDir->direction *.0001f);
         newPhoton.dir = vec3(*newDir->direction);
 
-        float random = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        if(random > intersect_obj->get_material()->get_kd())
+        Photon shadowPhoton = Photon();
+        shadowPhoton.power = vec3(p.power);
+        shadowPhoton.dir = vec3(*r->direction);
+        shadowPhoton.position = vec3(*newDir->origin + *r->direction *.0001f);
+        trace_photon(shadowPhoton, was_specular, diffused, true );
+
+        if(!shadow )
         {
-            //difuse
-            if(was_specular)
+            float random = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+            if(random > intersect_obj->get_material()->get_kd())
             {
-                causticPhotons.push_back(p);
+                //difuse
+                if(was_specular)
+                {
+                    causticPhotons.push_back(p);
+                }
+                if(diffused)
+                {
+                    volumePhotons.push_back(p);
+                }
+                globalPhotons.push_back(p);
+                trace_photon(newPhoton, was_specular,true);
+
+
+
             }
-            if(diffused)
+            else if(random > intersect_obj->get_material()->get_kd() +intersect_obj->get_material()->get_kr())
             {
-                volumePhotons.push_back(p);
+                trace_photon(newPhoton, true ,diffused);
+                // reflect
+
             }
-            globalPhotons.push_back(p);
-            trace_photon(newPhoton, was_specular,true);
+            else
+            {
+                //absorption
 
+            }
 
 
         }
-        else if(random > intersect_obj->get_material()->get_kd() +intersect_obj->get_material()->get_kr())
-        {
-            trace_photon(newPhoton, true ,diffused);
-            // reflect
-
-        }
-        else
-        {
-            //absorption
-
-        }
-
-
-        // add it to the vector
 
 
     }

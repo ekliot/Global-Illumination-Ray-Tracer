@@ -33,6 +33,7 @@ class World {
     PhotonKDTreeNode* globalMap;
     PhotonKDTreeNode* causticMap;
     PhotonKDTreeNode* volumeMap;
+    PhotonKDTreeNode* shadowMap;
 
     std::vector<Photon> globalPhotons;
     std::vector<Photon> causticPhotons;
@@ -58,7 +59,8 @@ class World {
                           Object* last_isect, int depth );
 
 
-    void trace_photon( Photon p, bool was_specular, bool diffused);
+    void trace_photon( Photon p, bool was_specular = false,
+        bool diffused = false, bool shadow = false);
 
     Object* get_intersect_kd_tree( Ray* r, float* returnDist );
 
