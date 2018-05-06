@@ -22,7 +22,7 @@ public:
     virtual ~Material() = 0;
     // virtual Material& operator=( const Material& model ) = 0;
 
-    virtual vec3 get_color( float u, float v ) = 0;
+    virtual vec3 get_color( float u = 0, float v = 0 ) = 0;
 
     float get_kr();
     float get_kd();

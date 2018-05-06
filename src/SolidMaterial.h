@@ -18,6 +18,7 @@ class SolidMaterial : public Material {
                    float ir = 0.0f );
     ~SolidMaterial();
     vec3 get_color( float u, float v );
+
 };
 
 #endif

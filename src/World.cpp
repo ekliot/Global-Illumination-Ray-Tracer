@@ -47,7 +47,10 @@ World::~World() {
 
 void World::add_object( Object* obj ) { objects.push_back( obj ); }
 
-void World::add_light( Light* light ) { lights.push_back( light ); }
+void World::add_light( Light* light ) {
+    lights.push_back( light );
+
+ }
 
 void World::transform_all( mat4 tmat ) {
     for ( Object* obj : objects ) {
@@ -55,7 +58,13 @@ void World::transform_all( mat4 tmat ) {
     }
     for ( Light* l : lights ) {
         l->transform( tmat );
+
+        // we have to do if after the transform to it doesnt get double transformed
+        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+            objects.push_back(sq_light->get_obj());
+        }
     }
+
 }
 
 std::vector<Light*> World::get_pruned_lights( vec3 point ) {
@@ -198,13 +207,22 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float dist ) {
     for ( Light* l : lights ) {
         _dist = l->intersection( r );
 
-        // if ( _dist > 0.00001 && _dist <= dist ) {
-        //     std::cout << "/* message */" << '\n';
-        //     // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
-        //     if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-        //         ods.push_back( { sq_light->get_obj(), _dist } );
-        //     }
-        // }
+        if(_dist < .1 && _dist > -.1)
+        {
+            std::cout << "got here2" << '\n';
+
+        }
+
+        if ( _dist > 0.00001 && _dist <= dist ) {
+            std::cout << "got here" << '\n';
+
+            // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
+            if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+                ods.push_back( { sq_light->get_obj(), _dist } );
+                std::cout << "added light" << '\n';
+
+            }
+        }
     }
 
     // then, sort them in ascending distance from the ray origin
@@ -238,17 +256,17 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
         }
     }
 
-    for ( Light* l : lights ) {
-        _dist = l->intersection( r );
-
-        if ( _dist < *distance && _dist > 0.00001 ) {
-            *distance = _dist;
-            // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
-            if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-                ret_obj = sq_light->get_obj();
-            }
-        }
-    }
+    // for ( Light* l : lights ) {
+    //     _dist = l->intersection( r );
+    //
+    //     if ( _dist < *distance && _dist > 0.00001 ) {
+    //         *distance = _dist;
+    //         // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
+    //         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+    //             ret_obj = sq_light->get_obj();
+    //         }
+    //     }
+    // }
 
     return ret_obj;
 }
@@ -392,10 +410,35 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     vec3 point  = *ray->origin + *ray->direction * distance;
     data.lights = get_pruned_lights( point );
 
+
+    // for ( Light* l : lights ) {
+    //     _dist = l->intersection( r );
+    //
+    //     if ( _dist < *distance && _dist > 0.00001 ) {
+    //         *distance = _dist;
+    //         // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
+    //         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+    //             ret_obj = sq_light->get_obj();
+    //         }
+    //     }
+    // }
+
+
     data.ambient = &ambient;
 
     // the colour of the intersected object seen by the Ray
     vec3 cur_color = obj->get_color( data );
+
+    for ( Light* l : lights ) {
+         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+
+             if(sq_light->get_obj() == obj)
+             {
+                 cur_color = sq_light->get_obj()->get_material()->get_color();
+                // data.lights.push_back(l);
+             }
+         }
+    }
 
     // if we have not hit maximum recursion depth...
     if ( depth < MAX_DEPTH ) {
