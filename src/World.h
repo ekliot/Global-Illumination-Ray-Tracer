@@ -24,6 +24,8 @@ using namespace glm;
 
 class World {
   private:
+    const int MAX_DEPTH = 5;
+
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
@@ -34,7 +36,20 @@ class World {
     vec3 ambient;
     float ir;
 
-    const int MAX_DEPTH = 5;
+    std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
+    Object* get_intersected_obj( Ray* r, float* distance );
+
+    std::vector<Light*> get_pruned_lights( vec3 point );
+
+    // Light* adjusted_light_to_point( vec3 point, Light* light );
+    bool can_see_light( vec3 point, Light* light );
+
+    vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat,
+                          Object* intersect, Object* last_isect, int depth );
+
+    vec3* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
+                                        float* returnDist,
+                                        mat4 inverse_transform_mat );
 
   public:
     /**
@@ -77,24 +92,9 @@ class World {
 
     vec3 get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat );
 
-    vec3* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                        float* returnDist,
-                                        mat4 inverse_transform_mat );
-
     void generate_kd_tree();
 
     void add_bunny();
-
-  private:
-    std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
-    Object* get_intersected_obj( Ray* r, float* distance );
-
-    std::vector<Light> get_pruned_lights( vec3 point );
-
-    Light adjusted_light_to_point( vec3 point, Light light );
-
-    vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat,
-                          Object* intersect, Object* last_isect, int depth );
 };
 
 #endif

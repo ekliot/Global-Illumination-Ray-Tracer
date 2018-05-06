@@ -11,12 +11,10 @@
 
 #include "Camera.h"
 #include "CheckerBoard.h"
-#include "PPlane.h"
 #include "Phong.h"
-#include "Rectangle.h"
 #include "SolidMaterial.h"
 #include "Sphere.h"
-#include "Triangle.h"
+#include "SquareLight.h"
 #include "World.h"
 #include "glm/gtx/string_cast.hpp"
 #include "png++/png.hpp"
@@ -84,13 +82,10 @@ void cornell_box() {
     // floor
     //
 
-    plane_imodel =
-        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
-                                              // ka,  kd,   ks,   ke
-                   0.0f, 0.8f, 0.0f, 0.0f );
-    plane_mat = new SolidMaterial( vec3( 0.7f ),  // color
-                                                  // kr,   kd
-                                   0.0f, 0.0f );
+    //                      specular color    ka,  kd,   ks,   ke
+    plane_imodel = new Phong( vec3( 1.0f ), 0.0f, 0.8f, 0.0f, 0.0f );
+    //                                color
+    plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_h, pt_g, pt_c, pt_d, plane_imodel, plane_mat );
     world->add_object( rect );
 
@@ -142,13 +137,12 @@ void cornell_box() {
     //
 
     plane_imodel =
-        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
-                                              // ka,  kd,   ks,   ke
+        //         specular color -- white
+        new Phong( vec3( 1.0f, 1.0f, 1.0f ),
+                   // ka,  kd,   ks,   ke
                    0.0f, 0.8f, 0.0f, 0.0f );
     // TODO refine this colour
-    plane_mat = new SolidMaterial( vec3( 0.3f, 0.1f, 0.8f ),  // color
-                                                              // kr,   kd
-                                   0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.3f, 0.1f, 0.8f ) );
     rect = new Rectangle( pt_f, pt_b, pt_c, pt_g, plane_imodel, plane_mat );
     world->add_object( rect );
 
@@ -167,13 +161,11 @@ void cornell_box() {
 
     vec3 sphere1_p = vec3( -cube_r / 2.1, sphere_y, sphere_r );
     Phong* sphere1_imodel =
-        new Phong( vec3( 0.0f, 0.0f, 0.0f ),  // specular color
-                                              // ka,   kd,   ks,   ke
-                   0.1f, 0.5f, 0.1f, 20.0f );
+        //         specular color  ka,   kd,   ks,   ke
+        new Phong( vec3( 0.0f ), 0.1f, 0.5f, 0.1f, 20.0f );
     SolidMaterial* sphere1_mat =
-        new SolidMaterial( vec3( 0.0f, 0.0f, 0.0f ),  // color
-                                                      // kr,   kd
-                           1.0f, 0.0f );
+        //                       color    kr
+        new SolidMaterial( vec3( 0.0f ), 1.0f );
 
     //
     // TRANSMISSIVE
@@ -181,13 +173,11 @@ void cornell_box() {
 
     vec3 sphere2_p = vec3( cube_r / 2.1, sphere_y, 0.0f );
     Phong* sphere2_imodel =
-        new Phong( vec3( 0.0f, 0.0f, 0.0f ),  // specular color
-                                              // ka,   kd,   ks,   ke
-                   0.1f, 0.6f, 0.35f, 20.0f );
+        //         specular color  ka,   kd,   ks,   ke
+        new Phong( vec3( 0.0f ), 0.1f, 0.6f, 0.35f, 20.0f );
     SolidMaterial* sphere2_mat =
-        new SolidMaterial( vec3( 0.1f, 0.1f, 0.1f ),  // color
-                                                      // kr,   kd,   ir
-                           0.0f, 0.8f, 1.9f );
+        //                       color     kr,   kd,   ir
+        new SolidMaterial( vec3( 0.1f ), 0.0f, 0.8f, 1.9f );
 
     Sphere* sphere1 =
         new Sphere( sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
@@ -201,12 +191,17 @@ void cornell_box() {
     //          LIGHT
     // =======================
 
-    vec3* light_col = new vec3( 0.9f );
-    vec3* light_pos = new vec3( 0.0f, pt_a.y * 0.95, -cube_r / 2 );
+    vec3 l_pos    = vec3( 0.0f, pt_a.y * 0.95, 0.0f );  //-cube_r / 2 );
+    vec3 l_norm   = vec3( 0.0f, -1.0f, 0.0f );
+    vec3 l_col    = vec3( 1.0f );
+    float l_dim   = cube_w / 3;
+    int photons   = 1000;
+    float l_angle = 179.0;
 
-    Light light = { light_col, light_pos };
+    SquareLight* light =
+        new SquareLight( l_pos, l_norm, l_col, photons, l_dim, l_dim, l_angle );
 
-    world->add_light( &light );
+    world->add_light( light );
 
     // main camera
     Camera* cam = new Camera( world, vec3( 0.0f, 0.0f, -cube_w * 1.2f ),  // pos

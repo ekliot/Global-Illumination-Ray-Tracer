@@ -13,29 +13,20 @@ Object::Object( IlluminationModel* _imodel, Material* _mat )
     : imodel( _imodel ), material( _mat ) {}
 
 Object::~Object() {
-    delete imodel;
-    delete material;
+    if ( imodel != nullptr ) {
+        delete imodel;
+        imodel = nullptr;
+    }
+    if ( material != nullptr ) {
+        delete material;
+        material = nullptr;
+    }
 }
 
 void Object::transform( mat4 matrix ) {}
 
-vec3 Object::get_color( Ray* ray, float distance, std::vector<Light> lights,
-                        vec3* ambient, mat4 reverse_transform_mat ) {
-    IntersectData data;
-
-    vec3 position = *( ray->origin ) + *( ray->direction ) * distance;
-    data.position = &position;
-
-    vec3 normal = get_normal( ray, distance );
-    data.normal = &normal;
-
-    data.incoming = ray->direction;
-
-    data.lights = lights;
-
-    data.ambient = ambient;
-
-    vec2 uv        = get_uv( world_to_obj_space( position ) );
+vec3 Object::get_color( IntersectData data ) {
+    vec2 uv        = get_uv( world_to_obj_space( *data.position ) );
     vec3 o_col     = material->get_color( uv.x, uv.y );
     data.obj_color = &o_col;
 

@@ -19,6 +19,7 @@
 
 #include "Phong.h"
 #include "SolidMaterial.h"
+#include "SquareLight.h"
 #include "glm/gtx/string_cast.hpp"
 #include "tinyply.h"
 
@@ -30,12 +31,17 @@ World::World( vec3 bg, vec3 amb, float _ir )
 
 World::~World() {
     for ( Object* o : objects ) {
-        delete o;
+        if ( o != nullptr ) {
+            delete o;
+            o = nullptr;
+        }
     }
 
     for ( Light* l : lights ) {
-        delete l->color;
-        delete l->position;
+        if ( l != nullptr ) {
+            delete l;
+            l = nullptr;
+        }
     }
 }
 
@@ -47,115 +53,125 @@ void World::transform_all( mat4 tmat ) {
     for ( Object* obj : objects ) {
         obj->transform( tmat );
     }
-    for ( Light* light : lights ) {
-        vec4 _pos        = vec4( light->position->x, light->position->y,
-                          light->position->z, 1 );
-        vec4 newPosition = tmat * _pos;
-
-        light->position->x = newPosition.x;
-        light->position->y = newPosition.y;
-        light->position->z = newPosition.z;
-        // vec3 Object::convert( vec4* vec ) {
-        //     return vec3( vec->x / vec->w, vec->y / vec->w, vec->z / vec->w );
-        // }
+    for ( Light* l : lights ) {
+        l->transform( tmat );
     }
 }
 
-std::vector<Light> World::get_pruned_lights( vec3 point ) {
-    std::vector<Light> ret_lights;
+std::vector<Light*> World::get_pruned_lights( vec3 point ) {
+    std::vector<Light*> ret_lights;
 
-    for ( size_t i = 0; i < lights.size(); i++ ) {
-        Light adj_light = adjusted_light_to_point( point, *lights[i] );
-        if ( *( adj_light.color ) != vec3( -1.0f ) ) {
-            ret_lights.push_back( adj_light );
+    for ( Light* l : lights ) {
+        // Light* adj_light = adjusted_light_to_point( point, l );
+        // if ( adj_light->get_color() != vec3( -1.0f ) ) {
+        if ( can_see_light( point, l ) ) {
+            ret_lights.push_back( l );
         }
     }
 
     return ret_lights;
 }
 
-// bool World::can_see_light( vec3 point, Light light ) {
-//     vec3 _dir = point - *light.position;
-//     // a Ray pointing from the given light to the given point
-//     Ray r = Ray( &point, &_dir );
-//
-//     std::vector<Object*> isecting_objs = get_intersecting_objs( &r );
-//
-//     bool visible = true;
-//
-//     for ( Object* obj : isecting_objs ) {
-//         visible = visible && (obj->get_material()->get_kd() > 0.0f);
-//         if ( !visible ) { break; }
-//     }
-//
-//     return visible;
-// }
-
-// returns a light with color RGBs of -1.0f if the given Light is not visible
-// from the given point
-Light World::adjusted_light_to_point( vec3 point, Light light ) {
-    // vec3 _dir = point - *light.position;
-    vec3 _dir = *light.position - point;
+bool World::can_see_light( vec3 point, Light* light ) {
+    // FIXME this only checks the center of the light, not the area of a light
+    vec3 _dir = point - light->get_pos();
 
     float dist = length( _dir );
-    // a Ray pointing from the given point to the given light
+    // a Ray pointing from the given light to the given point
     Ray r = Ray( &point, &_dir );
 
-    // a list of objects between the point and Light, sorted by
-    // closest->farthest from the Light
     std::vector<Object*> isecting_objs = get_intersecting_objs( &r, dist );
 
-    // deep copy the original light
-    vec3* adj_col = new vec3( light.color->x, light.color->y, light.color->z );
-    vec3* adj_pos =
-        new vec3( light.position->x, light.position->y, light.position->z );
-
     bool visible = true;
-    float kd     = 0.0f;
-    vec3 _adj    = vec3( 0.0f );
+    bool is_light;
+    bool is_transparent;
 
-    // for every object between the light and point, modify the colour of the
-    // light reaching that point based on the object colours and transparencies
     for ( Object* obj : isecting_objs ) {
-        kd = obj->get_material()->get_kd();
-
-        visible = visible && ( kd > 0.0f );
-        if ( !visible ) {
-            adj_col = new vec3( -1.0f );
-            break;
+        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( light ) ) {
+            is_light = sq_light->get_obj() == obj;
+            if ( is_light ) {
+                std::cout << "sq_lite >> " << '\n';
+            }
         } else {
-            // std::cout << "adjusting light..." << '\n';
-            //
-            // std::cout << "  cur_col // " << glm::to_string(*adj_col) << '\n';
-            // std::cout << "  obj_col // " <<
-            // glm::to_string(obj->get_material()->get_color( 0.0f, 0.0f )) <<
-            // '\n'; std::cout << "  kd // " << kd << '\n';
+            is_light = false;
+        }
 
-            // TODO it'd be cool to make this alter the light's colour based on
-            // the objet colour... this has failed in the past, however perhaps,
-            // if we model light absorption? IDEA light_col - ( vec(1.0f) -
-            // obj_col ) * ( 1.0f - kd ) _adj = normalize( *adj_col +
-            // obj->get_material()->get_color( 0.0f, 0.0f ) ) * kd;
+        is_transparent = obj->get_material()->get_kd() > 0.0f;
 
-            _adj       = *adj_col * ( kd );
-            adj_col->x = _adj.x;
-            adj_col->y = _adj.y;
-            adj_col->z = _adj.z;
-
-            // if ( *adj_col != vec3( -1.0f ) && *adj_col != *light.color ) {
-            //     std::cout << "got color: " << glm::to_string( *adj_col ) <<
-            //     '\n'; std::cout << "from:      " << glm::to_string(
-            //     *light.color ) << '\n';
-            // }
+        visible = visible && ( is_transparent || is_light );
+        if ( !visible ) {
+            break;
         }
     }
 
-    Light ret = { adj_col, adj_pos };
-
-    return ret;
+    return visible;
 }
 
-std::vector<Object*> World::get_intersecting_objs( Ray* r, float disty ) {
+// COMBAK don't need this?
+// returns a light with color RGBs of -1.0f if the given Light is not visible
+// from the given point
+// Light* World::adjusted_light_to_point( vec3 point, Light* light ) {
+//     // vec3 _dir = point - *light.position;
+//     vec3 _dir = light->get_pos() - point;
+//
+//     float dist = length( _dir );
+//     // a Ray pointing from the given point to the given light
+//     Ray r = Ray( &point, &_dir );
+//
+//     // a list of objects between the point and Light, sorted by
+//     // closest->farthest from the Light
+//     std::vector<Object*> isecting_objs = get_intersecting_objs( &r, dist );
+//
+//     // deep copy the original light
+//     vec3* adj_col = new vec3( light->get_color() );
+//     vec3* adj_pos = new vec3( light->get_pos() );
+//
+//     bool visible = true;
+//     float kd     = 0.0f;
+//     vec3 _adj    = vec3( 0.0f );
+//
+//     // for every object between the light and point, modify the colour of the
+//     // light reaching that point based on the object colours and transparencies
+//     for ( Object* obj : isecting_objs ) {
+//         kd = obj->get_material()->get_kd();
+//
+//         visible = visible && ( kd > 0.0f );
+//         if ( !visible ) {
+//             adj_col = new vec3( -1.0f );
+//             break;
+//         } else {
+//             // std::cout << "adjusting light..." << '\n';
+//             //
+//             // std::cout << "  cur_col // " << glm::to_string(*adj_col) << '\n';
+//             // std::cout << "  obj_col // " <<
+//             // glm::to_string(obj->get_material()->get_color( 0.0f, 0.0f )) <<
+//             // '\n'; std::cout << "  kd // " << kd << '\n';
+//
+//             // TODO it'd be cool to make this alter the light's colour based on
+//             // the objet colour... this has failed in the past, however perhaps,
+//             // if we model light absorption? IDEA light_col - ( vec(1.0f) -
+//             // obj_col ) * ( 1.0f - kd ) _adj = normalize( *adj_col +
+//             // obj->get_material()->get_color( 0.0f, 0.0f ) ) * kd;
+//
+//             _adj       = *adj_col * ( kd );
+//             adj_col->x = _adj.x;
+//             adj_col->y = _adj.y;
+//             adj_col->z = _adj.z;
+//
+//             // if ( *adj_col != vec3( -1.0f ) && *adj_col != *light.color ) {
+//             //     std::cout << "got color: " << glm::to_string( *adj_col ) <<
+//             //     '\n'; std::cout << "from:      " << glm::to_string(
+//             //     *light.color ) << '\n';
+//             // }
+//         }
+//     }
+//
+//     // Light* ret = new Light();
+//
+//     return light;
+// }
+
+std::vector<Object*> World::get_intersecting_objs( Ray* r, float dist ) {
     typedef struct st_ObjDist {
         Object* obj;
         float dist;
@@ -174,9 +190,21 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float disty ) {
     for ( Object* obj : objects ) {
         _dist = obj->intersection( r );
 
-        if ( _dist < INT_MAX && _dist > 0.00001 && _dist < disty ) {
+        if ( _dist < INT_MAX && _dist > 0.00001 && _dist <= dist ) {
             ods.push_back( { obj, _dist } );
         }
+    }
+
+    for ( Light* l : lights ) {
+        _dist = l->intersection( r );
+
+        // if ( _dist > 0.00001 && _dist <= dist ) {
+        //     std::cout << "/* message */" << '\n';
+        //     // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
+        //     if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+        //         ods.push_back( { sq_light->get_obj(), _dist } );
+        //     }
+        // }
     }
 
     // then, sort them in ascending distance from the ray origin
@@ -192,12 +220,10 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float disty ) {
     return objs;
 }
 
-// determine the object intersected by a given object, and store the distance
+// determine the object intersected by a given ray, and store the distance
 // @param Ray* r :: a pointer to the Ray to calculate intersection for
-// @param float* distance :: the output variable where to store the distance at
-// which the ray intersects (INT_MAX by default)
-// @return Object* :: a pointer to the Object that is intersected, or NULL if
-// none are intersected
+// @param float* distance :: the output variable where to store the distance at which the ray intersects (INT_MAX by default)
+// @return Object* :: a pointer to the Object that is intersected, or NULL if none are intersected
 Object* World::get_intersected_obj( Ray* r, float* distance ) {
     Object* ret_obj = NULL;
     *distance       = INT_MAX;
@@ -209,6 +235,18 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
         if ( _dist < *distance && _dist > 0.00001 ) {
             *distance = _dist;
             ret_obj   = obj;
+        }
+    }
+
+    for ( Light* l : lights ) {
+        _dist = l->intersection( r );
+
+        if ( _dist < *distance && _dist > 0.00001 ) {
+            *distance = _dist;
+            // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
+            if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+                ret_obj = sq_light->get_obj();
+            }
         }
     }
 
@@ -328,15 +366,15 @@ vec3 World::get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat ) {
 // return a the colour seen by a given Ray at its point of intersection
 vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
                            Object* last_intersect ) {
-    float distance        = 0;
-    Object* intersect_obj = this->get_intersected_obj( ray, &distance );
+    float distance = 0;
+    Object* obj    = this->get_intersected_obj( ray, &distance );
 
     // std::cout << '\n';
     // std::cout << "given ray" << '\n';
     // r->print();
 
     // if the ray does not hit anything, return the World's background colour
-    if ( intersect_obj == NULL ) {
+    if ( obj == NULL ) {
         // std::cout << "nuffin" << '\n';
         return background;
     }
@@ -345,23 +383,35 @@ vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
     // so we need to figure out the colour of intersection
 
     // 3D point of intersection
-    vec3 point                    = *ray->origin + *ray->direction * distance;
-    std::vector<Light> ret_lights = get_pruned_lights( point );
+
+    IntersectData data;
+
+    vec3 position = *ray->origin + *ray->direction * distance;
+    data.position = &position;
+
+    vec3 normal = obj->get_normal( ray, distance );
+    data.normal = &normal;
+
+    data.incoming = ray->direction;
+
+    vec3 point  = *ray->origin + *ray->direction * distance;
+    data.lights = get_pruned_lights( point );
+
+    data.ambient = &ambient;
 
     // the colour of the intersected object seen by the Ray
-    vec3 cur_color = intersect_obj->get_color(
-        ray, distance, ret_lights, &ambient, inverse_transform_mat );
+    vec3 cur_color = obj->get_color( data );
 
     // if we have not hit maximum recursion depth...
     if ( depth < MAX_DEPTH ) {
-        float kd = intersect_obj->get_material()->get_kd();
-        float kr = intersect_obj->get_material()->get_kr();
+        float kd = obj->get_material()->get_kd();
+        float kr = obj->get_material()->get_kr();
 
         // if the object is transparent...
         if ( kd > 0 ) {
             vec3 refract_color =
                 calc_refraction( ray, point, distance, inverse_transform_mat,
-                                 intersect_obj, last_intersect, depth );
+                                 obj, last_intersect, depth );
             cur_color = cur_color + kd * refract_color;
         }
 
@@ -369,7 +419,7 @@ vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
         if ( kr > 0 ) {
             // std::cout << "reflectin..." << '\n';
 
-            vec3 normal_dir = intersect_obj->get_normal( ray, distance );
+            vec3 normal_dir = obj->get_normal( ray, distance );
 
             vec3 reflect_dir = glm::reflect( *ray->direction, normal_dir );
             vec3 newPoint    = point + .1f * reflect_dir;

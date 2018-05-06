@@ -9,7 +9,6 @@
 
 #include "AABB.h"
 #include "IlluminationModel.h"
-#include "Light.h"
 #include "Material.h"
 #include "Ray.h"
 
@@ -32,8 +31,9 @@ class Object {
 
     // returns a 3D vector of the RGB value of a point on the object intersected
     // by a given Ray
-    vec3 get_color( Ray* r, float dist, std::vector<Light> lights, vec3* amb,
-                    mat4 rev_tmat );
+    vec3 get_color( IntersectData data );
+    // mat4 rev_tmat ); this isn't being used?
+
     // reduces a 4D vector to a 3D vector
     vec3 convert( vec4 vector );
 
@@ -49,7 +49,6 @@ class Object {
     virtual vec3 get_normal( Ray* ray, float distance ) = 0;
 
     virtual vec3 world_to_obj_space( vec3 point );
-    // vec2 get_uv( vec3 point );
     virtual vec2 get_uv( vec3 point );
 
     virtual AABB* get_aabb() = 0;
