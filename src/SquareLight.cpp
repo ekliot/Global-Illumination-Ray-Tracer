@@ -1,6 +1,7 @@
 /**
  *
  */
+ #define PI 3.14159265
 
 #include "SquareLight.h"
 
@@ -67,8 +68,43 @@ vec3 SquareLight::gen_emit_ori() {
 }
 
 vec3 SquareLight::gen_emit_dir() {
+
+    vec3 direction = vec3(normal);
+
+    float random_x = (PI/2) - static_cast <float> (rand()) /
+        static_cast <float> (RAND_MAX) * (PI);
+    float random_x_cos = (1 - cos(random_x)) * max_angle;
+    vec3 x_vec;
+    if(random_x < 0)
+    {
+        x_vec = vec3(random_x_cos,0,0);
+    }
+    else
+    {
+        x_vec = vec3(- random_x_cos,0,0);
+    }
+
+    float random_z = (PI/2) - static_cast <float> (rand()) /
+        static_cast <float> (RAND_MAX) * (PI);
+    float random_z_cos = (1 - cos(random_z)) * max_angle;
+    vec3 z_vec;
+    if(random_z < 0)
+    {
+        z_vec = vec3(0,0,random_z_cos);
+    }
+    else
+    {
+        z_vec = vec3(0,0,-random_z_cos);
+    }
+
+    return normalize(normal + z_vec + x_vec);
+
+
+
+
+
     // HACK implement a cosine distribution b/w -max_angle and max_angle
-    return normal;
+    //return normal;
 }
 
 float SquareLight::intersection( Ray* ray ) {
