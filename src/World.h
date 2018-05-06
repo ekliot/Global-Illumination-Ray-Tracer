@@ -44,12 +44,11 @@ class World {
     // Light* adjusted_light_to_point( vec3 point, Light* light );
     bool can_see_light( vec3 point, Light* light );
 
-    vec3 calc_refraction( Ray* ray, vec3 point, float dist, mat4 inv_trans_mat,
-                          Object* intersect, Object* last_isect, int depth );
+    vec3 calc_refraction( Ray* ray, vec3 point, float dist, Object* intersect,
+                          Object* last_isect, int depth );
 
     vec3* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                        float* returnDist,
-                                        mat4 inverse_transform_mat );
+                                        float* returnDist );
 
   public:
     /**
@@ -87,10 +86,10 @@ class World {
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */
-    vec3 get_intersect( Ray* r, mat4 inverse_transform_mat, int depth = 0,
+    vec3 get_intersect( Ray* r, int depth = 0,
                         Object* lastIntersectionObject = NULL );
 
-    vec3 get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat );
+    vec3 get_intersect_kd_tree( Ray* r );
 
     void generate_kd_tree();
 

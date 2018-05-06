@@ -254,8 +254,7 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
 }
 
 vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                           float* returnDist,
-                                           mat4 inverse_transform_mat ) {
+                                           float* returnDist ) {
     float paramReturnDist = FLT_MAX;
 
     if ( node->left == NULL ) {
@@ -267,10 +266,10 @@ vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
                 *returnDist = newValue;
                 vec3 value  = vec3( 0 );
                 // vec3 value = obj->get_color( &*r, *returnDist, &lights,
-                // &ambient, inverse_transform_mat );
+                // &ambient );
 
                 // vec3 cur_color = intersect_obj->get_color( ray, distance,
-                // ret_lights, &ambient, inverse_transform_mat );
+                // ret_lights, &ambient );
 
                 return new vec3( value );
             }
@@ -309,13 +308,11 @@ vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
 
     if ( abs( a_enter - b_enter ) < 0.00001 ) {
         float a_dist;
-        vec3* a_vec = get_intersect_kd_tree_helper( r, node->left, &a_dist,
-                                                    inverse_transform_mat );
+        vec3* a_vec = get_intersect_kd_tree_helper( r, node->left, &a_dist );
 
         float b_dist;
 
-        vec3* b_vec = get_intersect_kd_tree_helper( r, node->right, &b_dist,
-                                                    inverse_transform_mat );
+        vec3* b_vec = get_intersect_kd_tree_helper( r, node->right, &b_dist );
         if ( a_dist < b_dist ) {
             return a_vec;
         } else {
@@ -323,24 +320,24 @@ vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
         }
 
     } else if ( a_enter <= b_enter && a_enter != INT_MAX ) {
-        vec3* a_vec = get_intersect_kd_tree_helper(
-            r, node->left, &paramReturnDist, inverse_transform_mat );
+        vec3* a_vec =
+            get_intersect_kd_tree_helper( r, node->left, &paramReturnDist );
         if ( a_vec != NULL ) {
             return a_vec;
         }
-        vec3* b_vec = get_intersect_kd_tree_helper(
-            r, node->right, &paramReturnDist, inverse_transform_mat );
+        vec3* b_vec =
+            get_intersect_kd_tree_helper( r, node->right, &paramReturnDist );
         if ( b_enter != INT_MAX ) {
             return b_vec;
         }
     } else if ( b_enter < a_enter && b_enter != INT_MAX ) {
-        vec3* b_vec = get_intersect_kd_tree_helper(
-            r, node->right, &paramReturnDist, inverse_transform_mat );
+        vec3* b_vec =
+            get_intersect_kd_tree_helper( r, node->right, &paramReturnDist );
         if ( b_vec != NULL ) {
             return b_vec;
         }
-        vec3* a_vec = get_intersect_kd_tree_helper(
-            r, node->left, &paramReturnDist, inverse_transform_mat );
+        vec3* a_vec =
+            get_intersect_kd_tree_helper( r, node->left, &paramReturnDist );
         if ( a_enter != INT_MAX ) {
             return a_vec;
         }
@@ -350,10 +347,9 @@ vec3* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
     return NULL;
 }
 
-vec3 World::get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat ) {
+vec3 World::get_intersect_kd_tree( Ray* r ) {
     float returnValue = FLT_MAX;
-    vec3* color = get_intersect_kd_tree_helper( r, objectTree, &returnValue,
-                                                inverse_transform_mat );
+    vec3* color = get_intersect_kd_tree_helper( r, objectTree, &returnValue );
     if ( color != NULL ) {
         return *color;
     } else {
@@ -364,8 +360,7 @@ vec3 World::get_intersect_kd_tree( Ray* r, mat4 inverse_transform_mat ) {
 }
 
 // return a the colour seen by a given Ray at its point of intersection
-vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
-                           Object* last_intersect ) {
+vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     float distance = 0;
     Object* obj    = this->get_intersected_obj( ray, &distance );
 
@@ -409,10 +404,9 @@ vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
 
         // if the object is transparent...
         if ( kd > 0 ) {
-            vec3 refract_color =
-                calc_refraction( ray, point, distance, inverse_transform_mat,
-                                 obj, last_intersect, depth );
-            cur_color = cur_color + kd * refract_color;
+            vec3 refract_color = calc_refraction( ray, point, distance, obj,
+                                                  last_intersect, depth );
+            cur_color          = cur_color + kd * refract_color;
         }
 
         // if the object is reflective...
@@ -430,9 +424,8 @@ vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
             // reflect_ray.print();
             // std::cout << '\n';
 
-            vec3 reflect_color =
-                get_intersect( &reflect_ray, inverse_transform_mat, depth + 1 );
-            cur_color = cur_color + kr * reflect_color;
+            vec3 reflect_color = get_intersect( &reflect_ray, depth + 1 );
+            cur_color          = cur_color + kr * reflect_color;
         }
     } else {
         std::cout << "max recursion" << '\n';
@@ -442,8 +435,8 @@ vec3 World::get_intersect( Ray* ray, mat4 inverse_transform_mat, int depth,
 }
 
 vec3 World::calc_refraction( Ray* ray, vec3 point, float dist,
-                             mat4 inv_trans_mat, Object* intersect,
-                             Object* last_isect, int depth ) {
+                             Object* intersect, Object* last_isect,
+                             int depth ) {
     // std::cout << "transmittin..." << '\n';
 
     float last_ir = ir;
@@ -481,7 +474,7 @@ vec3 World::calc_refraction( Ray* ray, vec3 point, float dist,
     // refract_ray.print();
     // std::cout << '\n';
 
-    return get_intersect( &refract_ray, inv_trans_mat, depth + 1, intersect );
+    return get_intersect( &refract_ray, depth + 1, intersect );
 }
 
 void World::generate_kd_tree() {
