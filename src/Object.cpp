@@ -42,10 +42,12 @@ vec3 Object::convert( vec4 vec ) {
 }
 
 vec3 Object::min_vec( vec3 _a, vec3 _b ) {
+    using std::min;
     return vec3( min( _a.x, _b.x ), min( _a.y, _b.y ), min( _a.z, _b.z ) );
 }
 
 vec3 Object::max_vec( vec3 _a, vec3 _b ) {
+    using std::max;
     return vec3( max( _a.x, _b.x ), max( _a.y, _b.y ), max( _a.z, _b.z ) );
 }
 
