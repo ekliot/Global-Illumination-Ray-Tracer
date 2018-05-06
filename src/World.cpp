@@ -314,7 +314,6 @@ void World::trace_photon( Photon p, bool was_specular, bool diffused)
         newPhoton.power = vec3(p.power);
         newPhoton.position = vec3(*newDir->origin + *newDir->direction *.0001f);
         newPhoton.dir = vec3(*newDir->direction);
-        newPhoton.flag = p.flag;
 
         float random = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
         if(random > intersect_obj->get_material()->get_kd())
