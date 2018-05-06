@@ -8,12 +8,14 @@
 #include "Triangle.h"
 
 class Rectangle : public Object {
+  private:
     Triangle* tri1;
     Triangle* tri2;
 
   public:
     Rectangle( vec3 a, vec3 b, vec3 c, vec3 d, IlluminationModel* _imodel,
                Material* _mat );
+    // Rectangle( float w, float l, IlluminationModel* _imod, Material* _mat );
     ~Rectangle();
 
     vec3 get_a();

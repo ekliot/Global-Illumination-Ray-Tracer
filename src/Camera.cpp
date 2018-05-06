@@ -29,8 +29,6 @@ Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp )
         mat4( u.x, v.x, n.x, 0, u.y, v.y, n.y, 0, u.z, v.z, n.z, 0,
               dot( -_pos, u ), dot( -_pos, v ), dot( -_pos, n ), 1 );
 
-    reverse_transform_mat = inverse( transform_mat );
-
     // // ROW-MAJOR
     // transform_mat = mat4(
     //     u.x, u.y, u.z, -dot(pos, u),
@@ -93,8 +91,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                 ray_dir = vec3( dir_x, dir_y, dir_z );
                 ray     = new Ray( &ray_ori, &ray_dir );
 
-                color =
-                    world->get_intersect( ray, reverse_transform_mat ) * 255.0f;
+                color = world->get_intersect( ray ) * 255.0f;
 
                 negative->get_row( y )[x] =
                     rgb_pixel( int( color.x ), int( color.y ), int( color.z ) );
@@ -123,8 +120,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                         ray_dir = vec3( dir_x, dir_y, dir_z );
                         ray     = new Ray( &ray_ori, &ray_dir );
 
-                        color =
-                            world->get_intersect( ray, reverse_transform_mat );
+                        color = world->get_intersect( ray );
                         r += color.x;
                         g += color.y;
                         b += color.z;
