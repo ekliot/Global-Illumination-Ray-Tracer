@@ -56,6 +56,12 @@ void World::transform_all( mat4 tmat ) {
     }
     for ( Light* l : lights ) {
         l->transform( tmat );
+
+        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+            add_object(sq_light->get_obj());
+        }
+
+
     }
 }
 
@@ -68,6 +74,7 @@ std::vector<Light*> World::get_pruned_lights( vec3 point ) {
         if ( can_see_light( point, l ) ) {
             ret_lights.push_back( l );
         }
+
     }
 
     return ret_lights;
@@ -75,7 +82,7 @@ std::vector<Light*> World::get_pruned_lights( vec3 point ) {
 
 bool World::can_see_light( vec3 point, Light* light ) {
     // FIXME this only checks the center of the light, not the area of a light
-    vec3 _dir = point - light->get_pos();
+    vec3 _dir =  light->get_pos() - point;
 
     float dist = length( _dir );
     // a Ray pointing from the given light to the given point
@@ -85,21 +92,22 @@ bool World::can_see_light( vec3 point, Light* light ) {
 
     bool visible = true;
     bool is_light;
-    bool is_transparent;
+    // bool is_transparent;
+
 
     for ( Object* obj : isecting_objs ) {
         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( light ) ) {
             is_light = sq_light->get_obj() == obj;
             if ( is_light ) {
-                std::cout << "sq_lite >> " << '\n';
+                //std::cout << "sq_lite >> " << '\n';
             }
         } else {
             is_light = false;
         }
 
-        is_transparent = obj->get_material()->get_kd() > 0.0f;
+        // is_transparent = obj->get_material()->get_kd() > 0.0f;
 
-        visible = visible && ( is_transparent || is_light );
+        visible = visible && is_light ;
         if ( !visible ) {
             break;
         }
@@ -429,7 +437,6 @@ vec3 World::get_intersect( Ray* ray, int depth,
 
     vec3 point  = *ray->origin + *ray->direction * distance;
     data.lights = get_pruned_lights( point );
-
     data.ambient = &ambient;
 
     // the colour of the intersected object seen by the Ray
