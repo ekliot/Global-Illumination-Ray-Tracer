@@ -337,6 +337,44 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     return cur_color;
 }
 
+vec3 World::get_volumetric_light(Ray* r, float max_distance, float current_distance)
+{
+    float step = 0.1f;
+    size_t max_photons = 50;
+    size_t count = 0;
+
+    if(current_distance < max_distance)
+    {
+        vec3 point = *r->origin + *r->direction * current_distance;
+
+        float radius;
+        photon::PhotonHeap* heap = new PhotonHeap();
+        volume_pmap->get_n_photons_near_pt( heap, point, max_photons, &radius );
+
+        vec3 illum = vec3(0.0f);
+        while ( !heap->empty() )
+        {
+            Photon* p = heap->top();
+
+            if(count++ < max_photons)
+            {
+                illum += vec3(p->power);
+
+            }
+
+            delete p;
+        }
+
+
+        return illum + get_volumetric_light(r, max_distance, current_distance+step);
+
+    }
+    else
+    {
+        return vec3(0.0f);
+    }
+}
+
 vec3 World::calc_refraction( Ray* ray, vec3 point, float dist,
                              Object* intersect, Object* last_isect,
                              int depth ) {
@@ -598,6 +636,52 @@ void World::emit_photons( int photon_count ) {
     build_photon_maps();
 }
 
+Photon* World::trace_volumetric( Photon* p, float current_distance, float max_distance)
+{
+    float scatering_albedo = 0.1f;
+    float absorb_albedo = 0.1f;
+    float step = 0.1f;
+
+
+    float distance;
+    if(current_distance == 0)
+    {
+        Ray r =  Ray( new vec3( p->position ), new vec3( p->dir ) );
+        Object* intersect_obj = this->get_intersected_obj( &r, &distance );
+        if(intersect_obj != NULL)
+        {
+            max_distance = distance;
+        }
+    }
+
+    // exit condition
+    if(current_distance > max_distance)
+    {
+        return p;
+    }
+
+    float random = static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
+
+    if(random < scatering_albedo)
+    {
+        //scatter
+        Photon* next_p   = new Photon();
+        next_p->power    = vec3( p->power );
+        next_p->position = vec3( p->position + p->dir * current_distance );
+        next_p->dir      = vec3( p->dir );
+        p->is_shadow     = false;
+        volume_photons.push_back(p);
+
+    }
+    else if(random < scatering_albedo + absorb_albedo)
+    {
+        //delete this
+        return NULL;
+    }
+
+    return trace_volumetric(p,current_distance+step, max_distance);
+}
+
 void World::trace_photon( Photon* p, bool was_specular, bool diffused, bool shadowed,
 Object* lastIntersectionObject )
 {
@@ -623,13 +707,13 @@ Object* lastIntersectionObject )
         //next_p->is_shadow = false;
 
 
-        // Photon* shadowPhoton   = new Photon();
-        // shadowPhoton->power    = vec3( p->power );
-        // shadowPhoton->position = vec3( *p_dir->origin + *r->direction * 0.001f );
-        // shadowPhoton->dir      = vec3( *r->direction );
-        // //shadowPhoton->is_shadow = true;
-        // delete shadowPhoton;
-        // std::cout << gml:: glm::to_string(shadowPhoton->position) << "\n";
+        Photon* shadowPhoton   = new Photon();
+        shadowPhoton->power    = vec3( p->power );
+        shadowPhoton->position = vec3(  p->position  + *r->direction * 0.001f );
+        shadowPhoton->dir      = vec3( *r->direction );
+        shadowPhoton->is_shadow = true;
+        //delete shadowPhoton;
+        //std::cout << gml:: glm::to_string(shadowPhoton->position) << "\n";
 
 
         if(!shadowed)
@@ -673,10 +757,10 @@ Object* lastIntersectionObject )
         }
         else
         {
-            // p->is_shadow = true;
-            // shadow_photons.push_back(p);
+            p->is_shadow = true;
+            shadow_photons.push_back(p);
         }
-        // trace_photon(shadowPhoton, was_specular, diffused, true, intersect_obj);
+         trace_photon(shadowPhoton, was_specular, diffused, true, intersect_obj);
 
 
     }
@@ -754,7 +838,7 @@ void World::build_photon_maps() {
 
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
                       size_t max_photons, int depth ) {
-    vec3 rad = emitted_radiance( pt ) +
+    vec3 rad = emitted_radiance( pt, obj) +
                reflected_radance( pt, ray, dist, obj, max_photons, depth );
 
     // std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
@@ -762,9 +846,21 @@ vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
     return rad;
 }
 
-vec3 World::emitted_radiance( vec3 pt ) {
+vec3 World::emitted_radiance( vec3 pt, Object * obj ) {
     // HACK I think this is supposed to be whatever value is emitted at a point
     // (like on a lightbulb)
+
+    for ( Light* light : lights ) {
+        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( light ) ) {
+            if(sq_light->get_obj() == obj)
+            {
+                return obj->get_material()->get_color();
+            }
+
+        }
+    }
+
+
     return vec3( 0.0f );
 }
 
@@ -812,16 +908,20 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
     }
 
     if ( shadows == 0 ) {
-        // this spot is directly illuminated
-        // keep it as it is
+
     } else if ( shadows == max_photons ) {
-        // this spot is completely chadowed
-        illum = ambient;
+        // this spot is completely shadowed
+        illum = vec3(0,0,0);
+
     } else {
         // this spot is partially chadowed
-        float vis = ( max_photons - shadows ) / max_photons;
-        illum     =  obj_col * vis;
+        float vis = ( static_cast<float>(max_photons) - static_cast<float>(shadows) ) / static_cast<float>(max_photons );
+        illum     =  illum * vis;
+        //std::cout << "partly black: "<<vis<<"\n";
+
     }
+
+
 
     //std::cout << "direct // " << glm::to_string( illum ) << '\n';
     delete heap;
