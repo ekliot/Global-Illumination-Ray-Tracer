@@ -735,17 +735,19 @@ vec3 World::emitted_radiance( vec3 pt ) {
 
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                                size_t max_photons, int depth ) {
-    vec3 radiance = direct_illumination( pt, obj, max_photons ) +
+    vec3 radiance = direct_illumination( pt, obj, ray, dist, max_photons ) +
                     // specular_reflection( pt, ray, dist, obj, depth ) +
                     // caustics( pt, max_photons ) +
                     multi_diffuse( pt, max_photons );
     return radiance;
 }
 
-vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
+vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
+                                 size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
     vec3 obj_col             = obj->get_material()->get_color();
     vec3 illum               = vec3( 0.0f );
+    vec3 norm                = obj->get_normal( r, dist );
 
     shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons );
 
@@ -758,15 +760,18 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
             shadows += 1;
         }
 
+        illum +=
+            obj->get_imodel()->get_diffuse( p->power, obj_col, norm, p->dir );
+
         heap->pop();
     }
 
     if ( shadows == 0 ) {
         // this spot is directly illuminated
-        illum = obj->get_material()->get_color();
+        // keep it as it is
     } else if ( shadows == max_photons ) {
         // this spot is completely chadowed
-        illum = vec3( 0.0f );
+        illum = ambient;
     } else {
         // this spot is partially chadowed
         float vis = ( max_photons - shadows ) / max_photons;
@@ -849,12 +854,11 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
         heap->pop();
     }
 
-    // double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
-    double divisor = 1.0f;
+    // float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = 1.0f;
     std::cout << "div // " << divisor << '\n';
 
-    diffuse =
-        vec3( diffuse.x * divisor, diffuse.y * divisor, diffuse.z * divisor );
+    diffuse = vec3( diffuse ) * divisor;
 
     std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 

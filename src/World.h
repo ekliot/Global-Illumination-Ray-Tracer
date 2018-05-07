@@ -79,7 +79,8 @@ class World {
     vec3 reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                             size_t max_photons, int depth );
 
-    vec3 direct_illumination( vec3 pt, Object* obj, size_t max_photons );
+    vec3 direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
+                              size_t max_photons );
 
     vec3 specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
                               int depth );
