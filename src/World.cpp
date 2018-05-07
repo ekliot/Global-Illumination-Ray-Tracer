@@ -624,6 +624,10 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
         if ( random < kd ) {
             // std::cout << "diffuse!" << '\n';
 
+            if ( !was_specular && !diffused ) {
+                shadow_photons.push_back( p );
+            }
+
             // diffuse
             if ( was_specular ) {
                 caustic_photons.push_back( p );
@@ -650,9 +654,9 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 }
 
 void World::build_photon_maps() {
-    std::cout << "global  // " << global_photons.size() << '\n';
-    std::cout << "shadow  // " << shadow_photons.size() << '\n';
-    std::cout << "caustic // " << caustic_photons.size() << '\n';
+    // std::cout << "global  // " << global_photons.size() << '\n';
+    // std::cout << "shadow  // " << shadow_photons.size() << '\n';
+    // std::cout << "caustic // " << caustic_photons.size() << '\n';
 
     using std::max;
     using std::min;
@@ -719,9 +723,10 @@ void World::build_photon_maps() {
 
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
                       size_t max_photons, int depth ) {
-    vec3 rad = emitted_radiance( pt ) + reflected_radance( pt, ray, dist, obj, max_photons, depth );
+    vec3 rad = emitted_radiance( pt ) +
+               reflected_radance( pt, ray, dist, obj, max_photons, depth );
 
-    //std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
+    // std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
 
     return rad;
 }
@@ -734,21 +739,23 @@ vec3 World::emitted_radiance( vec3 pt ) {
 
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                                size_t max_photons, int depth ) {
-    vec3 radiance = //direct_illumination( pt, obj, max_photons ) +
+    vec3 radiance = direct_illumination( pt, obj, ray, dist, max_photons ) +
                     // specular_reflection( pt, ray, dist, obj, depth ) +
                     // caustics( pt, max_photons ) +
                     multi_diffuse( pt, max_photons );
     return radiance;
 }
 
-vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
+vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
+                                 size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
     vec3 obj_col             = obj->get_material()->get_color();
     vec3 illum               = vec3( 0.0f );
+    vec3 norm                = obj->get_normal( r, dist );
 
     float radius;
 
-    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius);
+    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
 
     size_t shadows = 0;
 
@@ -760,20 +767,25 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
         }
         delete p;
 
+        illum +=
+            obj->get_imodel()->get_diffuse( p->power, obj_col, norm, p->dir );
+
         heap->pop();
     }
 
     if ( shadows == 0 ) {
         // this spot is directly illuminated
-        illum = obj->get_material()->get_color();
+        // keep it as it is
     } else if ( shadows == max_photons ) {
         // this spot is completely chadowed
-        illum = vec3( 0.0f );
+        illum = ambient;
     } else {
         // this spot is partially chadowed
         float vis = ( max_photons - shadows ) / max_photons;
         illum     = obj_col * vis;
     }
+
+    //std::cout << "direct // " << glm::to_string( illum ) << '\n';
 
     return illum;
 }
@@ -815,14 +827,15 @@ vec3 World::caustics( vec3 pt, size_t max_photons ) {
     // double divisor = 1.0f;
     //
     // caustic =
-    //     vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
+    //     vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor
+    //     );
     //
     // std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
     //
     // delete heap;
     //
     // return caustic;
-    return vec3(0,0,0);
+    return vec3( 0, 0, 0 );
 }
 
 vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
@@ -839,9 +852,9 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     while ( !heap->empty() ) {
         Photon* p = heap->top();
 
-        //print check if the photon is bogus
+        // print check if the photon is bogus
         if ( p->power.x > 1.0f || p->power.y > 1.0f || p->power.z > 1.0f ||
-         p->power.x < 0.0f || p->power.y < 0.0f || p->power.z < 0.0f ) {
+             p->power.x < 0.0f || p->power.y < 0.0f || p->power.z < 0.0f ) {
             std::cout << "Photon:" << '\n';
             std::cout << "\tpos  // " << glm::to_string( p->position ) << '\n';
             std::cout << "\tpow  // " << glm::to_string( p->power ) << '\n';
@@ -857,15 +870,14 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
         delete p;
         heap->pop();
     }
-    //std::cout << "radius // " << radius << '\n';
+    // std::cout << "radius // " << radius << '\n';
 
-    double divisor = 400 * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = 400.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
     //double divisor = 1.0f;
 
-    diffuse =
-        vec3( diffuse.x * divisor, diffuse.y * divisor, diffuse.z * divisor );
+    diffuse = vec3( diffuse ) * divisor;
 
-    //std::cout << "radius // " << radius << '\n';
+    //std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 
     delete heap;
 
