@@ -728,7 +728,8 @@ vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
 }
 
 vec3 World::emitted_radiance( vec3 pt ) {
-    // HACK
+    // HACK I think this is supposed to be whatever value is emitted at a point
+    // (like on a lightbulb)
     return vec3( 0.0f );
 }
 
@@ -743,10 +744,8 @@ vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
 
 vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
-    // calculate the direct illumination from light sources at pt
-    // shadow rays, or shadow maps?
-    vec3 obj_col = obj->get_material()->get_color();
-    vec3 illum   = vec3( 0.0f );
+    vec3 obj_col             = obj->get_material()->get_color();
+    vec3 illum               = vec3( 0.0f );
 
     shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons );
 
@@ -763,10 +762,13 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
     }
 
     if ( shadows == 0 ) {
+        // this spot is directly illuminated
         illum = obj->get_material()->get_color();
     } else if ( shadows == max_photons ) {
+        // this spot is completely chadowed
         illum = vec3( 0.0f );
     } else {
+        // this spot is partially chadowed
         float vis = ( max_photons - shadows ) / max_photons;
         illum     = obj_col * vis;
     }
@@ -776,12 +778,14 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
 
 vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
                                  int depth ) {
-    // spawn a reflection ray
     float kr = obj->get_material()->get_kr();
 
+    // if the object is reflective
     if ( kr > 0.0f ) {
+        // spawn a reflection ray
         return calc_reflection( ray, pt, dist, obj, depth ) * kr;
     } else {
+        // or don't bother
         return vec3( 0.0f );
     }
 }
@@ -789,7 +793,7 @@ vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
 vec3 World::caustics( vec3 pt, size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
 
-    float radius = 0.0f;
+    // float radius = 0.0f;
     vec3 caustic = vec3( 0.0f );
 
     caustic_pmap->get_n_photons_near_pt( heap, pt, max_photons );
@@ -799,12 +803,13 @@ vec3 World::caustics( vec3 pt, size_t max_photons ) {
 
         // HACK how does BRDF come into play here?
         caustic += p->power;
-        radius = p->distance;
+        // radius = p->distance;
 
         heap->pop();
     }
 
-    double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    // double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    double divisor = 1.0f;
 
     caustic =
         vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
@@ -827,11 +832,14 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     while ( !heap->empty() ) {
         Photon* p = heap->top();
 
+        // print check if the photon is bogus
         if ( p->power.x > 1.0f || p->power.y > 1.0f || p->power.z > 1.0f ) {
             std::cout << "Photon:" << '\n';
-            std::cout << "\tpos // " << glm::to_string( p->position ) << '\n';
-            std::cout << "\tpow // " << glm::to_string( p->power ) << '\n';
-            std::cout << "\tdir // " << glm::to_string( p->dir ) << '\n';
+            std::cout << "\tpos  // " << glm::to_string( p->position ) << '\n';
+            std::cout << "\tpow  // " << glm::to_string( p->power ) << '\n';
+            std::cout << "\tdir  // " << glm::to_string( p->dir ) << '\n';
+            std::cout << "\tsrc  // " << glm::to_string( p->src ) << '\n';
+            std::cout << "\tdist // " << p->distance << '\n';
             std::cout << '\n';
         }
         // HACK how does BRDF come into play here?
