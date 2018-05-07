@@ -58,7 +58,8 @@ class World {
     // Light* adjusted_light_to_point( vec3 point, Light* light );
     bool can_see_light( vec3 point, Light* light );
 
-    void trace_photon( Photon* p, bool was_specular, bool diffused );
+    void trace_photon( Photon* p, bool was_specular= false, bool diffused = false, bool shadowed = false,
+    Object* lastIntersectionObject = NULL );
 
     void build_photon_maps();
 

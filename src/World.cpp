@@ -586,8 +586,9 @@ void World::emit_photons( int photon_count ) {
     }
 
     for ( Photon* p : photons ) {
+
         trace_photon( p, false, false );
-        // std::cout << "Photon:" << '\n';
+        std::cout << "Photon:" << '\n';
         // std::cout << "\tpos // " << glm::to_string( p->position ) << '\n';
         // std::cout << "\tpow // " << glm::to_string( p->power ) << '\n';
         // std::cout << "\tdir // " << glm::to_string( p->dir ) << '\n';
@@ -597,57 +598,84 @@ void World::emit_photons( int photon_count ) {
     build_photon_maps();
 }
 
-void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
+void World::trace_photon( Photon* p, bool was_specular, bool diffused, bool shadowed,
+Object* lastIntersectionObject )
+{
     Ray* r = new Ray( new vec3( p->position ), new vec3( p->dir ) );
 
     float distance        = 0;
     Object* intersect_obj = this->get_intersected_obj( r, &distance );
 
     if ( intersect_obj != NULL ) {
+
+
         vec3 normal_dir = intersect_obj->get_normal( r, distance );
 
         Ray* p_dir = r->reflect( &normal_dir );
 
         Photon* next_p   = new Photon();
         next_p->power    = vec3( p->power );
-        next_p->position = vec3( *p_dir->origin + *p_dir->direction * 0.0001f );
+        next_p->position = vec3( p->position + p->dir * distance );
         next_p->dir      = vec3( *p_dir->direction );
+        //next_p->is_shadow = false;
 
-        delete p_dir;
 
-        float random =
-            static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
+        // Photon* shadowPhoton   = new Photon();
+        // shadowPhoton->power    = vec3( p->power );
+        // shadowPhoton->position = vec3( *p_dir->origin + *r->direction * 0.001f );
+        // shadowPhoton->dir      = vec3( *r->direction );
+        // //shadowPhoton->is_shadow = true;
+        // delete shadowPhoton;
+        // std::cout << gml:: glm::to_string(shadowPhoton->position) << "\n";
 
-        float kd = intersect_obj->get_imodel()->get_kd();
-        float ks = intersect_obj->get_imodel()->get_ks();
 
-        if ( random < kd ) {
-            // std::cout << "diffuse!" << '\n';
+        if(!shadowed)
+        {
+            delete p_dir;
 
-            if ( !was_specular && !diffused ) {
-                shadow_photons.push_back( p );
+            float random =
+                static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
+
+            float kd = intersect_obj->get_imodel()->get_kd();
+            float ks = intersect_obj->get_imodel()->get_ks();
+
+            if ( random < kd ) {
+                // std::cout << "diffuse!" << '\n';
+
+                // diffuse
+                if ( was_specular ) {
+                    caustic_photons.push_back( p );
+                }
+
+                if ( diffused ) {
+                    volume_photons.push_back( p );
+                }
+
+                global_photons.push_back( p );
+
+                trace_photon( next_p, was_specular, true, shadowed, intersect_obj );
+            } else if ( random < kd + ks ) {
+                // std::cout << "specular!" << '\n';
+                // specular reflection
+                trace_photon( next_p, true, diffused, shadowed, intersect_obj );
+            } else {
+                // std::cout << "absorb!" << '\n';
+                // absorption
             }
-
-            // diffuse
-            if ( was_specular ) {
-                caustic_photons.push_back( p );
+            if(lastIntersectionObject == NULL)
+            {
+                // p->is_shadow = false;
+                // shadow_photons.push_back(p);
             }
-
-            if ( diffused ) {
-                volume_photons.push_back( p );
-            }
-
-            global_photons.push_back( p );
-
-            trace_photon( next_p, was_specular, true );
-        } else if ( random < kd + ks ) {
-            // std::cout << "specular!" << '\n';
-            // specular reflection
-            trace_photon( next_p, true, diffused );
-        } else {
-            // std::cout << "absorb!" << '\n';
-            // absorption
         }
+        else
+        {
+            // p->is_shadow = true;
+            // shadow_photons.push_back(p);
+        }
+        // trace_photon(shadowPhoton, was_specular, diffused, true, intersect_obj);
+
+
     }
 
     delete r;
@@ -872,7 +900,7 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     }
     // std::cout << "radius // " << radius << '\n';
 
-    float divisor = 400.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = 200.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
     //double divisor = 1.0f;
 
     diffuse = vec3( diffuse ) * divisor;
