@@ -17,7 +17,7 @@ using namespace photon;
 using glm::vec3;
 
 class PhotonKDTreeNode {
-    const int MAX_DEPTH = 25;
+    const int MAX_DEPTH = 100;
 
   public:
     AABB* aabb;
@@ -33,6 +33,6 @@ class PhotonKDTreeNode {
     int set_aabbs( AABB* left, AABB* right, float dx, float dy, float dz );
 
     void get_photons_near_pt( PhotonHeap* heap, vec3 position, float range );
-    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, size_t size );
+    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, size_t size, float* range );
 };
 #endif
