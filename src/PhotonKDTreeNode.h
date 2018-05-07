@@ -21,8 +21,8 @@ class PhotonKDTreeNode {
 
   public:
     AABB* aabb;
-    PhotonKDTreeNode* left;
-    PhotonKDTreeNode* right;
+    PhotonKDTreeNode* left  = NULL;
+    PhotonKDTreeNode* right = NULL;
     int axis;
 
     std::vector<Photon*> photons;
@@ -34,7 +34,6 @@ class PhotonKDTreeNode {
     int set_aabbs( AABB* left, AABB* right, float dx, float dy, float dz );
 
     void get_photons_near_pt( PhotonHeap* heap, vec3 position, float range );
-    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, float* range, size_t size );
-
+    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, size_t size );
 };
 #endif

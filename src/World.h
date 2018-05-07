@@ -36,12 +36,12 @@ class World {
     PhotonKDTreeNode* global_pmap;
     PhotonKDTreeNode* caustic_pmap;
     // PhotonKDTreeNode* volume_pmap;
-    // PhotonKDTreeNode* shadow_pmap;
+    PhotonKDTreeNode* shadow_pmap;
 
     std::vector<Photon*> global_photons;
     std::vector<Photon*> caustic_photons;
     std::vector<Photon*> volume_photons;
-    // std::vector<Photon*> shadow_photons;
+    std::vector<Photon*> shadow_photons;
 
     vec3 background;
     vec3 ambient;
@@ -71,22 +71,22 @@ class World {
     Object* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
                                           float* returnDist );
 
-    vec3 radiance( vec3 pt, Ray* ray, float dist, Object* obj, int max_photons,
-                   int depth );
+    vec3 radiance( vec3 pt, Ray* ray, float dist, Object* obj,
+                   size_t max_photons, int depth );
 
     vec3 emitted_radiance( vec3 pt );
 
     vec3 reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
-                            int max_photons, int depth );
+                            size_t max_photons, int depth );
 
-    vec3 direct_illumination( vec3 pt );
+    vec3 direct_illumination( vec3 pt, Object* obj, size_t max_photons );
 
     vec3 specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
                               int depth );
 
-    vec3 caustics( vec3 pt, int max_photons );
+    vec3 caustics( vec3 pt, size_t max_photons );
 
-    vec3 multi_diffuse( vec3 pt, int max_photons );
+    vec3 multi_diffuse( vec3 pt, size_t max_photons );
 
   public:
     /**

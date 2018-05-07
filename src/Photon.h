@@ -22,7 +22,7 @@ namespace photon {
         vec3 power;
         vec3 dir;
         vec3 src;
-        bool shadow    = false;
+        bool is_shadow = false;
         float distance = 0.0f;  // used for min heap
     } Photon;
 

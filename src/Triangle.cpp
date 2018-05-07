@@ -28,7 +28,9 @@ float Triangle::intersection( Ray* ray ) {
     vec3 edge1 = b - a;
     vec3 edge2 = c - a;
 
-    vec3 p            = cross( *( ray->direction ), edge2 );
+    vec3 p = cross( *( ray->direction ), edge2 );
+    // std::cout << "edge1 // " << glm::to_string( edge1 ) << '\n';
+    // std::cout << "p     // " << glm::to_string( p ) << '\n';
     float determinant = dot( edge1, p );
 
     // TODO this should return a float!!!
@@ -40,15 +42,22 @@ float Triangle::intersection( Ray* ray ) {
     float det_inv = 1 / determinant;
 
     s = *( ray->origin ) - a;
+    // std::cout << "s // " << glm::to_string( s ) << '\n';
+    // std::cout << "p // " << glm::to_string( p ) << '\n';
     u = det_inv * ( dot( s, p ) );
     // TODO this should return a float!!!
     if ( u < 0.0 || u > 1.0 ) return INT_MAX;
 
     q = cross( s, edge1 );
+    // std::cout << "ray->dir // " << glm::to_string( *( ray->direction ) )
+    //           << '\n';
+    // std::cout << "p        // " << glm::to_string( q ) << '\n';
     v = det_inv * dot( *( ray->direction ), q );
     // TODO this should return a float!!!
     if ( v < 0.0 || u + v > 1.0 ) return INT_MAX;
 
+    // std::cout << "edge2 // " << glm::to_string( edge2 ) << '\n';
+    // std::cout << "p     // " << glm::to_string( q ) << '\n' << endl;
     t = det_inv * dot( edge2, q );
 
     if ( t > EPS ) {

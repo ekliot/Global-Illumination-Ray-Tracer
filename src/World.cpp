@@ -47,12 +47,13 @@ World::~World() {
 
 void World::add_object( Object* obj ) { objects.push_back( obj ); }
 
-void World::add_light( Light* light ) { lights.push_back( light );
+void World::add_light( Light* light ) {
+    lights.push_back( light );
     if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( light ) ) {
         objects.push_back( sq_light->get_obj() );
-        //std::cout << "pushed stuff";
+        // std::cout << "pushed stuff";
     }
- }
+}
 
 void World::transform_all( mat4 tmat ) {
     for ( Object* obj : objects ) {
@@ -63,7 +64,6 @@ void World::transform_all( mat4 tmat ) {
 
         // we have to do this after the transform to it doesnt get double
         // transformed
-
     }
 }
 
@@ -76,7 +76,6 @@ std::vector<Light*> World::get_pruned_lights( vec3 point ) {
         if ( can_see_light( point, l ) ) {
             ret_lights.push_back( l );
         }
-
     }
 
     return ret_lights;
@@ -84,7 +83,7 @@ std::vector<Light*> World::get_pruned_lights( vec3 point ) {
 
 bool World::can_see_light( vec3 point, Light* light ) {
     // FIXME this only checks the center of the light, not the area of a light
-    vec3 _dir =  light->get_pos() - point;
+    vec3 _dir = light->get_pos() - point;
 
     float dist = length( _dir );
     // a Ray pointing from the given light to the given point
@@ -96,12 +95,11 @@ bool World::can_see_light( vec3 point, Light* light ) {
     bool is_light;
     // bool is_transparent;
 
-
     for ( Object* obj : isecting_objs ) {
         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( light ) ) {
             is_light = sq_light->get_obj() == obj;
             if ( is_light ) {
-                //std::cout << "sq_lite >> " << '\n';
+                // std::cout << "sq_lite >> " << '\n';
             }
         } else {
             is_light = false;
@@ -109,7 +107,7 @@ bool World::can_see_light( vec3 point, Light* light ) {
 
         // is_transparent = obj->get_material()->get_kd() > 0.0f;
 
-        visible = visible && is_light ;
+        visible = visible && is_light;
         if ( !visible ) {
             break;
         }
@@ -211,8 +209,6 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float dist ) {
         }
     }
 
-
-
     // then, sort them in ascending distance from the ray origin
 
     std::sort( ods.begin(), ods.end(), ObjDist::compare );
@@ -251,7 +247,8 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
     //
     //     if ( _dist < *distance && _dist > 0.00001 ) {
     //         *distance = _dist;
-    //         // FIXME should be Light::get_obj() without casting, check Light.h
+    //         // FIXME should be Light::get_obj() without casting, check
+    //         Light.h
     //         // for why this doesn't work
     //         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
     //             ret_obj = sq_light->get_obj();
@@ -266,7 +263,7 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
 vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     float distance = 0;
 
-    //Object* obj = this->get_intersect_kd_tree( ray, &distance );
+    // Object* obj = this->get_intersect_kd_tree( ray, &distance );
     Object* obj = this->get_intersected_obj( ray, &distance );
 
     // std::cout << '\n';
@@ -284,58 +281,58 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
 
     // 3D point of intersection
 
-    IntersectData data;
+    vec3 position  = *ray->origin + *ray->direction * distance;
+    vec3 cur_color = radiance( position, ray, distance, obj, 10, depth );
 
-    vec3 position = *ray->origin + *ray->direction * distance;
-    data.position = &position;
-
-    vec3 normal = obj->get_normal( ray, distance );
-    data.normal = &normal;
-
-    data.incoming = ray->direction;
-
-    vec3 point  = *ray->origin + *ray->direction * distance;
-    data.lights = get_pruned_lights( point );
-
-
-
-    data.ambient = &ambient;
-
-    // the colour of the intersected object seen by the Ray
-    vec3 cur_color = obj->get_color( data );
-
-    Object* l_obj;
-    for ( Light* l : lights ) {
-        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-            l_obj = sq_light->get_obj();
-
-            if ( l_obj == obj ) {
-                cur_color = l_obj->get_material()->get_color();
-            }
-        }
-    }
-
-    // if we have not hit maximum recursion depth...
-    if ( depth < MAX_DEPTH ) {
-        float kd = obj->get_material()->get_kd();
-        float kr = obj->get_material()->get_kr();
-
-        // if the object is transparent...
-        if ( kd > 0 ) {
-            vec3 refraction = calc_refraction( ray, point, distance, obj,
-                                               last_intersect, depth );
-            cur_color       = cur_color + kd * refraction;
-        }
-
-        // if the object is reflective...
-        if ( kr > 0 ) {
-            vec3 reflection =
-                calc_reflection( ray, point, distance, obj, depth );
-            cur_color = cur_color + kr * reflection;
-        }
-    } else {
-        std::cout << "max recursion" << '\n';
-    }
+    // IntersectData data;
+    //
+    // data.position = &position;
+    //
+    // vec3 normal = obj->get_normal( ray, distance );
+    // data.normal = &normal;
+    //
+    // data.incoming = ray->direction;
+    //
+    // vec3 point  = *ray->origin + *ray->direction * distance;
+    // data.lights = get_pruned_lights( point );
+    //
+    // data.ambient = &ambient;
+    //
+    // // the colour of the intersected object seen by the Ray
+    // vec3 cur_color = obj->get_color( data );
+    //
+    // Object* l_obj;
+    // for ( Light* l : lights ) {
+    //     if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+    //         l_obj = sq_light->get_obj();
+    //
+    //         if ( l_obj == obj ) {
+    //             cur_color = l_obj->get_material()->get_color();
+    //         }
+    //     }
+    // }
+    //
+    // // if we have not hit maximum recursion depth...
+    // if ( depth < MAX_DEPTH ) {
+    //     float kd = obj->get_material()->get_kd();
+    //     float kr = obj->get_material()->get_kr();
+    //
+    //     // if the object is transparent...
+    //     if ( kd > 0 ) {
+    //         vec3 refraction = calc_refraction( ray, point, distance, obj,
+    //                                            last_intersect, depth );
+    //         cur_color       = cur_color + kd * refraction;
+    //     }
+    //
+    //     // if the object is reflective...
+    //     if ( kr > 0 ) {
+    //         vec3 reflection =
+    //             calc_reflection( ray, point, distance, obj, depth );
+    //         cur_color = cur_color + kr * reflection;
+    //     }
+    // } else {
+    //     std::cout << "max recursion" << '\n';
+    // }
 
     return cur_color;
 }
@@ -405,8 +402,7 @@ vec3 World::calc_reflection( Ray* ray, vec3 point, float dist,
   K-D TREE
 \**********/
 
-void World::generate_kd_tree()
-{
+void World::generate_kd_tree() {
     AABB* currentAABB =
         new AABB( -FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX );
     for ( Object* obj : objects ) {
@@ -417,7 +413,7 @@ void World::generate_kd_tree()
 
 Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
                                              float* returnDist ) {
-    *returnDist = FLT_MAX;
+    *returnDist       = FLT_MAX;
     Object* returnObj = NULL;
 
     if ( node->left == NULL ) {
@@ -427,13 +423,10 @@ Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
             float newValue = obj->intersection( r );
             if ( newValue < *returnDist && newValue > 0.00001 ) {
                 *returnDist = newValue;
-                returnObj = obj;
-
+                returnObj   = obj;
             }
         }
-        if(returnObj != NULL)
-            return returnObj;
-
+        if ( returnObj != NULL ) return returnObj;
     }
     if ( node->left == NULL ) {
         return NULL;
@@ -629,7 +622,7 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
         float ks = intersect_obj->get_imodel()->get_ks();
 
         if ( random < kd ) {
-            std::cout << "diffuse!" << '\n';
+            // std::cout << "diffuse!" << '\n';
 
             // diffuse
             if ( was_specular ) {
@@ -644,7 +637,7 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 
             trace_photon( next_p, was_specular, true );
         } else if ( random < kd + ks ) {
-            std::cout << "specular!" << '\n';
+            // std::cout << "specular!" << '\n';
             // specular reflection
             trace_photon( next_p, true, diffused );
         } else {
@@ -658,38 +651,68 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 
 void World::build_photon_maps() {
     std::cout << "global  // " << global_photons.size() << '\n';
+    std::cout << "shadow  // " << shadow_photons.size() << '\n';
     std::cout << "caustic // " << caustic_photons.size() << '\n';
     global_pmap  = new PhotonKDTreeNode( global_photons );
+    shadow_pmap  = new PhotonKDTreeNode( shadow_photons );
     caustic_pmap = new PhotonKDTreeNode( caustic_photons );
     // volume_pmap = new PhotonKDTreeNode( volume_photons );
 }
 
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
-                      int max_photons, int depth ) {
+                      size_t max_photons, int depth ) {
     vec3 rad = emitted_radiance( pt ) +
                reflected_radance( pt, ray, dist, obj, max_photons, depth );
+
+    std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
 
     return rad;
 }
 
 vec3 World::emitted_radiance( vec3 pt ) {
-    //
+    // HACK
     return vec3( 0.0f );
 }
 
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
-                               int max_photons, int depth ) {
-    vec3 radiance = direct_illumination( pt ) +
-                    specular_reflection( pt, ray, dist, obj, depth ) +
+                               size_t max_photons, int depth ) {
+    vec3 radiance = direct_illumination( pt, obj, max_photons ) +
+                    // specular_reflection( pt, ray, dist, obj, depth ) +
                     caustics( pt, max_photons ) +
                     multi_diffuse( pt, max_photons );
     return radiance;
 }
 
-vec3 World::direct_illumination( vec3 pt ) {
-    vec3 illum = vec3( 0.0f );
+vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
+    photon::PhotonHeap* heap = new PhotonHeap();
     // calculate the direct illumination from light sources at pt
     // shadow rays, or shadow maps?
+    vec3 obj_col = obj->get_material()->get_color();
+    vec3 illum   = vec3( 0.0f );
+
+    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+
+    size_t shadows = 0;
+
+    while ( !heap->empty() ) {
+        Photon* p = heap->top();
+
+        if ( p->is_shadow ) {
+            shadows += 1;
+        }
+
+        heap->pop();
+    }
+
+    if ( shadows == 0 ) {
+        illum = obj->get_material()->get_color();
+    } else if ( shadows == max_photons ) {
+        illum = vec3( 0.0f );
+    } else {
+        float vis = ( max_photons - shadows ) / max_photons;
+        illum     = obj_col * vis;
+    }
+
     return illum;
 }
 
@@ -698,22 +721,27 @@ vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
     // spawn a reflection ray
     float kr = obj->get_material()->get_kr();
 
-    return calc_reflection( ray, pt, dist, obj, depth ) * kr;
+    if ( kr > 0.0f ) {
+        return calc_reflection( ray, pt, dist, obj, depth ) * kr;
+    } else {
+        return vec3( 0.0f );
+    }
 }
 
-vec3 World::caustics( vec3 pt, int max_photons ) {
+vec3 World::caustics( vec3 pt, size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
-    caustic_pmap->get_photons_near_pt( heap, pt, max_photons );
 
-    vec3 caustic = vec3( 0.0f );
     float radius = 0.0f;
+    vec3 caustic = vec3( 0.0f );
+
+    caustic_pmap->get_n_photons_near_pt( heap, pt, max_photons );
 
     while ( !heap->empty() ) {
         Photon* p = heap->top();
-        radius    = p->distance;
 
         // HACK how does BRDF come into play here?
         caustic += p->power;
+        radius = p->distance;
 
         heap->pop();
     }
@@ -723,32 +751,38 @@ vec3 World::caustics( vec3 pt, int max_photons ) {
     caustic =
         vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
 
+    std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
+
     delete heap;
 
     return caustic;
 }
 
-vec3 World::multi_diffuse( vec3 pt, int max_photons ) {
+vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
-    global_pmap->get_photons_near_pt( heap, pt, max_photons );
 
     vec3 diffuse = vec3( 0.0f );
     float radius = 0.0f;
 
+    global_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+
     while ( !heap->empty() ) {
         Photon* p = heap->top();
-        radius    = p->distance;
 
         // HACK how does BRDF come into play here?
         diffuse += p->power;
+        radius = p->distance;
 
         heap->pop();
     }
 
     double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    std::cout << "div // " << divisor << '\n';
 
     diffuse =
         vec3( diffuse.x * divisor, diffuse.y * divisor, diffuse.z * divisor );
+
+    std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 
     delete heap;
 
