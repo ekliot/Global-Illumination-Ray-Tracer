@@ -162,7 +162,7 @@ void cornell_box() {
     vec3 sphere1_p = vec3( -cube_r / 2.1, sphere_y, sphere_r );
     Phong* sphere1_imodel =
         //         specular color  ka,   kd,   ks,   ke
-        new Phong( vec3( 0.0f ), 0.1f, 0.5f, 0.1f, 20.0f );
+        new Phong( vec3( 0.0f ), 0.1f, 0.0f, 0.8f, 20.0f );
     SolidMaterial* sphere1_mat =
         //                       color    kr
         new SolidMaterial( vec3( 0.0f ), 1.0f );
@@ -174,7 +174,7 @@ void cornell_box() {
     vec3 sphere2_p = vec3( cube_r / 2.1, sphere_y, 0.0f );
     Phong* sphere2_imodel =
         //         specular color  ka,   kd,   ks,   ke
-        new Phong( vec3( 0.0f ), 0.1f, 0.6f, 0.35f, 20.0f );
+        new Phong( vec3( 0.0f ), 0.1f, 0.0f, 0.8f, 20.0f );
     SolidMaterial* sphere2_mat =
         //                       color     kr,   kd,   ir
         new SolidMaterial( vec3( 0.1f ), 0.0f, 0.8f, 1.9f );

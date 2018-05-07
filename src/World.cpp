@@ -284,8 +284,8 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
 vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     float distance = 0;
 
-    // Object* obj = this->get_intersect_kd_tree( ray, &distance );
-    Object* obj = this->get_intersected_obj( ray, &distance );
+    Object* obj = this->get_intersect_kd_tree( ray, &distance );
+    // Object* obj = this->get_intersected_obj( ray, &distance );
 
     // std::cout << '\n';
     // std::cout << "given ray" << '\n';
@@ -628,13 +628,13 @@ void World::emit_photons( size_t photon_count ) {
 
 vector<Photon*> World::trim_photons( vector<Photon*> photons ) {
     vector<Photon*> trimmed = vector<Photon*>();
-    float distance          = 0;
+    float distance          = 0.0f;
     Ray* r;
     Object* intersect_obj;
 
     for ( Photon* p : photons ) {
         r             = new Ray( new vec3( p->position ), new vec3( p->dir ) );
-        intersect_obj = get_intersected_obj( r, &distance );
+        intersect_obj = get_intersect_kd_tree( r, &distance );
 
         if ( intersect_obj != NULL ) {
             trimmed.push_back( p );
@@ -647,85 +647,162 @@ vector<Photon*> World::trim_photons( vector<Photon*> photons ) {
 
     return trimmed;
 }
-void World::trace_photon( Photon* p, bool was_specular, bool diffused,
-                          bool shadowed, Object* lastIntersectionObject ) {
+
+void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
     Ray* r = new Ray( new vec3( p->position ), new vec3( p->dir ) );
 
     float distance        = 0;
     Object* intersect_obj = get_intersect_kd_tree( r, &distance );
 
     if ( intersect_obj != NULL ) {
-        p->position = vec3( p->position + p->dir * distance );
+        vec3 obj_norm = intersect_obj->get_normal( r, distance );
+        p->position   = vec3( p->position + p->dir * distance );
 
-        vec3 normal_dir = intersect_obj->get_normal( r, distance );
-        Ray* p_dir      = r->reflect( &normal_dir );
+        if ( !was_specular && !diffused ) {
+            shadow_photons.push_back( p );
 
-        Photon* next_p   = new Photon();
-        next_p->power    = vec3( p->power );
-        next_p->src      = vec3( p->src );
-        next_p->position = vec3( p->position );
-        next_p->dir      = vec3( *p_dir->direction );
-        p->is_shadow     = false;
-
-        //next_p->is_shadow = false;
-
-        // Photon* shadowPhoton   = new Photon();
-        // shadowPhoton->power    = vec3( p->power );
-        // shadowPhoton->position = vec3( *p_dir->origin + *r->direction *
-        // 0.001f ); shadowPhoton->dir      = vec3( *r->direction );
-        // //shadowPhoton->is_shadow = true;
-        // delete shadowPhoton;
-        // std::cout << gml:: glm::to_string(shadowPhoton->position) << "\n";
-
-        delete p_dir;
-
-        if ( !shadowed ) {
-            float random =
-                static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
-
-            float kd = intersect_obj->get_imodel()->get_kd();
-            float ks = intersect_obj->get_imodel()->get_ks();
-
-            if ( !was_specular && !diffused ) {
-                shadow_photons.push_back( p );
-            }
-
-            if ( random < kd ) {
-                // diffuse
-                // std::cout << "diffuse!" << '\n';
-
-                if ( was_specular ) {
-                    caustic_photons.push_back( p );
-                }
-
-                if ( diffused ) {
-                    volume_photons.push_back( p );
-                    global_photons.push_back( p );
-                }
-
-                trace_photon( next_p, was_specular, true, shadowed,
-                              intersect_obj );
-            } else if ( random < kd + ks ) {
-                // specular reflection
-                // std::cout << "specular!" << '\n';
-                trace_photon( next_p, true, diffused, shadowed, intersect_obj );
-            } else {
-                // absorption
-                // std::cout << "absorb!" << '\n';
-            }
-            if ( lastIntersectionObject == NULL ) {
-                shadow_photons.push_back( p );
-            }
-        } else {
-            // p->is_shadow = true;
-            // shadow_photons.push_back(p);
+            // generate shadow photons
+            trace_shadow( p );
         }
 
-        // trace_photon(shadowPhoton, was_specular, diffused, true,
-        // intersect_obj);
+        float random =
+            static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
+
+        float kd = intersect_obj->get_imodel()->get_kd();
+        float ks = intersect_obj->get_imodel()->get_ks();
+
+        // RUSSIAN ROULETTE
+
+        if ( random < kd ) {
+            // diffuse
+            // std::cout << "diffuse!" << '\n';
+
+            if ( was_specular ) {
+                caustic_photons.push_back( p );
+            }
+
+            if ( diffused ) {
+                global_photons.push_back( p );
+            }
+
+            Ray* diff_dir = r->reflect( &obj_norm );
+
+            Photon* diff_p   = new Photon();
+            diff_p->power    = vec3( p->power );
+            diff_p->src      = vec3( p->src );
+            diff_p->position = vec3( p->position );
+            diff_p->dir      = vec3( *diff_dir->direction );
+
+            delete diff_dir;
+
+            trace_photon( diff_p, was_specular, true );
+        } else if ( random < kd + ks ) {
+            // specular reflection
+            // std::cout << "specular!" << '\n';
+            float k_ref   = intersect_obj->get_material()->get_kr();
+            float k_trans = intersect_obj->get_material()->get_kd();
+
+            vec3 normal = intersect_obj->get_normal( r, distance );
+
+            if ( k_ref > 0.0f ) {
+                Ray* ref_dir = r->reflect( &normal );
+
+                Photon* reflect_p   = new Photon();
+                reflect_p->power    = vec3( p->power );
+                reflect_p->src      = vec3( p->src );
+                reflect_p->position = vec3( p->position );
+                reflect_p->dir      = vec3( *ref_dir->direction );
+
+                delete ref_dir;
+
+                trace_photon( reflect_p, true, diffused );
+            }
+
+            if ( k_trans > 0.0f ) {
+                // first, step through the object
+                float last_ir = ir;
+                float cur_ir  = intersect_obj->get_material()->get_ir();
+
+                // the direction of the ray
+                vec3 cur_dir = p->dir;
+                // the new point to be calulating refraction from
+                vec3 check = p->position + cur_dir * 0.1f;
+
+                // what direction will the ray go once inside?
+                float calc_ir = 2.0f - ( cur_ir / last_ir );
+                float cosd    = dot( normal, cur_dir );
+                vec3 ref_dir =
+                    ( cur_dir * calc_ir - normal * ( -cosd + calc_ir * cosd ) );
+
+                // shoot a ray inside the object and (hopefully) get the opposite side
+                Ray* refract_ray   = new Ray( &check, &ref_dir );
+                float refract_dist = 0.0f;
+                Object* next_obj =
+                    get_intersect_kd_tree( refract_ray, &refract_dist );
+
+                // then, when we get to the opposite side, shoot the photon
+                if ( next_obj == intersect_obj && refract_dist > 0.0f ) {
+                    vec3 pos = *refract_ray->origin +
+                               *refract_ray->direction * refract_dist + 0.1f;
+
+                    last_ir = cur_ir;  // the object IR
+                    cur_ir  = ir;      // the world IR
+
+                    calc_ir = 2.0f - ( cur_ir / last_ir );
+                    cosd    = dot( normal, cur_dir );
+                    ref_dir = ( cur_dir * calc_ir -
+                                normal * ( -cosd + calc_ir * cosd ) );
+
+                    Photon* refract_p   = new Photon();
+                    refract_p->position = pos;
+                    refract_p->power    = vec3( p->power );
+                    refract_p->dir      = ref_dir;
+                    refract_p->src      = vec3( p->src );
+
+                    delete refract_ray;
+
+                    trace_photon( refract_p, true, diffused );
+                } else {
+                    std::cout << "something went wrong with refraction :c "
+                              << refract_dist << '\n';
+                }
+            }
+        } else {
+            // absorption
+            // std::cout << "absorb!" << '\n';
+        }
     }
 
     delete r;
+}
+
+void World::trace_shadow( Photon* p ) {
+    vec3 step_pos   = p->position + p->dir * 0.1f;
+    float step_dist = 0.0f;
+    Ray* shadow_ray = new Ray( &step_pos, &p->dir );
+
+    Object* isect = get_intersect_kd_tree( shadow_ray, &step_dist );
+
+    Photon* shadow_p;
+
+    while ( isect != NULL ) {
+        step_pos = step_pos + p->dir * step_dist;
+
+        shadow_p            = new Photon();
+        shadow_p->position  = vec3( step_pos );
+        shadow_p->power     = vec3( 0.0f );
+        shadow_p->dir       = vec3( p->dir );
+        shadow_p->src       = vec3( p->src );
+        shadow_p->is_shadow = true;
+
+        shadow_photons.push_back( shadow_p );
+
+        step_pos = step_pos + p->dir * 0.1f;
+
+        shadow_ray->origin = &step_pos;
+
+        isect = get_intersect_kd_tree( shadow_ray, &step_dist );
+    }
 }
 
 void World::build_photon_maps() {
@@ -815,7 +892,7 @@ vec3 World::emitted_radiance( vec3 pt ) {
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                                size_t max_photons, int depth ) {
     vec3 radiance = direct_illumination( pt, obj, ray, dist, max_photons ) +
-                    // specular_reflection( pt, ray, dist, obj, depth ) +
+                    specular_reflection( pt, obj, ray, dist, depth ) +
                     // caustics( pt, max_photons ) +
                     multi_diffuse( pt, obj, ray, dist, max_photons );
     return radiance;
@@ -828,9 +905,8 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
     shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
 
     vec3 obj_col = obj->get_material()->get_color();
-    // vec3 illum   = obj_col;
-    vec3 illum = vec3( 0.0f );
-    vec3 norm  = obj->get_normal( r, dist );
+    vec3 illum   = vec3( 0.0f );
+    vec3 norm    = obj->get_normal( r, dist );
 
     size_t shadows = 0;
     size_t count   = 0;
@@ -852,9 +928,11 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
         count++;
     }
 
-    float divisor = 10.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    // float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
 
-    illum = illum * divisor;
+    // illum = 10.0f * illum * divisor;
+
+    illum = obj_col;
 
     if ( shadows == 0 ) {
         // this spot is directly illuminated
@@ -864,15 +942,16 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
         illum = vec3( 0.0f );
     } else {
         // this spot is partially shadowed
-        float vis = ( max_photons - shadows ) / max_photons;
-        illum     = illum * vis;
+        float vis = static_cast<float>( max_photons - shadows ) /
+                    static_cast<float>( max_photons );
+        illum = illum * vis;
     }
 
     // std::cout << "direct // " << glm::to_string( illum ) << '\n';
 
     delete heap;
 
-    return illum * 50.0f;
+    return illum;
 }
 
 vec3 World::specular_reflection( vec3 pt, Object* obj, Ray* ray, float dist,
@@ -947,9 +1026,9 @@ vec3 World::multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
         count++;
     }
 
-    float divisor = 10.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
 
-    diffuse = diffuse * divisor;
+    diffuse = 10.0f * diffuse * divisor;
 
     // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 
