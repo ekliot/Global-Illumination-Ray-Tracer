@@ -47,7 +47,7 @@ Photon* SquareLight::emit( float power ) {
     vec3 dir    = gen_emit_dir();
 
     Photon* p   = new Photon();
-    p->position = origin + dir * .01f;
+    p->position = origin;
     p->power    = color * power;
     p->dir      = dir;
     p->src      = pos;

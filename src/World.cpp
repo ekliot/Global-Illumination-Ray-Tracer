@@ -654,9 +654,9 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 }
 
 void World::build_photon_maps() {
-    // std::cout << "global  // " << global_photons.size() << '\n';
-    // std::cout << "shadow  // " << shadow_photons.size() << '\n';
-    // std::cout << "caustic // " << caustic_photons.size() << '\n';
+    std::cout << "global  // " << global_photons.size() << '\n';
+    std::cout << "shadow  // " << shadow_photons.size() << '\n';
+    std::cout << "caustic // " << caustic_photons.size() << '\n';
 
     using std::max;
     using std::min;
