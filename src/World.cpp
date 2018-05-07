@@ -655,16 +655,19 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused,
     Object* intersect_obj = get_intersect_kd_tree( r, &distance );
 
     if ( intersect_obj != NULL ) {
-        vec3 normal_dir = intersect_obj->get_normal( r, distance );
+        p->position = vec3( p->position + p->dir * distance );
 
-        Ray* p_dir = r->reflect( &normal_dir );
+        vec3 normal_dir = intersect_obj->get_normal( r, distance );
+        Ray* p_dir      = r->reflect( &normal_dir );
 
         Photon* next_p   = new Photon();
         next_p->power    = vec3( p->power );
         next_p->src      = vec3( p->src );
-        next_p->position = vec3( p->position + p->dir * distance );
+        next_p->position = vec3( p->position );
         next_p->dir      = vec3( *p_dir->direction );
-        // next_p->is_shadow = false;
+        p->is_shadow     = false;
+
+        //next_p->is_shadow = false;
 
         // Photon* shadowPhoton   = new Photon();
         // shadowPhoton->power    = vec3( p->power );
@@ -710,10 +713,8 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused,
                 // absorption
                 // std::cout << "absorb!" << '\n';
             }
-
             if ( lastIntersectionObject == NULL ) {
-                // p->is_shadow = false;
-                // shadow_photons.push_back(p);
+                shadow_photons.push_back( p );
             }
         } else {
             // p->is_shadow = true;
@@ -871,7 +872,7 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
 
     delete heap;
 
-    return illum;
+    return illum * 50.0f;
 }
 
 vec3 World::specular_reflection( vec3 pt, Object* obj, Ray* ray, float dist,
@@ -932,8 +933,6 @@ vec3 World::multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
     float radius = 0.0f;
 
     global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
-    // std::cout << "made diff map";
-    // std::cout << "heap size: " << heap->size() << '\n';
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
