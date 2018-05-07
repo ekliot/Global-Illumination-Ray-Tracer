@@ -53,6 +53,8 @@ Photon* SquareLight::emit( float power ) {
     p->src      = pos;
     p->distance = 0.0f;
 
+    // std::cout<<"direction" << glm::to_string(dir )<< "\n";
+
     return p;
 }
 

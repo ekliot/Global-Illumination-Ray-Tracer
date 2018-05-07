@@ -684,9 +684,9 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 }
 
 void World::build_photon_maps() {
-    std::cout << "global  // " << global_photons.size() << '\n';
-    std::cout << "shadow  // " << shadow_photons.size() << '\n';
-    std::cout << "caustic // " << caustic_photons.size() << '\n';
+    // std::cout << "global  // " << global_photons.size() << '\n';
+    // std::cout << "shadow  // " << shadow_photons.size() << '\n';
+    // std::cout << "caustic // " << caustic_photons.size() << '\n';
 
     using std::max;
     using std::min;
@@ -779,16 +779,16 @@ vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
 vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
                                  size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
+    float radius;
 
     vec3 obj_col = obj->get_material()->get_color();
     vec3 illum   = vec3( 0.0f );
     vec3 norm    = obj->get_normal( r, dist );
 
-    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
 
     size_t shadows = 0;
     size_t count   = 0;
-    float radius;
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
@@ -816,7 +816,7 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
         // keep it as it is
     } else if ( shadows == max_photons ) {
         // this spot is completely shadowed
-        illum = ambient;
+        illum = vec3( 0.0f );
     } else {
         // this spot is partially shadowed
         float vis = ( max_photons - shadows ) / max_photons;
@@ -883,7 +883,7 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     float radius;
     size_t count = 0;
 
-    global_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+    global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
     // std::cout << "made diff map";
     // std::cout << "heap size: " << heap->size() << '\n';
 
