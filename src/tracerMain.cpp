@@ -24,8 +24,8 @@ using namespace tinyply;
 using namespace glm;
 
 // dimensions of drawing window
-const int I_WIDTH  = 1600;
-const int I_HEIGHT = 1200;
+const int I_WIDTH  = 800;
+const int I_HEIGHT = 600;
 // const int I_WIDTH  = 1920;
 // const int I_HEIGHT = 1080;
 

@@ -27,7 +27,6 @@ class PhotonKDTreeNode {
 
     std::vector<Photon*> photons;
 
-    PhotonKDTreeNode( std::vector<Photon*> _photons );
     PhotonKDTreeNode( std::vector<Photon*> _photons, AABB* _aabb, int depth );
     ~PhotonKDTreeNode();
 

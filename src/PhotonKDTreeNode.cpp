@@ -4,37 +4,15 @@
 
 #include "PhotonKDTreeNode.h"
 
+#include <algorithm>  // std::sort
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
 #include <iostream>
-
-PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons ) {
-    vec3 v_max = vec3( FLT_MIN );
-    vec3 v_min = vec3( FLT_MAX );
-
-    using std::max;
-    using std::min;
-
-    for ( Photon* p : _photons ) {
-        v_max.x = max( v_max.x, p->position.x );
-        v_max.y = max( v_max.y, p->position.y );
-        v_max.z = max( v_max.z, p->position.z );
-
-        v_min.x = min( v_min.x, p->position.x );
-        v_min.y = min( v_min.y, p->position.y );
-        v_min.z = min( v_min.z, p->position.z );
-    }
-
-    AABB* _aabb = new AABB( v_max, v_min );
-
-    PhotonKDTreeNode( _photons, _aabb, 0 );
-}
 
 PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
                                     int depth ) {
     aabb    = _aabb;
     photons = vector<Photon*>( _photons );
-    std::cout << "photons // " << photons.size() << '\n';
 
     using std::abs;
     using std::max;
@@ -109,6 +87,9 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
                 list_right.push_back( p );
             }
         }
+
+        // std::cout << "left  // " << list_left.size() << '\n';
+        // std::cout << "right // " << list_right.size() << '\n' << endl;
 
         depth++;
 
@@ -189,18 +170,34 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
             left->get_n_photons_near_pt( heap, position, size );
         }
     } else {
+        vector<Photon*> sorted = vector<Photon*>();
+
+        // std::cout << "heap // " << heap->size() << '\n';
+
         for ( Photon* old_p : photons ) {
+            Photon new_p = {};
+
+            new_p.position  = vec3( old_p->position );
+            new_p.power     = vec3( old_p->power );
+            new_p.dir       = vec3( old_p->dir );
+            new_p.src       = vec3( old_p->src );
+            new_p.distance  = glm::distance( new_p.position, position );
+            new_p.is_shadow = old_p->is_shadow;
+
+            sorted.push_back( &new_p );
+        }
+
+        typedef struct st_DistCompare {
+            static bool compare( const st_Photon* a, const st_Photon* b ) {
+                return a->distance > b->distance;
+            }
+        } DComp;
+
+        std::sort( sorted.begin(), sorted.end(), DComp::compare );
+
+        for ( Photon* p : sorted ) {
             if ( heap->size() < size ) {
-                Photon new_p = {};
-
-                new_p.position  = vec3( old_p->position );
-                new_p.power     = vec3( old_p->power );
-                new_p.dir       = vec3( old_p->dir );
-                new_p.src       = vec3( old_p->src );
-                new_p.distance  = glm::distance( new_p.position, position );
-                new_p.is_shadow = old_p->is_shadow;
-
-                heap->push( &new_p );
+                heap->push( p );
             } else {
                 break;
             }

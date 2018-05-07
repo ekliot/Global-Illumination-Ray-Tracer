@@ -653,10 +653,68 @@ void World::build_photon_maps() {
     std::cout << "global  // " << global_photons.size() << '\n';
     std::cout << "shadow  // " << shadow_photons.size() << '\n';
     std::cout << "caustic // " << caustic_photons.size() << '\n';
-    global_pmap  = new PhotonKDTreeNode( global_photons );
-    shadow_pmap  = new PhotonKDTreeNode( shadow_photons );
-    caustic_pmap = new PhotonKDTreeNode( caustic_photons );
-    // volume_pmap = new PhotonKDTreeNode( volume_photons );
+
+    using std::max;
+    using std::min;
+
+    vec3 v_max;
+    vec3 v_min;
+
+    //
+
+    v_max = vec3( FLT_MIN );
+    v_min = vec3( FLT_MAX );
+
+    for ( Photon* p : global_photons ) {
+        v_max.x = max( v_max.x, p->position.x );
+        v_max.y = max( v_max.y, p->position.y );
+        v_max.z = max( v_max.z, p->position.z );
+
+        v_min.x = min( v_min.x, p->position.x );
+        v_min.y = min( v_min.y, p->position.y );
+        v_min.z = min( v_min.z, p->position.z );
+    }
+
+    AABB* global_aabb = new AABB( v_max, v_min );
+
+    //
+
+    v_max = vec3( FLT_MIN );
+    v_min = vec3( FLT_MAX );
+
+    for ( Photon* p : shadow_photons ) {
+        v_max.x = max( v_max.x, p->position.x );
+        v_max.y = max( v_max.y, p->position.y );
+        v_max.z = max( v_max.z, p->position.z );
+
+        v_min.x = min( v_min.x, p->position.x );
+        v_min.y = min( v_min.y, p->position.y );
+        v_min.z = min( v_min.z, p->position.z );
+    }
+
+    AABB* shadow_aabb = new AABB( v_max, v_min );
+
+    //
+
+    v_max = vec3( FLT_MIN );
+    v_min = vec3( FLT_MAX );
+
+    for ( Photon* p : caustic_photons ) {
+        v_max.x = max( v_max.x, p->position.x );
+        v_max.y = max( v_max.y, p->position.y );
+        v_max.z = max( v_max.z, p->position.z );
+
+        v_min.x = min( v_min.x, p->position.x );
+        v_min.y = min( v_min.y, p->position.y );
+        v_min.z = min( v_min.z, p->position.z );
+    }
+
+    AABB* caustic_aabb = new AABB( v_max, v_min );
+
+    global_pmap  = new PhotonKDTreeNode( global_photons, global_aabb, 0 );
+    shadow_pmap  = new PhotonKDTreeNode( shadow_photons, shadow_aabb, 0 );
+    caustic_pmap = new PhotonKDTreeNode( caustic_photons, caustic_aabb, 0 );
+    // volume_pmap = new PhotonKDTreeNode( volume_photons, volume_aabb, 0 );
 }
 
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
@@ -664,7 +722,7 @@ vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
     vec3 rad = emitted_radiance( pt ) +
                reflected_radance( pt, ray, dist, obj, max_photons, depth );
 
-    std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
+    // std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
 
     return rad;
 }
@@ -751,7 +809,7 @@ vec3 World::caustics( vec3 pt, size_t max_photons ) {
     caustic =
         vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
 
-    std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
+    // std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
 
     delete heap;
 
@@ -777,12 +835,12 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     }
 
     double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
-    std::cout << "div // " << divisor << '\n';
+    // std::cout << "div // " << divisor << '\n';
 
     diffuse =
         vec3( diffuse.x * divisor, diffuse.y * divisor, diffuse.z * divisor );
 
-    std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
+    // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 
     delete heap;
 
