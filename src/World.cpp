@@ -282,7 +282,7 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     // 3D point of intersection
 
     vec3 position  = *ray->origin + *ray->direction * distance;
-    vec3 cur_color = radiance( position, ray, distance, obj, 10, depth );
+    vec3 cur_color = radiance( position, ray, distance, obj, 100, depth );
 
     // IntersectData data;
     //
@@ -608,6 +608,7 @@ Object* lastIntersectionObject )
 
     if ( intersect_obj != NULL ) {
 
+        p->position = vec3( p->position + p->dir * distance );
 
         vec3 normal_dir = intersect_obj->get_normal( r, distance );
 
@@ -615,8 +616,10 @@ Object* lastIntersectionObject )
 
         Photon* next_p   = new Photon();
         next_p->power    = vec3( p->power );
-        next_p->position = vec3( p->position + p->dir * distance );
+        next_p->position = vec3( p->position );
         next_p->dir      = vec3( *p_dir->direction );
+        p->is_shadow     = false;
+
         //next_p->is_shadow = false;
 
 
@@ -640,6 +643,7 @@ Object* lastIntersectionObject )
             float ks = intersect_obj->get_imodel()->get_ks();
 
             if ( random < kd ) {
+
                 // std::cout << "diffuse!" << '\n';
 
                 // diffuse
@@ -664,8 +668,7 @@ Object* lastIntersectionObject )
             }
             if(lastIntersectionObject == NULL)
             {
-                // p->is_shadow = false;
-                // shadow_photons.push_back(p);
+                shadow_photons.push_back(p);
             }
         }
         else
@@ -786,17 +789,24 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
     shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
 
     size_t shadows = 0;
+    size_t count = 0;
 
     while ( !heap->empty() ) {
         Photon* p = heap->top();
 
-        if ( p->is_shadow ) {
-            shadows += 1;
+        if(count++ < max_photons)
+        {
+            illum +=
+                obj->get_imodel()->get_diffuse( p->power, obj_col, norm, p->dir );
+
+            if ( p->is_shadow ) {
+                shadows += 1;
+            }
         }
+
         delete p;
 
-        illum +=
-            obj->get_imodel()->get_diffuse( p->power, obj_col, norm, p->dir );
+
 
         heap->pop();
     }
@@ -810,12 +820,13 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
     } else {
         // this spot is partially chadowed
         float vis = ( max_photons - shadows ) / max_photons;
-        illum     = obj_col * vis;
+        illum     =  obj_col * vis;
     }
 
     //std::cout << "direct // " << glm::to_string( illum ) << '\n';
+    delete heap;
 
-    return illum;
+    return illum * 50.0f;
 }
 
 vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
@@ -875,7 +886,7 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
     //std::cout << "made diff map";
     //std::cout << "heap size: " << heap->size() << '\n';
-    int count = 0;
+    size_t count = 0;
 
     while ( !heap->empty() ) {
         Photon* p = heap->top();
@@ -892,15 +903,15 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
             std::cout << '\n';
         }
         //HACK how does BRDF come into play here?
-        if(count ++ < 10)
+        if(count ++ < max_photons)
             diffuse += p->power;
         // radius = p->distance;
         delete p;
         heap->pop();
     }
-    // std::cout << "radius // " << radius << '\n';
+    //std::cout << "radius // " << radius << '\n';
 
-    float divisor = 200.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = 50.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
     //double divisor = 1.0f;
 
     diffuse = vec3( diffuse ) * divisor;
