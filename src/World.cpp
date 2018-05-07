@@ -613,7 +613,7 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
         next_p->position = vec3( *p_dir->origin + *p_dir->direction * 0.0001f );
         next_p->dir      = vec3( *p_dir->direction );
 
-        delete p_dir;
+        //delete p_dir;
 
         float random =
             static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
@@ -719,10 +719,9 @@ void World::build_photon_maps() {
 
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
                       size_t max_photons, int depth ) {
-    vec3 rad = emitted_radiance( pt ) +
-               reflected_radance( pt, ray, dist, obj, max_photons, depth );
+    vec3 rad = emitted_radiance( pt ) + reflected_radance( pt, ray, dist, obj, max_photons, depth );
 
-    std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
+    //std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
 
     return rad;
 }
@@ -735,7 +734,7 @@ vec3 World::emitted_radiance( vec3 pt ) {
 
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                                size_t max_photons, int depth ) {
-    vec3 radiance = direct_illumination( pt, obj, max_photons ) +
+    vec3 radiance = //direct_illumination( pt, obj, max_photons ) +
                     // specular_reflection( pt, ray, dist, obj, depth ) +
                     // caustics( pt, max_photons ) +
                     multi_diffuse( pt, max_photons );
@@ -747,7 +746,9 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
     vec3 obj_col             = obj->get_material()->get_color();
     vec3 illum               = vec3( 0.0f );
 
-    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+    float radius;
+
+    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius);
 
     size_t shadows = 0;
 
@@ -757,6 +758,7 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, size_t max_photons ) {
         if ( p->is_shadow ) {
             shadows += 1;
         }
+        delete p;
 
         heap->pop();
     }
@@ -791,49 +793,54 @@ vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
 }
 
 vec3 World::caustics( vec3 pt, size_t max_photons ) {
-    photon::PhotonHeap* heap = new PhotonHeap();
-
-    // float radius = 0.0f;
-    vec3 caustic = vec3( 0.0f );
-
-    caustic_pmap->get_n_photons_near_pt( heap, pt, max_photons );
-
-    while ( !heap->empty() ) {
-        Photon* p = heap->top();
-
-        // HACK how does BRDF come into play here?
-        caustic += p->power;
-        // radius = p->distance;
-
-        heap->pop();
-    }
-
-    // double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
-    double divisor = 1.0f;
-
-    caustic =
-        vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
-
-    std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
-
-    delete heap;
-
-    return caustic;
+    // photon::PhotonHeap* heap = new PhotonHeap();
+    //
+    // // float radius = 0.0f;
+    // vec3 caustic = vec3( 0.0f );
+    //
+    // caustic_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+    //
+    // while ( !heap->empty() ) {
+    //     Photon* p = heap->top();
+    //
+    //     // HACK how does BRDF come into play here?
+    //     caustic += p->power;
+    //     //delete p;
+    //     // radius = p->distance;
+    //
+    //     heap->pop();
+    // }
+    //
+    // // double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    // double divisor = 1.0f;
+    //
+    // caustic =
+    //     vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
+    //
+    // std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
+    //
+    // delete heap;
+    //
+    // return caustic;
+    return vec3(0,0,0);
 }
 
 vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
 
     vec3 diffuse = vec3( 0.0f );
-    // float radius = 0.0f;
+    float radius = 0.0f;
 
-    global_pmap->get_n_photons_near_pt( heap, pt, max_photons );
+    global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
+    //std::cout << "made diff map";
+    //std::cout << "heap size: " << heap->size() << '\n';
 
     while ( !heap->empty() ) {
         Photon* p = heap->top();
 
-        // print check if the photon is bogus
-        if ( p->power.x > 1.0f || p->power.y > 1.0f || p->power.z > 1.0f ) {
+        //print check if the photon is bogus
+        if ( p->power.x > 1.0f || p->power.y > 1.0f || p->power.z > 1.0f ||
+         p->power.x < 0.0f || p->power.y < 0.0f || p->power.z < 0.0f ) {
             std::cout << "Photon:" << '\n';
             std::cout << "\tpos  // " << glm::to_string( p->position ) << '\n';
             std::cout << "\tpow  // " << glm::to_string( p->power ) << '\n';
@@ -842,21 +849,22 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
             std::cout << "\tdist // " << p->distance << '\n';
             std::cout << '\n';
         }
-        // HACK how does BRDF come into play here?
+        //HACK how does BRDF come into play here?
+
         diffuse += p->power;
         // radius = p->distance;
-
+        delete p;
         heap->pop();
     }
+    //std::cout << "radius // " << radius << '\n';
 
-    // double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
-    double divisor = 1.0f;
-    std::cout << "div // " << divisor << '\n';
+    double divisor = 400*( 1 / ( M_PI * pow( radius, 2 ) ) );
+    //double divisor = 1.0f;
 
     diffuse =
         vec3( diffuse.x * divisor, diffuse.y * divisor, diffuse.z * divisor );
 
-    std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
+    //std::cout << "radius // " << radius << '\n';
 
     delete heap;
 
