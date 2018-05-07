@@ -195,11 +195,10 @@ void cornell_box() {
     vec3 l_norm   = vec3( 0.0f, -1.0f, 0.0f );
     vec3 l_col    = vec3( 1.0f );
     float l_dim   = cube_w / 3;
-    int photons   = 1000;
     float l_angle = 179.0;
 
     SquareLight* light =
-        new SquareLight( l_pos, l_norm, l_col, photons, l_dim, l_dim, l_angle );
+        new SquareLight( l_pos, l_norm, l_col, l_dim, l_dim, l_angle );
 
     world->add_light( light );
 
@@ -212,19 +211,20 @@ void cornell_box() {
 
     png::image<png::rgb_pixel> negative( I_WIDTH, I_HEIGHT );
 
-    // std::clock_t start;
-    // double duration;
+    std::clock_t start;
+    double duration;
 
-    cam->set_scene();
+    int photons = 1000;
+    cam->set_scene( photons );
 
-    // start = std::clock();
+    start = std::clock();
 
     cam->render( &negative );
     photo_print( negative, "out/test.png" );
 
-    //duration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+    duration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
 
-    //std::cout << "render took " << duration << "sec" << '\n';
+    std::cout << "render took " << duration << "sec" << '\n';
 
     delete cam;
 }

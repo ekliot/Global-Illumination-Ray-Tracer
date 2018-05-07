@@ -9,6 +9,10 @@
 #ifndef _WORLD_H
 #define _WORLD_H
 
+#define _USE_MATH_DEFINES
+
+#include <math.h>
+
 #include <glm/matrix.hpp>
 #include <glm/vec3.hpp>
 #include <vector>
@@ -27,15 +31,17 @@ class World {
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
-    KDTreeNode* objectTree;
+    KDTreeNode* obj_tree;
 
-    PhotonKDTreeNode* globalMap;
-    PhotonKDTreeNode* causticMap;
-    PhotonKDTreeNode* volumeMap;
+    PhotonKDTreeNode* global_pmap;
+    PhotonKDTreeNode* caustic_pmap;
+    // PhotonKDTreeNode* volume_pmap;
+    // PhotonKDTreeNode* shadow_pmap;
 
-    std::vector<Photon> globalPhotons;
-    std::vector<Photon> causticPhotons;
-    std::vector<Photon> volumePhotons;
+    std::vector<Photon*> global_photons;
+    std::vector<Photon*> caustic_photons;
+    std::vector<Photon*> volume_photons;
+    // std::vector<Photon*> shadow_photons;
 
     vec3 background;
     vec3 ambient;
@@ -52,7 +58,9 @@ class World {
     // Light* adjusted_light_to_point( vec3 point, Light* light );
     bool can_see_light( vec3 point, Light* light );
 
-    void trace_photon( Photon p, bool was_specular, bool diffused );
+    void trace_photon( Photon* p, bool was_specular, bool diffused );
+
+    void build_photon_maps();
 
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, Object* intersect,
                           Object* last_isect, int depth );
@@ -108,11 +116,13 @@ class World {
      */
     void transform_all( mat4 tmat );
 
+    void emit_photons( int photon_count );
+
     /**
      * Returns the color a ray intersects in the scene
      *
-     * @param r :: Ray :: a Ray spawned by the Camera that needs intersection
-     * calculated
+     * @param r :: Ray :: a Ray spawned by the Camera that needs
+     * intersection calculated
      *
      * @return :: vec3 :: the RGB value of the color intersected by a Ray
      */

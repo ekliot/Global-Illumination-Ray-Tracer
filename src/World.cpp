@@ -329,7 +329,6 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
             l_obj = sq_light->get_obj();
 
             if ( l_obj == obj ) {
-                std::cout << "lobjobj" << '\n';
                 cur_color = l_obj->get_material()->get_color();
             }
         }
@@ -431,7 +430,7 @@ void World::generate_kd_tree() {
     for ( Object* obj : objects ) {
         currentAABB = new AABB( currentAABB, obj->get_aabb() );
     }
-    objectTree = new KDTreeNode( objects, currentAABB, 0 );
+    obj_tree = new KDTreeNode( objects, currentAABB, 0 );
 }
 
 Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
@@ -508,50 +507,8 @@ Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
 }
 
 Object* World::get_intersect_kd_tree( Ray* r, float* returnDist ) {
-    Object* obj = get_intersect_kd_tree_helper( r, objectTree, returnDist );
+    Object* obj = get_intersect_kd_tree_helper( r, obj_tree, returnDist );
     return obj;
-}
-
-void World::trace_photon( Photon p, bool was_specular, bool diffused ) {
-    Ray* r = new Ray( new vec3( p.position ), new vec3( p.dir ) );
-
-    float distance        = 0;
-    Object* intersect_obj = this->get_intersected_obj( r, &distance );
-
-    if ( intersect_obj != NULL ) {
-        vec3 normal_dir = intersect_obj->get_normal( r, distance );
-
-        Ray* newDir      = r->reflect( &normal_dir );
-        Photon newPhoton = Photon();
-        newPhoton.power  = vec3( p.power );
-        newPhoton.position =
-            vec3( *newDir->origin + *newDir->direction * .0001f );
-        newPhoton.dir = vec3( *newDir->direction );
-
-        float random =
-            static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
-        if ( random > intersect_obj->get_material()->get_kd() ) {
-            // difuse
-            if ( was_specular ) {
-                causticPhotons.push_back( p );
-            }
-            if ( diffused ) {
-                volumePhotons.push_back( p );
-            }
-            globalPhotons.push_back( p );
-            trace_photon( newPhoton, was_specular, true );
-
-        } else if ( random > intersect_obj->get_material()->get_kd() +
-                                 intersect_obj->get_material()->get_kr() ) {
-            trace_photon( newPhoton, true, diffused );
-            // reflect
-
-        } else {
-            // absorption
-        }
-
-        // add it to the vector
-    }
 }
 
 void World::add_bunny() {
@@ -638,6 +595,88 @@ void World::add_bunny() {
   PHOTON RADIANCE
 \*****************/
 
+void World::emit_photons( int photon_count ) {
+    vector<Photon*> _photons;
+    vector<Photon*> photons = vector<Photon*>();
+
+    for ( Light* l : lights ) {
+        _photons = l->emit_photons( static_cast<int>(
+            photon_count / static_cast<int>( lights.size() ) ) );
+        photons.insert( photons.end(), _photons.begin(), _photons.end() );
+    }
+
+    for ( Photon* p : photons ) {
+        trace_photon( p, false, false );
+        // std::cout << "Photon:" << '\n';
+        // std::cout << "\tpos // " << glm::to_string( p->position ) << '\n';
+        // std::cout << "\tpow // " << glm::to_string( p->power ) << '\n';
+        // std::cout << "\tdir // " << glm::to_string( p->dir ) << '\n';
+        // std::cout << '\n';
+    }
+
+    build_photon_maps();
+}
+
+void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
+    Ray* r = new Ray( new vec3( p->position ), new vec3( p->dir ) );
+
+    float distance        = 0;
+    Object* intersect_obj = this->get_intersected_obj( r, &distance );
+
+    if ( intersect_obj != NULL ) {
+        vec3 normal_dir = intersect_obj->get_normal( r, distance );
+
+        Ray* p_dir = r->reflect( &normal_dir );
+
+        Photon* next_p   = new Photon();
+        next_p->power    = vec3( p->power );
+        next_p->position = vec3( *p_dir->origin + *p_dir->direction * 0.0001f );
+        next_p->dir      = vec3( *p_dir->direction );
+
+        delete p_dir;
+
+        float random =
+            static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
+
+        float kd = intersect_obj->get_material()->get_kd();
+        float kr = intersect_obj->get_material()->get_kr();
+
+        if ( random < kd ) {
+            std::cout << "diffuse!" << '\n';
+
+            // diffuse
+            if ( was_specular ) {
+                caustic_photons.push_back( p );
+            }
+
+            if ( diffused ) {
+                volume_photons.push_back( p );
+            }
+
+            global_photons.push_back( p );
+
+            trace_photon( next_p, was_specular, true );
+        } else if ( random < kd + kr ) {
+            std::cout << "specular!" << '\n';
+            // specular reflection
+            trace_photon( next_p, true, diffused );
+        } else {
+            // std::cout << "absorb!" << '\n';
+            // absorption
+        }
+    }
+
+    delete r;
+}
+
+void World::build_photon_maps() {
+    std::cout << "global  // " << global_photons.size() << '\n';
+    std::cout << "caustic // " << caustic_photons.size() << '\n';
+    global_pmap  = new PhotonKDTreeNode( global_photons );
+    caustic_pmap = new PhotonKDTreeNode( caustic_photons );
+    // volume_pmap = new PhotonKDTreeNode( volume_photons );
+}
+
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
                       int max_photons, int depth ) {
     vec3 rad = emitted_radiance( pt ) +
@@ -671,19 +710,31 @@ vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
                                  int depth ) {
     // spawn a reflection ray
     float kr = obj->get_material()->get_kr();
+
     return calc_reflection( ray, pt, dist, obj, depth ) * kr;
 }
 
 vec3 World::caustics( vec3 pt, int max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
-    // caustic_pmap.get_photons_near_pt( heap, pt, max_photons );
+    caustic_pmap->get_photons_near_pt( heap, pt, max_photons );
 
     vec3 caustic = vec3( 0.0f );
+    float radius = 0.0f;
+
     while ( !heap->empty() ) {
         Photon* p = heap->top();
-        // do stuffs
+        radius    = p->distance;
+
+        // HACK how does BRDF come into play here?
+        caustic += p->power;
+
         heap->pop();
     }
+
+    double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+
+    caustic =
+        vec3( caustic.x * divisor, caustic.y * divisor, caustic.z * divisor );
 
     delete heap;
 
@@ -692,14 +743,25 @@ vec3 World::caustics( vec3 pt, int max_photons ) {
 
 vec3 World::multi_diffuse( vec3 pt, int max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
-    // global_pmap.get_photons_near_pt( heap, pt, max_photons );
+    global_pmap->get_photons_near_pt( heap, pt, max_photons );
 
     vec3 diffuse = vec3( 0.0f );
+    float radius = 0.0f;
+
     while ( !heap->empty() ) {
         Photon* p = heap->top();
-        // do stuffs
+        radius    = p->distance;
+
+        // HACK how does BRDF come into play here?
+        diffuse += p->power;
+
         heap->pop();
     }
+
+    double divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+
+    diffuse =
+        vec3( diffuse.x * divisor, diffuse.y * divisor, diffuse.z * divisor );
 
     delete heap;
 

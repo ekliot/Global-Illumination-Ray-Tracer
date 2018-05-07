@@ -1,7 +1,7 @@
 /**
  *
  */
- #define PI 3.14159265
+#define PI 3.14159265
 
 #include "SquareLight.h"
 
@@ -10,9 +10,9 @@
 #include "Phong.h"
 #include "SolidMaterial.h"
 
-SquareLight::SquareLight( vec3 _pos, vec3 _norm, vec3 _col, int _photons,
-                          float _w, float _l, float _max )
-    : Light( _pos, _col, _photons ), normal( _norm ), max_angle( _max ) {
+SquareLight::SquareLight( vec3 _pos, vec3 _norm, vec3 _col, float _w, float _l,
+                          float _max )
+    : Light( _pos, _col ), normal( _norm ), max_angle( _max ) {
     Phong* imod        = new Phong( vec3( 1.0f ), 0.0f, 0.0f, 0.0f, 0.0f );
     SolidMaterial* mat = new SolidMaterial( _col );
     // make a rectangle
@@ -31,9 +31,15 @@ SquareLight::~SquareLight() {
     // }
 }
 
-std::vector<Photon*> SquareLight::emit_photons() {
+std::vector<Photon*> SquareLight::emit_photons( int p_cnt ) {
+    vector<Photon*> photons = vector<Photon*>();
+
     // for n times emit photons with 1/n power
-    return std::vector<Photon*>();
+    for ( int i = 0; i < p_cnt; i++ ) {
+        photons.push_back( emit( 1.0f / p_cnt ) );
+    }
+
+    return photons;
 }
 
 Photon* SquareLight::emit( float power ) {
@@ -68,43 +74,34 @@ vec3 SquareLight::gen_emit_ori() {
 }
 
 vec3 SquareLight::gen_emit_dir() {
+    float random_x = ( PI / 2 ) - static_cast<float>( rand() ) /
+                                      static_cast<float>( RAND_MAX ) * ( M_PI );
+    float random_x_cos = ( 1 - cos( random_x ) ) * max_angle;
 
-    vec3 direction = vec3(normal);
-
-    float random_x = (PI/2) - static_cast <float> (rand()) /
-        static_cast <float> (RAND_MAX) * (PI);
-    float random_x_cos = (1 - cos(random_x)) * max_angle;
     vec3 x_vec;
-    if(random_x < 0)
-    {
-        x_vec = vec3(random_x_cos,0,0);
-    }
-    else
-    {
-        x_vec = vec3(- random_x_cos,0,0);
+
+    if ( random_x < 0 ) {
+        x_vec = vec3( random_x_cos, 0, 0 );
+    } else {
+        x_vec = vec3( -random_x_cos, 0, 0 );
     }
 
-    float random_z = (PI/2) - static_cast <float> (rand()) /
-        static_cast <float> (RAND_MAX) * (PI);
-    float random_z_cos = (1 - cos(random_z)) * max_angle;
+    float random_z = ( PI / 2 ) - static_cast<float>( rand() ) /
+                                      static_cast<float>( RAND_MAX ) * ( M_PI );
+    float random_z_cos = ( 1 - cos( random_z ) ) * max_angle;
+
     vec3 z_vec;
-    if(random_z < 0)
-    {
-        z_vec = vec3(0,0,random_z_cos);
-    }
-    else
-    {
-        z_vec = vec3(0,0,-random_z_cos);
+
+    if ( random_z < 0 ) {
+        z_vec = vec3( 0, 0, random_z_cos );
+    } else {
+        z_vec = vec3( 0, 0, -random_z_cos );
     }
 
-    return normalize(normal + z_vec + x_vec);
-
-
-
-
+    return normalize( normal + z_vec + x_vec );
 
     // HACK implement a cosine distribution b/w -max_angle and max_angle
-    //return normal;
+    // return normal;
 }
 
 float SquareLight::intersection( Ray* ray ) {

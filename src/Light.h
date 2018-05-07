@@ -21,15 +21,14 @@ class Light {
   protected:
     vec3 pos;
     vec3 color;
-    int photons;
 
     virtual Photon* emit( float power ) = 0;
 
   public:
-    Light( vec3 pos, vec3 color, int photons );
+    Light( vec3 pos, vec3 color );
     virtual ~Light();
 
-    virtual std::vector<Photon*> emit_photons() = 0;
+    virtual std::vector<Photon*> emit_photons( int photons ) = 0;
 
     // returns INT_MAX if given Ray does not intersect Object, or a value
     // indicating distance

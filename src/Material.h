@@ -17,7 +17,7 @@ class Material {
   public:
     Material( float _kr, float _kd, float _ir = 0 );
     // Material( const Material& material );
-    virtual ~Material() = 0;
+    virtual ~Material();
     // virtual Material& operator=( const Material& model ) = 0;
 
     virtual vec3 get_color( float u = 0, float v = 0 ) = 0;
