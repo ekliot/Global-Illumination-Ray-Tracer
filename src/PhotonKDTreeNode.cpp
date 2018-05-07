@@ -189,14 +189,14 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
             left->get_n_photons_near_pt( heap, position, size );
         }
     } else {
-        std::cout << "/*" << '\n';
         for ( Photon* old_p : photons ) {
-            if ( heap->size() <= size ) {
+            if ( heap->size() < size ) {
                 Photon new_p = {};
 
                 new_p.position  = vec3( old_p->position );
                 new_p.power     = vec3( old_p->power );
                 new_p.dir       = vec3( old_p->dir );
+                new_p.src       = vec3( old_p->src );
                 new_p.distance  = glm::distance( new_p.position, position );
                 new_p.is_shadow = old_p->is_shadow;
 
