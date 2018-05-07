@@ -21,8 +21,9 @@ namespace photon {
         vec3 position;
         vec3 power;
         vec3 dir;
-        float distance;  // used for min heap
-        // short flag;
+        vec3 src;
+        bool shadow    = false;
+        float distance = 0.0f;  // used for min heap
     } Photon;
 
     struct compare {

@@ -50,6 +50,7 @@ Photon* SquareLight::emit( float power ) {
     p->position = origin;
     p->power    = color * power;
     p->dir      = dir;
+    p->src      = pos;
     p->distance = 0.0f;
 
     return p;
@@ -109,7 +110,7 @@ float SquareLight::intersection( Ray* ray ) {
 }
 
 void SquareLight::transform( mat4 tmat ) {
-    //rect->transform( tmat );
+    // rect->transform( tmat );
 
     vec4 _pos    = vec4( pos, 1 );
     vec4 new_pos = tmat * _pos;
