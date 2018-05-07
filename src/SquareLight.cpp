@@ -69,8 +69,6 @@ vec3 SquareLight::gen_emit_ori() {
 
 vec3 SquareLight::gen_emit_dir() {
 
-    vec3 direction = vec3(normal);
-
     float random_x = (PI/2) - static_cast <float> (rand()) /
         static_cast <float> (RAND_MAX) * (PI);
     float random_x_cos = (1 - cos(random_x)) * max_angle;
@@ -112,7 +110,7 @@ float SquareLight::intersection( Ray* ray ) {
 }
 
 void SquareLight::transform( mat4 tmat ) {
-    rect->transform( tmat );
+    //rect->transform( tmat );
 
     vec4 _pos    = vec4( pos, 1 );
     vec4 new_pos = tmat * _pos;

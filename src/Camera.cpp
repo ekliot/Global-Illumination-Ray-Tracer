@@ -14,6 +14,7 @@
 #include "glm/gtx/string_cast.hpp"
 
 using namespace png;
+using glm::clamp;
 using glm::vec3;
 
 Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp )
@@ -91,7 +92,8 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                 ray_dir = vec3( dir_x, dir_y, dir_z );
                 ray     = new Ray( &ray_ori, &ray_dir );
 
-                color = world->get_intersect( ray ) * 255.0f;
+                color = world->get_intersect( ray );
+                color = clamp( color, 0.0f, 1.0f ) * 255.0f;
 
                 negative->get_row( y )[x] =
                     rgb_pixel( int( color.x ), int( color.y ), int( color.z ) );
@@ -121,6 +123,8 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                         ray     = new Ray( &ray_ori, &ray_dir );
 
                         color = world->get_intersect( ray );
+                        color = clamp( color, 0.0f, 1.0f );
+
                         r += color.x;
                         g += color.y;
                         b += color.z;

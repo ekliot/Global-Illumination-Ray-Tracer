@@ -23,7 +23,6 @@
 #include "glm/gtx/string_cast.hpp"
 #include "tinyply.h"
 
-
 using namespace tinyply;
 using namespace photon;
 
@@ -48,7 +47,12 @@ World::~World() {
 
 void World::add_object( Object* obj ) { objects.push_back( obj ); }
 
-void World::add_light( Light* light ) { lights.push_back( light ); }
+void World::add_light( Light* light ) { lights.push_back( light );
+    if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( light ) ) {
+        objects.push_back( sq_light->get_obj() );
+        //std::cout << "pushed stuff";
+    }
+ }
 
 void World::transform_all( mat4 tmat ) {
     for ( Object* obj : objects ) {
@@ -57,10 +61,8 @@ void World::transform_all( mat4 tmat ) {
     for ( Light* l : lights ) {
         l->transform( tmat );
 
-        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-            add_object(sq_light->get_obj());
-        }
-
+        // we have to do this after the transform to it doesnt get double
+        // transformed
 
     }
 }
@@ -140,8 +142,8 @@ bool World::can_see_light( vec3 point, Light* light ) {
 //     vec3 _adj    = vec3( 0.0f );
 //
 //     // for every object between the light and point, modify the colour of the
-//     // light reaching that point based on the object colours and transparencies
-//     for ( Object* obj : isecting_objs ) {
+//     // light reaching that point based on the object colours and
+//     transparencies for ( Object* obj : isecting_objs ) {
 //         kd = obj->get_material()->get_kd();
 //
 //         visible = visible && ( kd > 0.0f );
@@ -151,13 +153,17 @@ bool World::can_see_light( vec3 point, Light* light ) {
 //         } else {
 //             // std::cout << "adjusting light..." << '\n';
 //             //
-//             // std::cout << "  cur_col // " << glm::to_string(*adj_col) << '\n';
+//             // std::cout << "  cur_col // " << glm::to_string(*adj_col) <<
+//             '\n';
 //             // std::cout << "  obj_col // " <<
-//             // glm::to_string(obj->get_material()->get_color( 0.0f, 0.0f )) <<
+//             // glm::to_string(obj->get_material()->get_color( 0.0f, 0.0f ))
+//             <<
 //             // '\n'; std::cout << "  kd // " << kd << '\n';
 //
-//             // TODO it'd be cool to make this alter the light's colour based on
-//             // the objet colour... this has failed in the past, however perhaps,
+//             // TODO it'd be cool to make this alter the light's colour based
+//             on
+//             // the objet colour... this has failed in the past, however
+//             perhaps,
 //             // if we model light absorption? IDEA light_col - ( vec(1.0f) -
 //             // obj_col ) * ( 1.0f - kd ) _adj = normalize( *adj_col +
 //             // obj->get_material()->get_color( 0.0f, 0.0f ) ) * kd;
@@ -168,7 +174,8 @@ bool World::can_see_light( vec3 point, Light* light ) {
 //             adj_col->z = _adj.z;
 //
 //             // if ( *adj_col != vec3( -1.0f ) && *adj_col != *light.color ) {
-//             //     std::cout << "got color: " << glm::to_string( *adj_col ) <<
+//             //     std::cout << "got color: " << glm::to_string( *adj_col )
+//             <<
 //             //     '\n'; std::cout << "from:      " << glm::to_string(
 //             //     *light.color ) << '\n';
 //             // }
@@ -205,6 +212,7 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float dist ) {
     }
 
 
+
     // then, sort them in ascending distance from the ray origin
 
     std::sort( ods.begin(), ods.end(), ObjDist::compare );
@@ -220,8 +228,10 @@ std::vector<Object*> World::get_intersecting_objs( Ray* r, float dist ) {
 
 // determine the object intersected by a given ray, and store the distance
 // @param Ray* r :: a pointer to the Ray to calculate intersection for
-// @param float* distance :: the output variable where to store the distance at which the ray intersects (INT_MAX by default)
-// @return Object* :: a pointer to the Object that is intersected, or NULL if none are intersected
+// @param float* distance :: the output variable where to store the distance at
+// which the ray intersects (INT_MAX by default)
+// @return Object* :: a pointer to the Object that is intersected, or NULL if
+// none are intersected
 Object* World::get_intersected_obj( Ray* r, float* distance ) {
     Object* ret_obj = NULL;
     *distance       = INT_MAX;
@@ -236,179 +246,28 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
         }
     }
 
-    for ( Light* l : lights ) {
-        _dist = l->intersection( r );
-
-        if ( _dist < *distance && _dist > 0.00001 ) {
-            *distance = _dist;
-            // FIXME should be Light::get_obj() without casting, check Light.h for why this doesn't work
-            if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-                ret_obj = sq_light->get_obj();
-            }
-        }
-    }
+    // for ( Light* l : lights ) {
+    //     _dist = l->intersection( r );
+    //
+    //     if ( _dist < *distance && _dist > 0.00001 ) {
+    //         *distance = _dist;
+    //         // FIXME should be Light::get_obj() without casting, check Light.h
+    //         // for why this doesn't work
+    //         if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+    //             ret_obj = sq_light->get_obj();
+    //         }
+    //     }
+    // }
 
     return ret_obj;
 }
 
-Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                           float* returnDist ) {
-    *returnDist = FLT_MAX;
-
-    if ( node->left == NULL ) {
-        *returnDist = INT_MAX;
-
-        for ( Object* obj : node->objects ) {
-            float newValue = obj->intersection( r );
-            if ( newValue < *returnDist && newValue > 0.00001 ) {
-                *returnDist = newValue;
-                return obj;
-
-            }
-        }
-    }
-    if ( node->left == NULL ) {
-        return NULL;
-    }
-
-    float a_enter = node->left->aabb->intersect_ray( r );
-    float b_enter = node->right->aabb->intersect_ray( r );
-
-    if ( a_enter < 0 ) a_enter = INT_MAX;
-
-    if ( b_enter < 0 ) b_enter = INT_MAX;
-
-    if ( a_enter == INT_MAX && b_enter == INT_MAX ) {
-        return NULL;
-    }
-
-    if ( abs( a_enter - b_enter ) < 0.00001 ) {
-        float a_dist;
-        Object* a_vec = get_intersect_kd_tree_helper( r, node->left, &a_dist);
-
-        float b_dist;
-
-        Object* b_vec = get_intersect_kd_tree_helper( r, node->right, &b_dist);
-        if ( a_dist < b_dist ) {
-            *returnDist = a_dist;
-            return a_vec;
-        } else {
-            *returnDist = b_dist;
-            return b_vec;
-        }
-
-    } else if ( a_enter <= b_enter && a_enter != INT_MAX ) {
-        Object* a_vec = get_intersect_kd_tree_helper(
-            r, node->left, returnDist );
-        if ( a_vec != NULL ) {
-            return a_vec;
-        }
-        Object* b_vec = get_intersect_kd_tree_helper(
-            r, node->right, returnDist );
-        if ( b_enter != INT_MAX ) {
-            return b_vec;
-        }
-    } else if ( b_enter < a_enter && b_enter != INT_MAX ) {
-        Object* b_vec = get_intersect_kd_tree_helper(
-            r, node->right, returnDist );
-        if ( b_vec != NULL ) {
-            return b_vec;
-        }
-        Object* a_vec = get_intersect_kd_tree_helper(
-            r, node->left, returnDist );
-        if ( a_enter != INT_MAX ) {
-            return a_vec;
-        }
-    }
-
-    *returnDist = FLT_MAX;
-    return NULL;
-}
-
-Object* World::get_intersect_kd_tree( Ray* r, float* returnDist  ) {
-    Object* obj =  get_intersect_kd_tree_helper( r, objectTree, returnDist );
-    return obj;
-
-}
-
-void World::trace_photon( Photon p, bool was_specular, bool diffused, bool shadow )
-{
-    Ray* r = new Ray(new vec3(p.position), new vec3(p.dir));
-
-    float distance        = 0;
-    Object* intersect_obj = this->get_intersected_obj( r, &distance );
-
-
-    if( intersect_obj != NULL )
-    {
-        vec3 normal_dir = intersect_obj->get_normal( r, distance );
-
-
-
-        vec3 reflectPos = *r->origin + ( distance * *r->direction);
-        vec3 reflectDir = *r->origin - (reflectPos);
-        Ray reflectHelperRay = Ray(&reflectPos, &reflectDir);
-
-        Ray* newDir = reflectHelperRay.reflect(&normal_dir);
-        Photon newPhoton = Photon();
-        newPhoton.power = vec3(p.power);
-        newPhoton.position = vec3(*newDir->origin + *newDir->direction *.0001f);
-        newPhoton.dir = vec3(*newDir->direction);
-
-        Photon shadowPhoton = Photon();
-        shadowPhoton.power = vec3(p.power);
-        shadowPhoton.dir = vec3(*r->direction);
-        shadowPhoton.position = vec3(*newDir->origin + *r->direction *.0001f);
-        trace_photon(shadowPhoton, was_specular, diffused, true );
-
-        if(!shadow )
-        {
-            float random = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-            if(random > intersect_obj->get_material()->get_kd())
-            {
-                //difuse
-                if(was_specular)
-                {
-                    causticPhotons.push_back(p);
-                }
-                if(diffused)
-                {
-                    volumePhotons.push_back(p);
-                }
-                globalPhotons.push_back(p);
-                trace_photon(newPhoton, was_specular,true);
-
-
-
-            }
-            else if(random > intersect_obj->get_material()->get_kd() +intersect_obj->get_material()->get_kr())
-            {
-                trace_photon(newPhoton, true ,diffused);
-                // reflect
-
-            }
-            else
-            {
-                //absorption
-
-            }
-
-
-        }
-
-
-    }
-
-
-}
-
 // return a the colour seen by a given Ray at its point of intersection
-vec3 World::get_intersect( Ray* ray, int depth,
-                           Object* last_intersect ) {
-    float distance        = 0;
+vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
+    float distance = 0;
 
-    Object* obj = this->get_intersect_kd_tree(ray, &distance);
-    //this->get_intersected_obj( ray, &distance );
+    //Object* obj = this->get_intersect_kd_tree( ray, &distance );
+    Object* obj = this->get_intersected_obj( ray, &distance );
 
     // std::cout << '\n';
     // std::cout << "given ray" << '\n';
@@ -437,10 +296,25 @@ vec3 World::get_intersect( Ray* ray, int depth,
 
     vec3 point  = *ray->origin + *ray->direction * distance;
     data.lights = get_pruned_lights( point );
+
+
+
     data.ambient = &ambient;
 
     // the colour of the intersected object seen by the Ray
     vec3 cur_color = obj->get_color( data );
+
+    Object* l_obj;
+    for ( Light* l : lights ) {
+        if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
+            l_obj = sq_light->get_obj();
+
+            if ( l_obj == obj ) {
+
+                cur_color = l_obj->get_material()->get_color();
+            }
+        }
+    }
 
     // if we have not hit maximum recursion depth...
     if ( depth < MAX_DEPTH ) {
@@ -449,28 +323,16 @@ vec3 World::get_intersect( Ray* ray, int depth,
 
         // if the object is transparent...
         if ( kd > 0 ) {
-            vec3 refract_color = calc_refraction( ray, point, distance, obj,
-                                                  last_intersect, depth );
-            cur_color          = cur_color + kd * refract_color;
+            vec3 refraction = calc_refraction( ray, point, distance, obj,
+                                               last_intersect, depth );
+            cur_color       = cur_color + kd * refraction;
         }
 
         // if the object is reflective...
         if ( kr > 0 ) {
-            // std::cout << "reflectin..." << '\n';
-
-            vec3 normal_dir = obj->get_normal( ray, distance );
-
-            vec3 reflect_dir = glm::reflect( *ray->direction, normal_dir );
-            vec3 newPoint    = point + .1f * reflect_dir;
-
-            Ray reflect_ray = Ray( &newPoint, &reflect_dir );
-
-            // std::cout << "reflect ray:" << '\n';
-            // reflect_ray.print();
-            // std::cout << '\n';
-
-            vec3 reflect_color = get_intersect( &reflect_ray, depth + 1 );
-            cur_color          = cur_color + kr * reflect_color;
+            vec3 reflection =
+                calc_reflection( ray, point, distance, obj, depth );
+            cur_color = cur_color + kr * reflection;
         }
     } else {
         std::cout << "max recursion" << '\n';
@@ -522,13 +384,161 @@ vec3 World::calc_refraction( Ray* ray, vec3 point, float dist,
     return get_intersect( &refract_ray, depth + 1, intersect );
 }
 
-void World::generate_kd_tree() {
+vec3 World::calc_reflection( Ray* ray, vec3 point, float dist,
+                             Object* intersect, int depth ) {
+    // std::cout << "reflectin..." << '\n';
+
+    vec3 normal_dir = intersect->get_normal( ray, dist );
+
+    vec3 reflect_dir = glm::reflect( *ray->direction, normal_dir );
+    vec3 newPoint    = point + .1f * reflect_dir;
+
+    Ray reflect_ray = Ray( &newPoint, &reflect_dir );
+
+    // std::cout << "reflect ray:" << '\n';
+    // reflect_ray.print();
+    // std::cout << '\n';
+
+    return get_intersect( &reflect_ray, depth + 1, intersect );
+}
+
+/**********\
+  K-D TREE
+\**********/
+
+void World::generate_kd_tree()
+{
     AABB* currentAABB =
         new AABB( -FLT_MAX, -FLT_MAX, -FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX );
     for ( Object* obj : objects ) {
         currentAABB = new AABB( currentAABB, obj->get_aabb() );
     }
     objectTree = new KDTreeNode( objects, currentAABB, 0 );
+}
+
+Object* World::get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
+                                             float* returnDist ) {
+    *returnDist = FLT_MAX;
+    Object* returnObj = NULL;
+
+    if ( node->left == NULL ) {
+        *returnDist = INT_MAX;
+
+        for ( Object* obj : node->objects ) {
+            float newValue = obj->intersection( r );
+            if ( newValue < *returnDist && newValue > 0.00001 ) {
+                *returnDist = newValue;
+                returnObj = obj;
+
+            }
+        }
+        if(returnObj != NULL)
+            return returnObj;
+
+    }
+    if ( node->left == NULL ) {
+        return NULL;
+    }
+
+    float a_enter = node->left->aabb->intersect_ray( r );
+    float b_enter = node->right->aabb->intersect_ray( r );
+
+    if ( a_enter < 0 ) a_enter = INT_MAX;
+
+    if ( b_enter < 0 ) b_enter = INT_MAX;
+
+    if ( a_enter == INT_MAX && b_enter == INT_MAX ) {
+        return NULL;
+    }
+
+    if ( abs( a_enter - b_enter ) < 0.00001 ) {
+        float a_dist;
+        Object* a_vec = get_intersect_kd_tree_helper( r, node->left, &a_dist );
+
+        float b_dist;
+
+        Object* b_vec = get_intersect_kd_tree_helper( r, node->right, &b_dist );
+        if ( a_dist < b_dist ) {
+            *returnDist = a_dist;
+            return a_vec;
+        } else {
+            *returnDist = b_dist;
+            return b_vec;
+        }
+
+    } else if ( a_enter <= b_enter && a_enter != INT_MAX ) {
+        Object* a_vec =
+            get_intersect_kd_tree_helper( r, node->left, returnDist );
+        if ( a_vec != NULL ) {
+            return a_vec;
+        }
+        Object* b_vec =
+            get_intersect_kd_tree_helper( r, node->right, returnDist );
+        if ( b_enter != INT_MAX ) {
+            return b_vec;
+        }
+    } else if ( b_enter < a_enter && b_enter != INT_MAX ) {
+        Object* b_vec =
+            get_intersect_kd_tree_helper( r, node->right, returnDist );
+        if ( b_vec != NULL ) {
+            return b_vec;
+        }
+        Object* a_vec =
+            get_intersect_kd_tree_helper( r, node->left, returnDist );
+        if ( a_enter != INT_MAX ) {
+            return a_vec;
+        }
+    }
+
+    *returnDist = FLT_MAX;
+    return NULL;
+}
+
+Object* World::get_intersect_kd_tree( Ray* r, float* returnDist ) {
+    Object* obj = get_intersect_kd_tree_helper( r, objectTree, returnDist );
+    return obj;
+}
+
+void World::trace_photon( Photon p, bool was_specular, bool diffused ) {
+    Ray* r = new Ray( new vec3( p.position ), new vec3( p.dir ) );
+
+    float distance        = 0;
+    Object* intersect_obj = this->get_intersected_obj( r, &distance );
+
+    if ( intersect_obj != NULL ) {
+        vec3 normal_dir = intersect_obj->get_normal( r, distance );
+
+        Ray* newDir      = r->reflect( &normal_dir );
+        Photon newPhoton = Photon();
+        newPhoton.power  = vec3( p.power );
+        newPhoton.position =
+            vec3( *newDir->origin + *newDir->direction * .0001f );
+        newPhoton.dir = vec3( *newDir->direction );
+
+        float random =
+            static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
+        if ( random > intersect_obj->get_material()->get_kd() ) {
+            // difuse
+            if ( was_specular ) {
+                causticPhotons.push_back( p );
+            }
+            if ( diffused ) {
+                volumePhotons.push_back( p );
+            }
+            globalPhotons.push_back( p );
+            trace_photon( newPhoton, was_specular, true );
+
+        } else if ( random > intersect_obj->get_material()->get_kd() +
+                                 intersect_obj->get_material()->get_kr() ) {
+            trace_photon( newPhoton, true, diffused );
+            // reflect
+
+        } else {
+            // absorption
+        }
+
+        // add it to the vector
+    }
 }
 
 void World::add_bunny() {
@@ -609,4 +619,76 @@ void World::add_bunny() {
     } catch ( const std::exception& e ) {
         std::cerr << "Caught tinyply exception: " << e.what() << std::endl;
     }
+}
+
+/*****************\
+  PHOTON RADIANCE
+\*****************/
+
+vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
+                      int max_photons, int depth ) {
+    vec3 rad = emitted_radiance( pt ) +
+               reflected_radance( pt, ray, dist, obj, max_photons, depth );
+
+    return rad;
+}
+
+vec3 World::emitted_radiance( vec3 pt ) {
+    //
+    return vec3( 0.0f );
+}
+
+vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
+                               int max_photons, int depth ) {
+    vec3 radiance = direct_illumination( pt ) +
+                    specular_reflection( pt, ray, dist, obj, depth ) +
+                    caustics( pt, max_photons ) +
+                    multi_diffuse( pt, max_photons );
+    return radiance;
+}
+
+vec3 World::direct_illumination( vec3 pt ) {
+    vec3 illum = vec3( 0.0f );
+    // calculate the direct illumination from light sources at pt
+    // shadow rays, or shadow maps?
+    return illum;
+}
+
+vec3 World::specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
+                                 int depth ) {
+    // spawn a reflection ray
+    float kr = obj->get_material()->get_kr();
+    return calc_reflection( ray, pt, dist, obj, depth ) * kr;
+}
+
+vec3 World::caustics( vec3 pt, int max_photons ) {
+    photon::PhotonHeap* heap = new PhotonHeap();
+    // caustic_pmap.get_photons_near_pt( heap, pt, max_photons );
+
+    vec3 caustic = vec3( 0.0f );
+    while ( !heap->empty() ) {
+        //Photon* p = heap->top();
+        // do stuffs
+        heap->pop();
+    }
+
+    delete heap;
+
+    return caustic;
+}
+
+vec3 World::multi_diffuse( vec3 pt, int max_photons ) {
+    photon::PhotonHeap* heap = new PhotonHeap();
+    // global_pmap.get_photons_near_pt( heap, pt, max_photons );
+
+    vec3 diffuse = vec3( 0.0f );
+    while ( !heap->empty() ) {
+        //Photon* p = heap->top();
+        // do stuffs
+        heap->pop();
+    }
+
+    delete heap;
+
+    return diffuse;
 }

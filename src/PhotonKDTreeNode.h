@@ -16,8 +16,6 @@ using namespace std;
 using namespace photon;
 using glm::vec3;
 
-using PhotonHeap = priority_queue<Photon*, vector<Photon*>, compare>;
-
 class PhotonKDTreeNode {
     const int MAX_DEPTH = 25;
 

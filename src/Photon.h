@@ -7,8 +7,11 @@
 
 #include <glm/detail/func_vector_relational.hpp>
 #include <glm/vec3.hpp>
+#include <queue>
+#include <vector>
 
 using namespace glm;
+using namespace std;
 
 namespace photon {
     typedef struct st_Photon {
@@ -25,6 +28,8 @@ namespace photon {
             return a->distance > b->distance;
         }
     };
+
+    typedef priority_queue<Photon*, vector<Photon*>, compare> PhotonHeap;
 }  // namespace photon
 
 #endif

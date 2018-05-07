@@ -24,7 +24,6 @@ using namespace glm;
 
 class World {
   private:
-
     std::vector<Object*> objects;
     std::vector<Light*> lights;
 
@@ -38,7 +37,6 @@ class World {
     std::vector<Photon> globalPhotons;
     std::vector<Photon> causticPhotons;
     std::vector<Photon> volumePhotons;
-
 
     vec3 background;
     vec3 ambient;
@@ -55,17 +53,33 @@ class World {
     // Light* adjusted_light_to_point( vec3 point, Light* light );
     bool can_see_light( vec3 point, Light* light );
 
+    void trace_photon( Photon p, bool was_specular, bool diffused );
+
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, Object* intersect,
                           Object* last_isect, int depth );
 
-
-    void trace_photon( Photon p, bool was_specular = false,
-        bool diffused = false, bool shadow = false);
-
-    Object* get_intersect_kd_tree( Ray* r, float* returnDist );
+    vec3 calc_reflection( Ray* ray, vec3 point, float dist, Object* intersect,
+                          int depth );
 
     Object* get_intersect_kd_tree_helper( Ray* r, KDTreeNode* node,
-                                        float* returnDist);
+                                          float* returnDist );
+
+    vec3 radiance( vec3 pt, Ray* ray, float dist, Object* obj, int max_photons,
+                   int depth );
+
+    vec3 emitted_radiance( vec3 pt );
+
+    vec3 reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
+                            int max_photons, int depth );
+
+    vec3 direct_illumination( vec3 pt );
+
+    vec3 specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
+                              int depth );
+
+    vec3 caustics( vec3 pt, int max_photons );
+
+    vec3 multi_diffuse( vec3 pt, int max_photons );
 
   public:
     /**
@@ -105,6 +119,8 @@ class World {
      */
     vec3 get_intersect( Ray* r, int depth = 0,
                         Object* lastIntersectionObject = NULL );
+
+    Object* get_intersect_kd_tree( Ray* r, float* returnDist );
 
     void generate_kd_tree();
 
