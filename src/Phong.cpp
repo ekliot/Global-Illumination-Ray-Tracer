@@ -88,3 +88,7 @@ vec3 Phong::get_specular( vec3 l_col, vec3 spec, vec3 ref_dir, vec3 in_dir,
                           float _ke ) {
     return l_col * spec * pow( dot( ref_dir, in_dir ), _ke );
 }
+
+float Phong::get_kd() { return kd; }
+
+float Phong::get_ks() { return ks; }

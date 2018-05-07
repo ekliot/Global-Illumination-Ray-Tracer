@@ -44,7 +44,7 @@ class Camera {
      */
     ~Camera( void );
 
-    void set_scene();
+    void set_scene( int photons );
     void break_scene();
 
     /**

@@ -40,6 +40,9 @@ class Object {
     // gets the object's material
     Material* get_material();
 
+    // gets the object's imodel
+    IlluminationModel* get_imodel();
+
     // returns INT_MAX if given Ray does not intersect Object, or a value
     // indicating distance
     virtual float intersection( Ray* ray ) = 0;

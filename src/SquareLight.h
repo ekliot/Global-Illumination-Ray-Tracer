@@ -5,6 +5,10 @@
 #ifndef _SQUARELIGHT_H_
 #define _SQUARELIGHT_H_
 
+#define _USE_MATH_DEFINES
+
+#include <math.h>
+
 #include "Light.h"
 #include "Rectangle.h"
 
@@ -20,11 +24,11 @@ class SquareLight : public Light {
     vec3 gen_emit_dir();
 
   public:
-    SquareLight( vec3 pos, vec3 normal, vec3 color, int photons, float width,
-                 float length, float max_angle );
+    SquareLight( vec3 pos, vec3 normal, vec3 color, float width, float length,
+                 float max_angle );
     ~SquareLight();
 
-    std::vector<Photon*> emit_photons();
+    std::vector<Photon*> emit_photons( int photons );
 
     // returns INT_MAX if given Ray does not intersect Object, or a value
     // indicating distance

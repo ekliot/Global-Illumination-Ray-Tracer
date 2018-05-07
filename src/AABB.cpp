@@ -16,7 +16,7 @@ AABB::AABB( float max_x, float max_y, float max_z, float min_x, float min_y,
     min = vec3( min_x, min_y, min_z );
 }
 
-AABB::AABB( vec3 _max, vec3 _min ) : max( _max ), min( _min ) {}
+AABB::AABB( vec3 _max, vec3 _min ) : max( vec3( _max ) ), min( vec3( _min ) ) {}
 
 AABB::AABB( AABB* a, AABB* b ) {
     max = vec3( std::max( a->max.x, b->max.x ), std::max( a->max.y, b->max.y ),
