@@ -15,7 +15,7 @@ class Material {
     float ir;
 
   public:
-    Material( float _kr, float _kd, float _ir = 0 );
+    Material( float kr = 0.0f, float kd = 0.0f, float ir = 0.0f );
     // Material( const Material& material );
     virtual ~Material();
     // virtual Material& operator=( const Material& model ) = 0;

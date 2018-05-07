@@ -195,7 +195,7 @@ void cornell_box() {
     vec3 l_norm   = vec3( 0.0f, -1.0f, 0.0f );
     vec3 l_col    = vec3( 1.0f );
     float l_dim   = cube_w / 3;
-    float l_angle = 179.0;
+    float l_angle = 0.5;
 
     SquareLight* light =
         new SquareLight( l_pos, l_norm, l_col, l_dim, l_dim, l_angle );

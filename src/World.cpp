@@ -638,8 +638,8 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
         float random =
             static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
 
-        float kd = intersect_obj->get_material()->get_kd();
-        float kr = intersect_obj->get_material()->get_kr();
+        float kd = intersect_obj->get_imodel()->get_kd();
+        float ks = intersect_obj->get_imodel()->get_ks();
 
         if ( random < kd ) {
             std::cout << "diffuse!" << '\n';
@@ -656,7 +656,7 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
             global_photons.push_back( p );
 
             trace_photon( next_p, was_specular, true );
-        } else if ( random < kd + kr ) {
+        } else if ( random < kd + ks ) {
             std::cout << "specular!" << '\n';
             // specular reflection
             trace_photon( next_p, true, diffused );

@@ -25,6 +25,9 @@ class Phong : public IlluminationModel {
     vec3 get_diffuse( vec3 l_col, vec3 obj_col, vec3 norm, vec3 dir );
     vec3 get_specular( vec3 l_col, vec3 spec, vec3 ref_dir, vec3 in_dir,
                        float ke );
+
+    float get_kd();
+    float get_ks();
 };
 
 #endif

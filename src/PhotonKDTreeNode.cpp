@@ -104,13 +104,6 @@ int PhotonKDTreeNode::set_aabbs( AABB* _left, AABB* _right, float dx, float dy,
     int _axis;
     float len;
 
-    // std::cout << "aabb" << '\n';
-    // aabb->print();
-    // std::cout << "left" << '\n';
-    // _left->print();
-    // std::cout << "right" << '\n';
-    // _right->print();
-
     // make aabbs here
     if ( dx > dy && dx > dz ) {
         _axis = 0;
