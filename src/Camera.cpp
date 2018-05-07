@@ -41,7 +41,7 @@ Camera::Camera( World* _w, vec3 _pos, vec3 _look, vec3 _up, PPlane _pp )
 
 Camera::~Camera() { delete world; }
 
-void Camera::set_scene( int photons ) {
+void Camera::set_scene( size_t photons ) {
     if ( !is_set ) {
         world->transform_all( transform_mat );
         world->generate_kd_tree();

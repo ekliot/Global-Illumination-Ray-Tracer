@@ -214,7 +214,7 @@ void cornell_box() {
     std::clock_t start;
     double duration;
 
-    int photons = 1000;
+    size_t photons = 1000;
     cam->set_scene( photons );
 
     start = std::clock();

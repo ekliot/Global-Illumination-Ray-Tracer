@@ -164,10 +164,14 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
 
         if ( delta < 0 ) {
             left->get_n_photons_near_pt( heap, position, size, range );
-            right->get_n_photons_near_pt( heap, position, size, range );
+            if ( pow( delta, 2.0f ) < pow( *range, 2.0f ) ||
+                 abs( *range ) < 0.00001 )
+                right->get_n_photons_near_pt( heap, position, size, range );
         } else {
             right->get_n_photons_near_pt( heap, position, size, range );
-            left->get_n_photons_near_pt( heap, position, size, range );
+            if ( pow( delta, 2.0f ) < pow( *range, 2.0f ) ||
+                 abs( *range ) < 0.00001 )
+                left->get_n_photons_near_pt( heap, position, size, range );
         }
 
     } else {
