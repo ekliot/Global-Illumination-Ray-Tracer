@@ -47,11 +47,15 @@ Photon* SquareLight::emit( float power ) {
     vec3 dir    = gen_emit_dir();
 
     Photon* p   = new Photon();
-    p->position = origin + dir * .00001f;
+    p->position = origin + dir * .01f;
     p->power    = color * power;
     p->dir      = dir;
     p->src      = pos;
     p->distance = 0.0f;
+
+
+
+    //std::cout<<"direction" << glm::to_string(dir )<< "\n";
 
     return p;
 }

@@ -150,7 +150,7 @@ void PhotonKDTreeNode::get_photons_near_pt( PhotonHeap* heap, vec3 position,
 
 void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
                                               size_t size, float* range ) {
-    if ( left != NULL && heap->size() <= size ) {
+    if ( left != NULL ){//&& heap->size() <= size ) {
         float delta = 0.0f;
 
         // calculate distance
@@ -173,7 +173,7 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
                 left->get_n_photons_near_pt( heap, position, size, range );
         }
 
-        PhotonHeap newHeap = PhotonHeap();
+        //PhotonHeap newHeap = PhotonHeap();
 
         //
         // if(heap->size() > size)
@@ -220,10 +220,10 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
 
 
         for ( Photon* old_p : photons ) {
-            float distance  = glm::distance( old_p->position, position );
+            // if( heap->size() < size  )
+            // {
 
-            if(heap->size() < size)
-            {
+                float distance  = glm::distance( old_p->position, position );
                 Photon* new_p = new Photon;
                 new_p->position  = old_p->position ;
                 new_p->power     = old_p->power;
@@ -238,7 +238,44 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
                 {
                     *range =  new_p->distance;
                 }
-            }
+            //}
+
+            // else if( distance < *range)
+            // {
+            //     Photon* new_p = new Photon;
+            //     new_p->position  = old_p->position ;
+            //     new_p->power     = old_p->power;
+            //     new_p->dir       = old_p->dir;
+            //     new_p->src       = old_p->src;
+            //     new_p->distance  = distance;
+            //     new_p->is_shadow = old_p->is_shadow;
+            //
+            //     //sorted.push_back( new_p );
+            //     heap->push( new_p);
+            //
+            //     PhotonHeap newHeap = PhotonHeap();
+            //     if(heap->size() > size)
+            //     {
+            //     //    std::cout<< "too full " << heap->top()->distance;
+            //
+            //         while(heap->size() > 0)
+            //         {
+            //             if(newHeap.size() < size)
+            //             {
+            //                 newHeap.push(heap->top());
+            //                 //std::cout<< "first distance: " << heap->top()->distance;
+            //                 *range = heap->top()->distance;
+            //                 heap->pop();
+            //             }
+            //             else
+            //             {
+            //                 delete heap->top();
+            //                 heap->pop();
+            //             }
+            //         }
+            //         *heap = newHeap;
+            //     }
+            // }
 
         }
 

@@ -613,7 +613,7 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
         next_p->position = vec3( *p_dir->origin + *p_dir->direction * 0.0001f );
         next_p->dir      = vec3( *p_dir->direction );
 
-        //delete p_dir;
+        delete p_dir;
 
         float random =
             static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
@@ -834,6 +834,7 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
     //std::cout << "made diff map";
     //std::cout << "heap size: " << heap->size() << '\n';
+    int count = 0;
 
     while ( !heap->empty() ) {
         Photon* p = heap->top();
@@ -850,15 +851,15 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
             std::cout << '\n';
         }
         //HACK how does BRDF come into play here?
-
-        diffuse += p->power;
+        if(count ++ < 10)
+            diffuse += p->power;
         // radius = p->distance;
         delete p;
         heap->pop();
     }
     //std::cout << "radius // " << radius << '\n';
 
-    double divisor = 400*( 1 / ( M_PI * pow( radius, 2 ) ) );
+    double divisor = 400 * ( 1 / ( M_PI * pow( radius, 2 ) ) );
     //double divisor = 1.0f;
 
     diffuse =
