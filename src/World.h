@@ -84,12 +84,13 @@ class World {
     vec3 direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
                               size_t max_photons );
 
-    vec3 specular_reflection( vec3 pt, Ray* ray, float dist, Object* obj,
+    vec3 specular_reflection( vec3 pt, Object* obj, Ray* ray, float dist,
                               int depth );
 
     vec3 caustics( vec3 pt, size_t max_photons );
 
-    vec3 multi_diffuse( vec3 pt, size_t max_photons );
+    vec3 multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
+                        size_t max_photons );
 
   public:
     /**
