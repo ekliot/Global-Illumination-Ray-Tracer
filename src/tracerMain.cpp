@@ -2,12 +2,12 @@
  * Main file for initializing and executing a ray tracing render of a 3D scene
  */
 
+#include <sys/resource.h>
+
 #include <cfloat>
 #include <ctime>
-#include <iostream>
-
-// Include GLM vector
 #include <glm/vec3.hpp>
+#include <iostream>
 
 #include "Camera.h"
 #include "CheckerBoard.h"
@@ -230,6 +230,21 @@ void cornell_box() {
 }
 
 int main( void ) {
+    const rlim_t kStackSize = 768 * 1024 * 1024;  // min stack size = 768 MB
+    struct rlimit rl;
+    int result;
+
+    result = getrlimit( RLIMIT_STACK, &rl );
+    if ( result == 0 ) {
+        if ( rl.rlim_cur < kStackSize ) {
+            rl.rlim_cur = kStackSize;
+            result      = setrlimit( RLIMIT_STACK, &rl );
+            if ( result != 0 ) {
+                fprintf( stderr, "setrlimit returned result = %d\n", result );
+            }
+        }
+    }
+
     // initialize the stuff we need for our rendering
     cornell_box();
 
