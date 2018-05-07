@@ -30,9 +30,7 @@ class PhotonKDTreeNode {
     PhotonKDTreeNode( std::vector<Photon*> _photons, AABB* _aabb, int depth );
     ~PhotonKDTreeNode();
 
-    int set_aabbs( AABB* left, AABB* right, float dx, float dy, float dz );
-
     void get_photons_near_pt( PhotonHeap* heap, vec3 position, float range );
-    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, size_t size, float* range );
+    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, size_t size );
 };
 #endif

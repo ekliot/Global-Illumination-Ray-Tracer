@@ -47,7 +47,7 @@ Photon* SquareLight::emit( float power ) {
     vec3 dir    = gen_emit_dir();
 
     Photon* p   = new Photon();
-    p->position = origin + dir * .00001f;
+    p->position = origin + dir * 0.00001f;
     p->power    = color * power;
     p->dir      = dir;
     p->src      = pos;
@@ -100,9 +100,6 @@ vec3 SquareLight::gen_emit_dir() {
     }
 
     return normalize( normal + z_vec + x_vec );
-
-    // HACK implement a cosine distribution b/w -max_angle and max_angle
-    // return normal;
 }
 
 float SquareLight::intersection( Ray* ray ) {
@@ -110,8 +107,6 @@ float SquareLight::intersection( Ray* ray ) {
 }
 
 void SquareLight::transform( mat4 tmat ) {
-    // rect->transform( tmat );
-
     vec4 _pos    = vec4( pos, 1 );
     vec4 new_pos = tmat * _pos;
     pos          = rect->convert( new_pos );

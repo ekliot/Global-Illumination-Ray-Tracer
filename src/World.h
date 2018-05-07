@@ -47,7 +47,8 @@ class World {
     vec3 ambient;
     float ir;
 
-    const int MAX_DEPTH = 25;
+    const size_t MAX_DEPTH = 25;
+    const size_t RAD_EST   = 100;
 
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
 
@@ -58,6 +59,7 @@ class World {
     // Light* adjusted_light_to_point( vec3 point, Light* light );
     bool can_see_light( vec3 point, Light* light );
 
+    vector<Photon*> trim_photons( vector<Photon*> photons );
     void trace_photon( Photon* p, bool was_specular, bool diffused );
 
     void build_photon_maps();
@@ -117,7 +119,7 @@ class World {
      */
     void transform_all( mat4 tmat );
 
-    void emit_photons( int photon_count );
+    void emit_photons( size_t photon_count );
 
     /**
      * Returns the color a ray intersects in the scene

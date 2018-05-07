@@ -282,7 +282,7 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     // 3D point of intersection
 
     vec3 position  = *ray->origin + *ray->direction * distance;
-    vec3 cur_color = radiance( position, ray, distance, obj, 10, depth );
+    vec3 cur_color = radiance( position, ray, distance, obj, RAD_EST, depth );
 
     // IntersectData data;
     //
@@ -575,13 +575,21 @@ void World::add_bunny() {
   PHOTON RADIANCE
 \*****************/
 
-void World::emit_photons( int photon_count ) {
+void World::emit_photons( size_t photon_count ) {
     vector<Photon*> _photons;
     vector<Photon*> photons = vector<Photon*>();
+    size_t p_per_light;
 
     for ( Light* l : lights ) {
-        _photons = l->emit_photons( static_cast<int>(
-            photon_count / static_cast<int>( lights.size() ) ) );
+        p_per_light = static_cast<size_t>( photon_count / lights.size() );
+
+        while ( p_per_light > 0 ) {
+            _photons = l->emit_photons( p_per_light );
+            /* remove any photon being wasted */
+            // _photons = trim_photons( _photons );
+            p_per_light -= _photons.size();
+        }
+
         photons.insert( photons.end(), _photons.begin(), _photons.end() );
     }
 
@@ -597,11 +605,33 @@ void World::emit_photons( int photon_count ) {
     build_photon_maps();
 }
 
+vector<Photon*> World::trim_photons( vector<Photon*> photons ) {
+    vector<Photon*> trimmed = vector<Photon*>();
+    float distance          = 0;
+    Ray* r;
+    Object* intersect_obj;
+
+    for ( Photon* p : photons ) {
+        r             = new Ray( new vec3( p->position ), new vec3( p->dir ) );
+        intersect_obj = get_intersected_obj( r, &distance );
+
+        if ( intersect_obj != NULL ) {
+            trimmed.push_back( p );
+        } else {
+            delete p;
+        }
+
+        delete r;
+    }
+
+    return trimmed;
+}
+
 void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
     Ray* r = new Ray( new vec3( p->position ), new vec3( p->dir ) );
 
     float distance        = 0;
-    Object* intersect_obj = this->get_intersected_obj( r, &distance );
+    Object* intersect_obj = get_intersected_obj( r, &distance );
 
     if ( intersect_obj != NULL ) {
         vec3 normal_dir = intersect_obj->get_normal( r, distance );
@@ -610,10 +640,11 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 
         Photon* next_p   = new Photon();
         next_p->power    = vec3( p->power );
+        next_p->src      = vec3( p->src );
         next_p->position = vec3( *p_dir->origin + *p_dir->direction * 0.0001f );
         next_p->dir      = vec3( *p_dir->direction );
 
-        // delete p_dir;
+        delete p_dir;
 
         float random =
             static_cast<float>( rand() ) / static_cast<float>( RAND_MAX );
@@ -635,9 +666,8 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 
             if ( diffused ) {
                 volume_photons.push_back( p );
+                global_photons.push_back( p );
             }
-
-            global_photons.push_back( p );
 
             trace_photon( next_p, was_specular, true );
         } else if ( random < kd + ks ) {
@@ -726,7 +756,7 @@ vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
     vec3 rad = emitted_radiance( pt ) +
                reflected_radance( pt, ray, dist, obj, max_photons, depth );
 
-    std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
+    // std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
 
     return rad;
 }
@@ -749,43 +779,51 @@ vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
 vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
                                  size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
-    vec3 obj_col             = obj->get_material()->get_color();
-    vec3 illum               = vec3( 0.0f );
-    vec3 norm                = obj->get_normal( r, dist );
 
-    float radius;
+    vec3 obj_col = obj->get_material()->get_color();
+    vec3 illum   = vec3( 0.0f );
+    vec3 norm    = obj->get_normal( r, dist );
 
-    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
+    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons );
 
     size_t shadows = 0;
+    size_t count   = 0;
+    float radius;
 
-    while ( !heap->empty() ) {
+    while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
         if ( p->is_shadow ) {
             shadows += 1;
+        } else {
+            illum += obj->get_imodel()->get_diffuse( p->power, obj_col, norm,
+                                                     p->dir );
         }
+
+        radius = p->distance;
+
         delete p;
-
-        illum +=
-            obj->get_imodel()->get_diffuse( p->power, obj_col, norm, p->dir );
-
         heap->pop();
+        count++;
     }
+
+    float divisor = 10.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+
+    illum = illum * divisor;
 
     if ( shadows == 0 ) {
         // this spot is directly illuminated
         // keep it as it is
     } else if ( shadows == max_photons ) {
-        // this spot is completely chadowed
+        // this spot is completely shadowed
         illum = ambient;
     } else {
-        // this spot is partially chadowed
+        // this spot is partially shadowed
         float vis = ( max_photons - shadows ) / max_photons;
-        illum     = obj_col * vis;
+        illum     = illum * vis;
     }
 
-    std::cout << "direct // " << glm::to_string( illum ) << '\n';
+    // std::cout << "direct // " << glm::to_string( illum ) << '\n';
 
     return illum;
 }
@@ -842,42 +880,34 @@ vec3 World::multi_diffuse( vec3 pt, size_t max_photons ) {
     photon::PhotonHeap* heap = new PhotonHeap();
 
     vec3 diffuse = vec3( 0.0f );
-    float radius = 0.0f;
+    float radius;
+    size_t count = 0;
 
-    global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
+    global_pmap->get_n_photons_near_pt( heap, pt, max_photons );
     // std::cout << "made diff map";
     // std::cout << "heap size: " << heap->size() << '\n';
 
-    while ( !heap->empty() ) {
+    while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        // print check if the photon is bogus
-        if ( p->power.x > 1.0f || p->power.y > 1.0f || p->power.z > 1.0f ||
-             p->power.x < 0.0f || p->power.y < 0.0f || p->power.z < 0.0f ) {
-            std::cout << "Photon:" << '\n';
-            std::cout << "\tpos  // " << glm::to_string( p->position ) << '\n';
-            std::cout << "\tpow  // " << glm::to_string( p->power ) << '\n';
-            std::cout << "\tdir  // " << glm::to_string( p->dir ) << '\n';
-            std::cout << "\tsrc  // " << glm::to_string( p->src ) << '\n';
-            std::cout << "\tdist // " << p->distance << '\n';
-            std::cout << '\n';
-        }
         // HACK how does BRDF come into play here?
 
         diffuse += p->power;
-        // radius = p->distance;
+        radius = p->distance;
+
         delete p;
         heap->pop();
+        count++;
     }
-    // std::cout << "radius // " << radius << '\n';
 
-    // float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
-    float divisor = 1.0f;
-    // std::cout << "div // " << divisor << '\n';
+    float divisor = 10.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    // float divisor = 1.0f;
+    // std::cout << "radius // " << radius << '\n';
+    // std::cout << "div    // " << divisor << '\n';
 
     diffuse = vec3( diffuse ) * divisor;
 
-    std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
+    // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 
     delete heap;
 
