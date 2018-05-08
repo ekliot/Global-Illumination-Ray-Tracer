@@ -303,7 +303,8 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     // 3D point of intersection
 
     vec3 position  = *ray->origin + *ray->direction * distance;
-    vec3 cur_color = radiance( position, ray, distance, obj, RAD_EST, depth );
+    vec3 cur_color = radiance( position, ray, distance, obj, RAD_EST,
+                               last_intersect, depth );
 
     // IntersectData data;
     //
@@ -874,9 +875,9 @@ void World::build_photon_maps() {
 }
 
 vec3 World::radiance( vec3 pt, Ray* ray, float dist, Object* obj,
-                      size_t max_photons, int depth ) {
+                      size_t max_photons, Object* last_isect, int depth ) {
     vec3 rad = emitted_radiance( pt ) +
-               reflected_radance( pt, ray, dist, obj, max_photons, depth );
+               reflected_radance( pt, ray, dist, obj, max_photons, obj, depth );
 
     // std::cout << "rad // " << glm::to_string( rad ) << '\n' << endl;
 
@@ -890,11 +891,13 @@ vec3 World::emitted_radiance( vec3 pt ) {
 }
 
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
-                               size_t max_photons, int depth ) {
-    vec3 radiance = direct_illumination( pt, obj, ray, dist, max_photons ) +
-                    specular_reflection( pt, obj, ray, dist, depth ) +
-                    // caustics( pt, max_photons ) +
-                    multi_diffuse( pt, obj, ray, dist, max_photons );
+                               size_t max_photons, Object* last_isect,
+                               int depth ) {
+    vec3 radiance =
+        direct_illumination( pt, obj, ray, dist, max_photons ) +
+        specular_reflection( pt, obj, ray, dist, last_isect, depth ) +
+        caustics( pt, max_photons ) +
+        multi_diffuse( pt, obj, ray, dist, max_photons );
     return radiance;
 }
 
@@ -928,11 +931,10 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
         count++;
     }
 
-    // float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
 
-    // illum = 10.0f * illum * divisor;
-
-    illum = obj_col;
+    // illum = obj_col;
+    illum = illum * divisor;
 
     if ( shadows == 0 ) {
         // this spot is directly illuminated
@@ -955,17 +957,28 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
 }
 
 vec3 World::specular_reflection( vec3 pt, Object* obj, Ray* ray, float dist,
-                                 int depth ) {
-    float kr = obj->get_material()->get_kr();
+                                 Object* last_isect, int depth ) {
+    vec3 spec = vec3( 0.0f );
+    float kr  = obj->get_material()->get_kr();
+    float kd  = obj->get_material()->get_kd();
 
     // if the object is reflective
     if ( kr > 0.0f ) {
         // spawn a reflection ray
-        return calc_reflection( ray, pt, dist, obj, depth ) * kr;
+        spec += calc_reflection( ray, pt, dist, obj, depth ) * kr;
     } else {
         // or don't bother
-        return vec3( 0.0f );
     }
+
+    // if the object is transmissive
+    if ( kd > 0.0f ) {
+        // spawn a reflection ray
+        spec += calc_refraction( ray, pt, dist, obj, last_isect, depth ) * kd;
+    } else {
+        // or don't bother
+    }
+
+    return spec;
 }
 
 vec3 World::caustics( vec3 pt, size_t max_photons ) {
@@ -989,7 +1002,7 @@ vec3 World::caustics( vec3 pt, size_t max_photons ) {
         count++;
     }
 
-    float divisor = 10.0f * ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
 
     caustic = caustic * divisor;
 
@@ -1028,7 +1041,7 @@ vec3 World::multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
 
     float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
 
-    diffuse = 10.0f * diffuse * divisor;
+    diffuse = diffuse * divisor;
 
     // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
 
