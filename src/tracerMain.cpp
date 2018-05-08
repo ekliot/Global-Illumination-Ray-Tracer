@@ -82,8 +82,11 @@ void cornell_box() {
     // floor
     //
 
-    //                      specular color    ka,  kd,   ks,   ke
-    plane_imodel = new Phong( vec3( 1.0f ), 0.0f, 0.8f, 0.0f, 0.0f );
+    plane_imodel =
+        //         specular color
+        new Phong( vec3( 1.0f ),
+                   // ka,  kd,   ks,   ke
+                   0.0f, 0.8f, 0.0f, 0.0f );
     //                                color
     plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_h, pt_g, pt_c, pt_d, plane_imodel, plane_mat );
@@ -94,12 +97,11 @@ void cornell_box() {
     //
 
     plane_imodel =
-        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
-                                              // ka,  kd,   ks,   ke
+        //         specular color
+        new Phong( vec3( 1.0f ),
+                   // ka,  kd,   ks,   ke
                    0.0f, 0.8f, 0.0f, 0.0f );
-    plane_mat = new SolidMaterial( vec3( 0.7f ),  // color
-                                                  // kr,   kd
-                                   0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_e, pt_f, pt_g, pt_h, plane_imodel, plane_mat );
     world->add_object( rect );
 
@@ -108,12 +110,11 @@ void cornell_box() {
     //
 
     plane_imodel =
-        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
-                                              // ka,  kd,   ks,   ke
+        //         specular color
+        new Phong( vec3( 1.0f ),
+                   // ka,  kd,   ks,   ke
                    0.0f, 0.8f, 0.0f, 0.0f );
-    plane_mat = new SolidMaterial( vec3( 0.7f ),  // color
-                                                  // kr,   kd
-                                   0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_a, pt_b, pt_f, pt_e, plane_imodel, plane_mat );
     world->add_object( rect );
 
@@ -122,13 +123,11 @@ void cornell_box() {
     //
 
     plane_imodel =
-        new Phong( vec3( 1.0f, 1.0f, 1.0f ),  // specular color -- white
-                                              // ka,  kd,   ks,   ke
+        //         specular color
+        new Phong( vec3( 1.0f ),
+                   // ka,  kd,   ks,   ke
                    0.0f, 0.8f, 0.0f, 0.0f );
-    // TODO refine this colour
-    plane_mat = new SolidMaterial( vec3( 0.8f, 0.1f, 0.1f ),  // color
-                                                              // kr,   kd
-                                   0.0f, 0.0f );
+    plane_mat = new SolidMaterial( vec3( 0.8f, 0.1f, 0.1f ) );
     rect = new Rectangle( pt_a, pt_e, pt_h, pt_d, plane_imodel, plane_mat );
     world->add_object( rect );
 
@@ -137,11 +136,10 @@ void cornell_box() {
     //
 
     plane_imodel =
-        //         specular color -- white
+        //         specular color
         new Phong( vec3( 1.0f, 1.0f, 1.0f ),
                    // ka,  kd,   ks,   ke
                    0.0f, 0.8f, 0.0f, 0.0f );
-    // TODO refine this colour
     plane_mat = new SolidMaterial( vec3( 0.3f, 0.1f, 0.8f ) );
     rect = new Rectangle( pt_f, pt_b, pt_c, pt_g, plane_imodel, plane_mat );
     world->add_object( rect );
@@ -152,8 +150,8 @@ void cornell_box() {
 
     float sphere_trans = 1.0;
     float sphere_r     = ( cube_r / 3 ) * sphere_trans;
-    float sphere_lift  = 0.03f;
-    float sphere_y     = pt_d.y + sphere_r + sphere_lift;
+    // float sphere_lift  = 0.00000000000001f;
+    float sphere_y = pt_d.y + sphere_r;  // + sphere_lift;
 
     //
     // REFLECTIVE
@@ -171,13 +169,14 @@ void cornell_box() {
     // TRANSMISSIVE
     //
 
-    vec3 sphere2_p = vec3( cube_r / 2.1, sphere_y, 0.0f );
+    // vec3 sphere2_p = vec3( 0.0f, -0.2f, 0.0f );
+    vec3 sphere2_p = vec3( cube_r / 2.1f, sphere_y, 0.0f );
     Phong* sphere2_imodel =
         //         specular color  ka,   kd,   ks,   ke
         new Phong( vec3( 0.0f ), 0.1f, 0.0f, 0.8f, 20.0f );
     SolidMaterial* sphere2_mat =
         //                       color     kr,   kd,   ir
-        new SolidMaterial( vec3( 0.1f ), 0.0f, 0.8f, 1.9f );
+        new SolidMaterial( vec3( 0.0f ), 0.0f, 0.8f, 1.9f );
 
     Sphere* sphere1 =
         new Sphere( sphere1_p, sphere_r, sphere1_imodel, sphere1_mat );
@@ -191,7 +190,7 @@ void cornell_box() {
     //          LIGHT
     // =======================
 
-    vec3 l_pos    = vec3( 0.0f, pt_a.y * 0.95, 0.0f );  //-cube_r / 2 );
+    vec3 l_pos    = vec3( 0.0f, pt_a.y - 0.05, 0.0f );  //-cube_r / 2 );
     vec3 l_norm   = vec3( 0.0f, -1.0f, 0.0f );
     vec3 l_col    = vec3( 1.0f );
     float l_dim   = cube_w / 3;
@@ -214,7 +213,7 @@ void cornell_box() {
     std::clock_t start;
     double duration;
 
-    size_t photons = 1000;
+    size_t photons = 10000;
     cam->set_scene( photons );
 
     start = std::clock();
@@ -230,21 +229,6 @@ void cornell_box() {
 }
 
 int main( void ) {
-    const rlim_t kStackSize = 768 * 1024 * 1024;  // min stack size = 768 MB
-    struct rlimit rl;
-    int result;
-
-    result = getrlimit( RLIMIT_STACK, &rl );
-    if ( result == 0 ) {
-        if ( rl.rlim_cur < kStackSize ) {
-            rl.rlim_cur = kStackSize;
-            result      = setrlimit( RLIMIT_STACK, &rl );
-            if ( result != 0 ) {
-                fprintf( stderr, "setrlimit returned result = %d\n", result );
-            }
-        }
-    }
-
     // initialize the stuff we need for our rendering
     cornell_box();
 

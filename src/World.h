@@ -47,8 +47,9 @@ class World {
     vec3 ambient;
     float ir;
 
-    const size_t MAX_DEPTH = 25;
-    const size_t RAD_EST   = 100;
+    // const size_t MAX_DEPTH = 25;
+    const size_t RAD_EST = 150;
+    const vec3 DCAM      = vec3( 0.0f, 0.0f, 2.4 );
 
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
 
@@ -66,7 +67,8 @@ class World {
 
     void trace_shadow( Photon* p );
 
-    Photon* trace_volumetric( Photon* p,  float current_distance = 0, float max_distance = 0);
+    Photon* trace_volumetric( Photon* p, float current_distance = 0,
+                              float max_distance = 0 );
 
     void build_photon_maps();
 
@@ -82,24 +84,23 @@ class World {
     vec3 radiance( vec3 pt, Ray* ray, float dist, Object* obj,
                    size_t max_photons, Object* last_isect, int depth );
 
-    vec3 emitted_radiance( vec3 pt, Object * obj );
+    vec3 emitted_radiance( vec3 pt, Object* obj );
 
     vec3 reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                             size_t max_photons, Object* last_isect, int depth );
 
-    vec3 direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
+    vec3 direct_illumination( vec3 pt, Object* obj, vec3 normal,
                               size_t max_photons );
 
     vec3 specular_reflection( vec3 pt, Object* obj, Ray* ray, float dist,
                               Object* last_isect, int depth );
 
-    vec3 caustics( vec3 pt, size_t max_photons );
+    vec3 caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons );
 
-    vec3 multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
-                        size_t max_photons );
+    vec3 multi_diffuse( vec3 pt, Object* obj, vec3 normal, size_t max_photons );
 
-    vec3 get_volumetric_light(Ray* r, float max_distance,
-        float current_distance = 0);
+    vec3 get_volumetric_light( Ray* r, float max_distance,
+                               float current_distance = 0 );
 
   public:
     /**

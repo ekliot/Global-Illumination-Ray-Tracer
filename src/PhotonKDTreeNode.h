@@ -17,7 +17,7 @@ using namespace photon;
 using glm::vec3;
 
 class PhotonKDTreeNode {
-    const int MAX_DEPTH = 100;
+    const size_t MAX_DEPTH = 30;
 
   public:
     AABB* aabb;
@@ -27,11 +27,13 @@ class PhotonKDTreeNode {
 
     std::vector<Photon*> photons;
 
-    PhotonKDTreeNode( std::vector<Photon*> _photons, AABB* _aabb, int depth );
+    PhotonKDTreeNode( std::vector<Photon*> _photons, AABB* _aabb,
+                      size_t depth );
     ~PhotonKDTreeNode();
 
-    void get_photons_near_pt( PhotonHeap* heap, vec3 position, float range );
-    void get_n_photons_near_pt( PhotonHeap* heap, vec3 position, size_t size,
-                                float* range );
+    void get_photons_near_pt( vector<Photon*>* heap, vec3 position,
+                              float range );
+    void get_n_photons_near_pt( vector<Photon*>* heap, vec3 position,
+                                size_t size, float* range );
 };
 #endif

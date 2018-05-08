@@ -81,10 +81,10 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
 
     // trace and put stuff into the pixel buffer
     for ( size_t y = 0; y < negative->get_height(); ++y ) {
-        std::cout << "px {" << y << "}" << '\n';
+        std::cout << "row " << y << " // ";
 
         for ( size_t x = 0; x < negative->get_width(); ++x ) {
-            // std::cout << "px {" << x << ',' << y << "}" << '\n';
+            std::cout << '.';
 
             // if we have a default ss_rate, don't bother with it
             if ( !ss_rate ) {
@@ -144,5 +144,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                     int( 255.0f * b / static_cast<float>( samples ) ) );
             }
         }
+
+        std::cout << '\n';
     }
 }

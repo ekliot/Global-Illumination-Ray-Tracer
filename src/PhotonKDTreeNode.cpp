@@ -10,15 +10,15 @@
 #include <iostream>
 
 PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
-                                    int depth ) {
-    aabb    = _aabb;
-    photons = vector<Photon*>( _photons );
+                                    size_t depth ) {
+    aabb = _aabb;
 
     using std::abs;
     using std::max;
     using std::min;
 
-    if ( photons.size() > 1 ) {
+    if ( photons.size() > 1 && depth < MAX_DEPTH ) {
+        photons                    = vector<Photon*>();
         vector<Photon*> list_left  = vector<Photon*>();
         vector<Photon*> list_right = vector<Photon*>();
 
@@ -47,7 +47,7 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
         if ( dx > dy && dx > dz ) {
             axis = 0;
 
-            len = ( aabb->get_max().x - aabb->get_min().x ) / 2;
+            len = ( aabb->get_max().x - aabb->get_min().x ) / 2.0f;
 
             aabb_left  = new AABB( aabb->get_max().x - len, aabb->get_max().y,
                                   aabb->get_max().z, aabb->get_min().x,
@@ -58,7 +58,7 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
         } else if ( dy > dx && dy > dz ) {
             axis = 1;
 
-            len = ( aabb->get_max().y - aabb->get_min().y ) / 2;
+            len = ( aabb->get_max().y - aabb->get_min().y ) / 2.0f;
 
             aabb_left  = new AABB( aabb->get_max().x, aabb->get_max().y - len,
                                   aabb->get_max().z, aabb->get_min().x,
@@ -69,7 +69,7 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
         } else {
             axis = 2;
 
-            len = ( aabb->get_max().z - aabb->get_min().z ) / 2;
+            len = ( aabb->get_max().z - aabb->get_min().z ) / 2.0f;
 
             aabb_left  = new AABB( aabb->get_max().x, aabb->get_max().y,
                                   aabb->get_max().z - len, aabb->get_min().x,
@@ -79,17 +79,21 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
                                    aabb->get_min().y, aabb->get_min().z + len );
         }
 
-        for ( Photon* p : photons ) {
+        for ( Photon* p : _photons ) {
             if ( aabb_left->intersect_point( p->position ) ) {
                 list_left.push_back( p );
-            }
-            if ( aabb_right->intersect_point( p->position ) ) {
+            } else if ( aabb_right->intersect_point( p->position ) ) {
                 list_right.push_back( p );
+            } else {
+                photons.push_back( p );
             }
         }
 
-        // std::cout << "left  // " << list_left.size() << '\n';
-        // std::cout << "right // " << list_right.size() << '\n' << endl;
+        size_t lost = photons.size();
+
+        if ( lost > 0 ) {
+            std::cout << "lost photons! // " << lost << '\n';
+        }
 
         depth++;
 
@@ -97,6 +101,8 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
         right = new PhotonKDTreeNode( list_right, aabb_right, depth );
 
     } else {
+        photons = vector<Photon*>( _photons );
+
         axis  = -1;
         left  = NULL;
         right = NULL;
@@ -109,8 +115,8 @@ PhotonKDTreeNode::~PhotonKDTreeNode() {
     delete aabb;
 }
 
-void PhotonKDTreeNode::get_photons_near_pt( PhotonHeap* heap, vec3 position,
-                                            float range ) {
+void PhotonKDTreeNode::get_photons_near_pt( vector<Photon*>* heap,
+                                            vec3 position, float range ) {
     if ( left != NULL ) {
         float delta = 0;
 
@@ -136,20 +142,21 @@ void PhotonKDTreeNode::get_photons_near_pt( PhotonHeap* heap, vec3 position,
         }
     } else {
         for ( Photon* _p : photons ) {
-            Photon p = {};
+            Photon* p = new Photon();
 
-            p.position = vec3( _p->position );
-            p.power    = vec3( _p->power );
-            p.dir      = vec3( _p->dir );
-            p.distance = glm::distance( p.position, position );
+            p->position = vec3( _p->position );
+            p->power    = vec3( _p->power );
+            p->dir      = vec3( _p->dir );
+            p->distance = glm::distance( p->position, position );
 
-            heap->push( &p );
+            heap->push_back( p );
         }
     }
 }
 
-void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
-                                              size_t size, float* range ) {
+void PhotonKDTreeNode::get_n_photons_near_pt( vector<Photon*>* heap,
+                                              vec3 position, size_t size,
+                                              float* range ) {
     if ( left != NULL ) {  //&& heap->size() <= size ) {
         float delta = FLT_MIN;
 
@@ -162,16 +169,51 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
             delta = left->aabb->get_max().z - position.z;
         }
 
+        // std::cout << "left:  " << left->photons.size() << '\n';
+        // std::cout << "right: " << right->photons.size() << '\n' << endl;
+
         if ( delta < 0 ) {
             left->get_n_photons_near_pt( heap, position, size, range );
             if ( pow( delta, 2.0f ) < pow( *range, 2.0f ) ||
-                 abs( *range ) < 0.00001 ) {
+                 abs( *range ) == 0.0f ) {
+                for ( Photon* _p : photons ) {
+                    float distance = glm::distance( _p->position, position );
+                    Photon* p      = new Photon();
+                    p->position    = _p->position;
+                    p->power       = _p->power;
+                    p->dir         = _p->dir;
+                    p->src         = _p->src;
+                    p->distance    = distance;
+                    p->is_shadow   = _p->is_shadow;
+
+                    heap->push_back( p );
+
+                    if ( *range < p->distance ) {
+                        *range = p->distance;
+                    }
+                }
                 right->get_n_photons_near_pt( heap, position, size, range );
             }
         } else {
             right->get_n_photons_near_pt( heap, position, size, range );
             if ( pow( delta, 2.0f ) < pow( *range, 2.0f ) ||
-                 abs( *range ) < 0.00001 ) {
+                 abs( *range ) == 0.0f ) {
+                for ( Photon* _p : photons ) {
+                    float distance = glm::distance( _p->position, position );
+                    Photon* p      = new Photon();
+                    p->position    = _p->position;
+                    p->power       = _p->power;
+                    p->dir         = _p->dir;
+                    p->src         = _p->src;
+                    p->distance    = distance;
+                    p->is_shadow   = _p->is_shadow;
+
+                    heap->push_back( p );
+
+                    if ( *range < p->distance ) {
+                        *range = p->distance;
+                    }
+                }
                 left->get_n_photons_near_pt( heap, position, size, range );
             }
         }
@@ -187,7 +229,7 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
             p->distance    = distance;
             p->is_shadow   = _p->is_shadow;
 
-            heap->push( p );
+            heap->push_back( p );
 
             if ( *range < p->distance ) {
                 *range = p->distance;

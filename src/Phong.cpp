@@ -53,9 +53,8 @@ vec3 Phong::intersect( IntersectData idata ) {
 
         diffuse = diffuse + get_diffuse( l_col, *idata.obj_color, *idata.normal,
                                          *source->direction );
-        specular =
-            specular + get_specular( l_col, spec_col, *reflect->direction,
-                                     *idata.incoming, ke );
+        specular = specular +
+                   get_specular( l_col, *reflect->direction, *idata.incoming );
 
         delete source;
         delete reflect;
@@ -84,9 +83,8 @@ vec3 Phong::get_diffuse( vec3 l_col, vec3 obj_col, vec3 norm, vec3 dir ) {
     return l_col * obj_col * abs( dot( norm, dir ) );
 }
 
-vec3 Phong::get_specular( vec3 l_col, vec3 spec, vec3 ref_dir, vec3 in_dir,
-                          float _ke ) {
-    return l_col * spec * pow( dot( ref_dir, in_dir ), _ke );
+vec3 Phong::get_specular( vec3 l_col, vec3 ref_dir, vec3 in_dir ) {
+    return l_col * spec_col * pow( dot( ref_dir, in_dir ), ke );
 }
 
 float Phong::get_kd() { return kd; }

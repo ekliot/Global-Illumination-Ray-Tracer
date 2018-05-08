@@ -306,58 +306,9 @@ vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     vec3 cur_color = radiance( position, ray, distance, obj, RAD_EST,
                                last_intersect, depth );
 
-    // IntersectData data;
-    //
-    // data.position = &position;
-    //
-    // vec3 normal = obj->get_normal( ray, distance );
-    // data.normal = &normal;
-    //
-    // data.incoming = ray->direction;
-    //
-    // vec3 point  = *ray->origin + *ray->direction * distance;
-    // data.lights = get_pruned_lights( point );
-    //
-    // data.ambient = &ambient;
-    //
-    // // the colour of the intersected object seen by the Ray
-    // vec3 cur_color = obj->get_color( data );
-    //
-    // Object* l_obj;
-    // for ( Light* l : lights ) {
-    //     if ( SquareLight* sq_light = dynamic_cast<SquareLight*>( l ) ) {
-    //         l_obj = sq_light->get_obj();
-    //
-    //         if ( l_obj == obj ) {
-    //             cur_color = l_obj->get_material()->get_color();
-    //         }
-    //     }
-    // }
-    //
-    // // if we have not hit maximum recursion depth...
-    // if ( depth < MAX_DEPTH ) {
-    //     float kd = obj->get_material()->get_kd();
-    //     float kr = obj->get_material()->get_kr();
-    //
-    //     // if the object is transparent...
-    //     if ( kd > 0 ) {
-    //         vec3 refraction = calc_refraction( ray, point, distance, obj,
-    //                                            last_intersect, depth );
-    //         cur_color       = cur_color + kd * refraction;
-    //     }
-    //
-    //     // if the object is reflective...
-    //     if ( kr > 0 ) {
-    //         vec3 reflection =
-    //             calc_reflection( ray, point, distance, obj, depth );
-    //         cur_color = cur_color + kr * reflection;
-    //     }
-    // } else {
-    //     std::cout << "max recursion" << '\n';
-    // }
-
     return cur_color;
 }
+
 vec3 World::calc_refraction( Ray* ray, vec3 point, float dist,
                              Object* intersect, Object* last_isect,
                              int depth ) {
@@ -714,9 +665,6 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
         // RUSSIAN ROULETTE
 
         if ( random < kd ) {
-            // diffuse
-            // std::cout << "diffuse!" << '\n';
-
             if ( was_specular ) {
                 caustic_photons.push_back( p );
             }
@@ -738,20 +686,19 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
             trace_photon( diff_p, was_specular, true );
         } else if ( random < kd + ks ) {
             // specular reflection
-            // std::cout << "specular!" << '\n';
+
             float k_ref   = intersect_obj->get_material()->get_kr();
             float k_trans = intersect_obj->get_material()->get_kd();
 
-            vec3 normal = intersect_obj->get_normal( r, distance );
-
             if ( k_ref > 0.0f ) {
-                Ray* ref_dir = r->reflect( &normal );
+                Ray* ref_dir = r->reflect( &obj_norm );
 
-                Photon* reflect_p   = new Photon();
-                reflect_p->power    = vec3( p->power );
-                reflect_p->src      = vec3( p->src );
-                reflect_p->position = vec3( p->position );
-                reflect_p->dir      = vec3( *ref_dir->direction );
+                Photon* reflect_p = new Photon();
+                reflect_p->power  = vec3( p->power );
+                reflect_p->src    = vec3( p->src );
+                reflect_p->position =
+                    vec3( p->position + *ref_dir->direction * 0.1f );
+                reflect_p->dir = vec3( *ref_dir->direction );
 
                 delete ref_dir;
 
@@ -766,13 +713,13 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
                 // the direction of the ray
                 vec3 cur_dir = p->dir;
                 // the new point to be calulating refraction from
-                vec3 check = p->position + cur_dir * 0.1f;
+                vec3 check = p->position + ( cur_dir * 0.1f );
 
                 // what direction will the ray go once inside?
                 float calc_ir = 2.0f - ( cur_ir / last_ir );
-                float cosd    = dot( normal, cur_dir );
-                vec3 ref_dir =
-                    ( cur_dir * calc_ir - normal * ( -cosd + calc_ir * cosd ) );
+                float cosd    = dot( obj_norm, cur_dir );
+                vec3 ref_dir  = ( cur_dir * calc_ir -
+                                 obj_norm * ( -cosd + calc_ir * cosd ) );
 
                 // shoot a ray inside the object and (hopefully) get the opposite side
                 Ray* refract_ray   = new Ray( &check, &ref_dir );
@@ -782,34 +729,38 @@ void World::trace_photon( Photon* p, bool was_specular, bool diffused ) {
 
                 // then, when we get to the opposite side, shoot the photon
                 if ( next_obj == intersect_obj && refract_dist > 0.0f ) {
-                    vec3 pos = *refract_ray->origin +
-                               *refract_ray->direction * refract_dist + 0.1f;
+                    vec3 pos =
+                        *refract_ray->origin +
+                        *refract_ray->direction * ( refract_dist + 0.01f );
 
                     last_ir = cur_ir;  // the object IR
                     cur_ir  = ir;      // the world IR
 
+                    vec3 next_norm =
+                        next_obj->get_normal( refract_ray, refract_dist );
+
                     calc_ir = 2.0f - ( cur_ir / last_ir );
-                    cosd    = dot( normal, cur_dir );
-                    ref_dir = ( cur_dir * calc_ir -
-                                normal * ( -cosd + calc_ir * cosd ) );
+                    cosd    = dot( next_norm, *refract_ray->direction );
+                    ref_dir = ( *refract_ray->direction * calc_ir -
+                                next_norm * ( -cosd + calc_ir * cosd ) );
 
                     Photon* refract_p   = new Photon();
                     refract_p->position = pos;
                     refract_p->power    = vec3( p->power );
-                    refract_p->dir      = ref_dir;
+                    refract_p->dir      = vec3( normalize( ref_dir ) );
                     refract_p->src      = vec3( p->src );
 
                     delete refract_ray;
 
                     trace_photon( refract_p, true, diffused );
                 } else {
-                    std::cout << "something went wrong with refraction :c "
-                              << refract_dist << '\n';
+                    // std::cout << "  !!! refraction messed up dood !!!" << '\n';
+                    // std::cout << "something went wrong with refraction :c "
+                    //           << refract_dist << '\n';
                 }
             }
         } else {
             // absorption
-            // std::cout << "absorb!" << '\n';
         }
     }
 
@@ -826,6 +777,8 @@ void World::trace_shadow( Photon* p ) {
     Photon* shadow_p;
 
     while ( isect != NULL ) {
+        // std::cout << "sending shadow..." << '\n';
+
         step_pos = step_pos + p->dir * step_dist;
 
         shadow_p            = new Photon();
@@ -834,6 +787,10 @@ void World::trace_shadow( Photon* p ) {
         shadow_p->dir       = vec3( p->dir );
         shadow_p->src       = vec3( p->src );
         shadow_p->is_shadow = true;
+
+        // std::cout << "\tpos   // " << glm::to_string( shadow_p->position )
+        //           << '\n';
+        // std::cout << "\tdir   // " << glm::to_string( shadow_p->dir ) << '\n';
 
         shadow_photons.push_back( shadow_p );
 
@@ -942,63 +899,81 @@ vec3 World::emitted_radiance( vec3 pt, Object* obj ) {
 vec3 World::reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                                size_t max_photons, Object* last_isect,
                                int depth ) {
+    vec3 normal = obj->get_normal( ray, dist );
     vec3 radiance =
-        direct_illumination( pt, obj, ray, dist, max_photons ) +
+        direct_illumination( pt, obj, normal, max_photons ) +
         specular_reflection( pt, obj, ray, dist, last_isect, depth ) +
-        caustics( pt, max_photons ) +
-        multi_diffuse( pt, obj, ray, dist, max_photons );
+        caustics( pt, obj, normal, max_photons ) +
+        multi_diffuse( pt, obj, normal, max_photons );
     return radiance;
 }
 
-vec3 World::direct_illumination( vec3 pt, Object* obj, Ray* r, float dist,
+vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
                                  size_t max_photons ) {
-    float radius             = 0.0f;
-    photon::PhotonHeap* heap = new PhotonHeap();
-    shadow_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
+    float radius           = 0.0f;
+    vector<Photon*>* _heap = new vector<Photon*>();
 
-    vec3 obj_col = obj->get_material()->get_color();
-    vec3 illum   = vec3( 0.0f );
-    vec3 norm    = obj->get_normal( r, dist );
+    shadow_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
+
+    PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
+
+    vec3 illum = obj->get_material()->get_color();
 
     size_t shadows = 0;
     size_t count   = 0;
 
+    float max_rad = 0.03f;
+
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        if ( p->is_shadow ) {
-            shadows += 1;
+        if ( p->distance <= max_rad ) {
+            radius = p->distance;
+            if ( p->is_shadow ) {
+                shadows += 1;
+            }
         } else {
-            illum += obj->get_imodel()->get_diffuse( p->power, obj_col, norm,
-                                                     p->dir );
+            delete p;
+            break;
         }
 
-        radius = p->distance;
-
-        delete p;
-        heap->pop();
         count++;
+        heap->pop();
+        delete p;
     }
 
-    float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
-
-    // illum = obj_col;
-    illum = illum * divisor;
-
-    if ( shadows == 0 ) {
-    } else if ( shadows == max_photons ) {
-        // this spot is completely shadowed
-        illum = vec3( 0.0f );
-    } else {
-        // this spot is partially shadowed
-        float vis = static_cast<float>( max_photons - shadows ) /
-                    static_cast<float>( max_photons );
-        illum = illum * vis;
+    while ( !heap->empty() ) {
+        Photon* p = heap->top();
+        heap->pop();
+        delete p;
     }
-
-    // std::cout << "direct // " << glm::to_string( illum ) << '\n';
 
     delete heap;
+    delete _heap;
+
+    // float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
+    // illum = illum * divisor;
+
+    if ( shadows == count ) {
+        // this spot is completely shadowed
+        illum = vec3( 0.0f );  //, 0.0f, 1.0f );
+    } else if ( shadows == 0 ) {
+        // we good
+        // illum = vec3( 0.0f, 1.0f, 0.0f );
+    } else {
+        // this spot is partially shadowed
+        float vis =
+            static_cast<float>( count - shadows ) / static_cast<float>( count );
+        // illum = vec3( 0.0f, 1.0f, 0.0f );
+        illum = illum * vis;
+        // illum = vec3( 0.0f, 0.0f, 1.0f );
+    }
+
+    // float vis = static_cast<float>( max_photons - shadows ) /
+    //             static_cast<float>( max_photons );
+    // illum = obj_col * vis;
+
+    // std::cout << "direct // " << glm::to_string( illum ) << '\n';
 
     return illum;
 }
@@ -1025,105 +1000,147 @@ vec3 World::specular_reflection( vec3 pt, Object* obj, Ray* ray, float dist,
         // or don't bother
     }
 
+    // std::cout << "specular // " << glm::to_string( spec ) << '\n';
+
     return spec;
 }
 
-vec3 World::caustics( vec3 pt, size_t max_photons ) {
-    photon::PhotonHeap* heap = new PhotonHeap();
+vec3 World::caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons ) {
+    vector<Photon*>* _heap    = new vector<Photon*>();
+    IlluminationModel* imodel = obj->get_imodel();
 
-    vec3 caustic = vec3( 0.0f );
-    float radius = 0.0f;
-    size_t count = 0;
+    vec3 caustic  = vec3( 0.0f );
+    float radius  = 0.0f;
+    float max_rad = 0.03f;
+    size_t count  = 0;
 
-    caustic_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
+    caustic_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
+
+    PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        // HACK how does BRDF come into play here?
-        caustic += p->power;
-        radius = p->distance;
+        if ( p->distance <= max_rad ) {
+            Ray* source  = new Ray( &p->position, &p->dir );
+            Ray* reflect = source->reflect( &normal );
 
-        delete p;
-        heap->pop();
+            radius = p->distance;
+
+            caustic +=
+                imodel->get_specular( p->power, *reflect->direction, p->dir );
+
+            delete source;
+            delete reflect;
+        } else {
+            delete p;
+            break;
+        }
+
         count++;
+        heap->pop();
+        delete p;
     }
 
-    float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    while ( !heap->empty() ) {
+        Photon* p = heap->top();
+        heap->pop();
+        delete p;
+    }
+
+    delete _heap;
+    delete heap;
+
+    float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
 
     caustic = caustic * divisor;
 
-    // std::cout << "caustic // " << glm::to_string( caustic ) << '\n';
-
-    delete heap;
+    // std::cout << "radius  // " << radius << '\n';
+    // std::cout << "caustic // " << glm::to_string( caustic ) << '\n' << endl;
 
     return caustic;
 }
 
-vec3 World::multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
+vec3 World::multi_diffuse( vec3 pt, Object* obj, vec3 norm,
                            size_t max_photons ) {
-    photon::PhotonHeap* heap = new PhotonHeap();
+    vector<Photon*>* _heap = new vector<Photon*>();
 
-    vec3 obj_col = obj->get_material()->get_color();
-    vec3 norm    = obj->get_normal( r, dist );
-    vec3 diffuse = vec3( 0.0f );
+    IlluminationModel* imodel = obj->get_imodel();
+    vec3 obj_col              = obj->get_material()->get_color();
+    vec3 diffuse              = vec3( 0.0f );
 
     size_t count = 0;
     float radius = 0.0f;
 
-    global_pmap->get_n_photons_near_pt( heap, pt, max_photons, &radius );
+    global_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
+
+    PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
         diffuse +=
-            obj->get_imodel()->get_diffuse( p->power, obj_col, norm, p->dir );
-        // diffuse += p->power;
+            imodel->get_diffuse( p->power, obj_col, norm, p->dir ) + p->power;
         radius = p->distance;
 
-        delete p;
-        heap->pop();
         count++;
+        heap->pop();
+        delete p;
     }
 
-    float divisor = ( 1 / ( M_PI * pow( radius, 2 ) ) );
+    while ( !heap->empty() ) {
+        Photon* p = heap->top();
+        heap->pop();
+        delete p;
+    }
+
+    delete heap;
+    delete _heap;
+
+    float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
 
     diffuse = diffuse * divisor;
 
     // std::cout << "diffuse // " << glm::to_string( diffuse ) << '\n';
-
-    delete heap;
 
     return diffuse;
 }
 
 vec3 World::get_volumetric_light( Ray* r, float max_distance,
                                   float current_distance ) {
-    float step         = 0.1f;
-    size_t max_photons = 50;
-    size_t count       = 0;
+    float step   = 0.1f;
+    size_t count = 0;
 
     if ( current_distance < max_distance ) {
-        vec3 point = *r->origin + *r->direction * current_distance;
-
         float radius;
-        photon::PhotonHeap* heap = new PhotonHeap();
-        volume_pmap->get_n_photons_near_pt( heap, point, max_photons, &radius );
+        vector<Photon*>* _heap = new vector<Photon*>();
+
+        vec3 point = *r->origin + *r->direction * current_distance;
+        volume_pmap->get_n_photons_near_pt( _heap, point, RAD_EST, &radius );
+
+        PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
         vec3 illum = vec3( 0.0f );
+
         while ( !heap->empty() ) {
             Photon* p = heap->top();
 
-            if ( count++ < max_photons ) {
+            if ( count++ < RAD_EST ) {
                 illum += vec3( p->power );
             }
 
             delete p;
         }
 
+        float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
+
+        illum = illum * divisor;
+
+        delete _heap;
+        delete heap;
+
         return illum +
                get_volumetric_light( r, max_distance, current_distance + step );
-
     } else {
         return vec3( 0.0f );
     }
