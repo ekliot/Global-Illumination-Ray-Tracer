@@ -35,7 +35,7 @@ class World {
 
     PhotonKDTreeNode* global_pmap;
     PhotonKDTreeNode* caustic_pmap;
-    // PhotonKDTreeNode* volume_pmap;
+    PhotonKDTreeNode* volume_pmap;
     PhotonKDTreeNode* shadow_pmap;
 
     std::vector<Photon*> global_photons;
@@ -66,6 +66,8 @@ class World {
 
     void trace_shadow( Photon* p );
 
+    Photon* trace_volumetric( Photon* p,  float current_distance = 0, float max_distance = 0);
+
     void build_photon_maps();
 
     vec3 calc_refraction( Ray* ray, vec3 point, float dist, Object* intersect,
@@ -80,7 +82,7 @@ class World {
     vec3 radiance( vec3 pt, Ray* ray, float dist, Object* obj,
                    size_t max_photons, Object* last_isect, int depth );
 
-    vec3 emitted_radiance( vec3 pt );
+    vec3 emitted_radiance( vec3 pt, Object * obj );
 
     vec3 reflected_radance( vec3 pt, Ray* ray, float dist, Object* obj,
                             size_t max_photons, Object* last_isect, int depth );
@@ -95,6 +97,9 @@ class World {
 
     vec3 multi_diffuse( vec3 pt, Object* obj, Ray* r, float dist,
                         size_t max_photons );
+
+    vec3 get_volumetric_light(Ray* r, float max_distance,
+        float current_distance = 0);
 
   public:
     /**
