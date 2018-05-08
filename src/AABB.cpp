@@ -41,8 +41,9 @@ bool AABB::intersect_point( vec3 point ) {
     // std::cout << glm::to_string( point ) << '\n' << std::endl;
     // std::cout << glm::to_string( min ) << '\n' << std::endl;
     // std::cout << glm::to_string( max ) << '\n' << std::endl;
-    if ( min.x < point.x && max.x > point.x && min.y < point.y &&
-         max.y > point.y && min.z < point.z && max.z > point.z ) {
+    if ( min.x < point.x && max.x > point.x &&
+         min.y < point.y && max.y > point.y &&
+         min.z < point.z && max.z > point.z ) {
         return true;
     }
     return false;

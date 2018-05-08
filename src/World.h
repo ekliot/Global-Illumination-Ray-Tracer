@@ -48,6 +48,7 @@ class World {
     float ir;
 
     const int MAX_DEPTH = 25;
+    const bool VOLUMETRIC = true; 
 
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );
 

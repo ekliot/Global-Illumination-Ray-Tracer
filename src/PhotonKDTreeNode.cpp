@@ -47,14 +47,12 @@ PhotonKDTreeNode::PhotonKDTreeNode( vector<Photon*> _photons, AABB* _aabb,
         if ( dx > dy && dx > dz ) {
             axis = 0;
 
-            len = ( aabb->get_max().x - aabb->get_min().x ) / 2;
+            len = ( aabb->get_max().x - aabb->get_min().x ) / 2.0f;
 
-            aabb_left  = new AABB( aabb->get_max().x - len, aabb->get_max().y,
-                                  aabb->get_max().z, aabb->get_min().x,
-                                  aabb->get_min().y, aabb->get_min().z );
-            aabb_right = new AABB( aabb->get_max().x, aabb->get_max().y,
-                                   aabb->get_max().z, aabb->get_min().x + len,
-                                   aabb->get_min().y, aabb->get_min().z );
+            aabb_left  = new AABB(  aabb->get_max().x - len, aabb->get_max().y, aabb->get_max().z,
+                                    aabb->get_min().x, aabb->get_min().y, aabb->get_min().z );
+            aabb_right = new AABB( aabb->get_max().x, aabb->get_max().y, aabb->get_max().z,
+                                   aabb->get_min().x + len, aabb->get_min().y, aabb->get_min().z );
         } else if ( dy > dx && dy > dz ) {
             axis = 1;
 
@@ -125,28 +123,33 @@ void PhotonKDTreeNode::get_photons_near_pt( PhotonHeap* heap, vec3 position,
 
         if ( delta < 0 ) {
             left->get_photons_near_pt( heap, position, range );
-            if ( pow( delta, 2 ) > pow( range, 2 ) ) {
+            if ( pow( delta, 2 ) < pow( range, 2 ) ) {
                 right->get_photons_near_pt( heap, position, range );
             }
         } else {
             right->get_photons_near_pt( heap, position, range );
-            if ( pow( delta, 2 ) > pow( range, 2 ) ) {
+            if ( pow( delta, 2 ) < pow( range, 2 ) ) {
                 left->get_photons_near_pt( heap, position, range );
             }
         }
     } else {
+
         for ( Photon* old_p : photons ) {
-            Photon new_p = {};
+            if(glm::distance(position, old_p->position) < range)
+            {
+                Photon* new_p = new Photon;
 
-            new_p.position = vec3( old_p->position );
-            new_p.power    = vec3( old_p->power );
-            new_p.dir      = vec3( old_p->dir );
-            new_p.distance = glm::distance( new_p.position, position );
+                new_p->position = vec3( old_p->position );
+                new_p->power    = vec3( old_p->power );
+                new_p->dir      = vec3( old_p->dir );
+                new_p->distance = glm::distance( new_p->position, position );
 
-            heap->push( &new_p );
+                heap->push( new_p );
+            }
         }
     }
 }
+
 
 void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
                                               size_t size, float* range ) {
@@ -223,21 +226,21 @@ void PhotonKDTreeNode::get_n_photons_near_pt( PhotonHeap* heap, vec3 position,
             // if( heap->size() < size  )
             // {
 
-                float distance  = glm::distance( old_p->position, position );
-                Photon* new_p = new Photon;
-                new_p->position  = old_p->position ;
-                new_p->power     = old_p->power;
-                new_p->dir       = old_p->dir;
-                new_p->src       = old_p->src;
-                new_p->distance  = distance;
-                new_p->is_shadow = old_p->is_shadow;
+            float distance  = glm::distance( old_p->position, position );
+            Photon* new_p = new Photon;
+            new_p->position  = old_p->position ;
+            new_p->power     = old_p->power;
+            new_p->dir       = old_p->dir;
+            new_p->src       = old_p->src;
+            new_p->distance  = distance;
+            new_p->is_shadow = old_p->is_shadow;
 
-                //sorted.push_back( new_p );
-                heap->push( new_p);
-                if(*range < new_p->distance)
-                {
-                    *range =  new_p->distance;
-                }
+            //sorted.push_back( new_p );
+            heap->push( new_p);
+            if(*range < new_p->distance)
+            {
+                *range =  new_p->distance;
+            }
             //}
 
             // else if( distance < *range)
