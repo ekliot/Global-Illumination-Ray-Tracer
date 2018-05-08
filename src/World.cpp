@@ -933,7 +933,6 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
                 shadows += 1;
             }
         } else {
-            delete p;
             break;
         }
 
@@ -1033,7 +1032,6 @@ vec3 World::caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons ) {
             delete source;
             delete reflect;
         } else {
-            delete p;
             break;
         }
 
