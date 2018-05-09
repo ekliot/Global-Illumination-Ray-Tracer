@@ -13,7 +13,7 @@ KDTreeNode::KDTreeNode( std::vector<Object*> _objects, AABB* _aabb, int depth )
     : aabb( _aabb ) {
     objects = std::vector<Object*>( _objects );
 
-    if ( objects.size() >= 2 && depth < MAX_DEPTH ) {
+    if ( objects.size() > 1 && depth < MAX_DEPTH ) {
         std::vector<Object*> firstList;
         std::vector<Object*> secondList;
 

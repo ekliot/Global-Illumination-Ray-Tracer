@@ -86,7 +86,7 @@ void cornell_box() {
         //         specular color
         new Phong( vec3( 1.0f ),
                    // ka,  kd,   ks,   ke
-                   0.0f, 0.8f, 0.0f, 0.0f );
+                   0.0f, 0.9f, 0.0f, 0.0f );
     //                                color
     plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_h, pt_g, pt_c, pt_d, plane_imodel, plane_mat );
@@ -100,7 +100,7 @@ void cornell_box() {
         //         specular color
         new Phong( vec3( 1.0f ),
                    // ka,  kd,   ks,   ke
-                   0.0f, 0.8f, 0.0f, 0.0f );
+                   0.0f, 0.9f, 0.0f, 0.0f );
     plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_e, pt_f, pt_g, pt_h, plane_imodel, plane_mat );
     world->add_object( rect );
@@ -113,7 +113,7 @@ void cornell_box() {
         //         specular color
         new Phong( vec3( 1.0f ),
                    // ka,  kd,   ks,   ke
-                   0.0f, 0.8f, 0.0f, 0.0f );
+                   0.0f, 0.9f, 0.0f, 0.0f );
     plane_mat = new SolidMaterial( vec3( 0.7f ) );
     rect = new Rectangle( pt_a, pt_b, pt_f, pt_e, plane_imodel, plane_mat );
     world->add_object( rect );
@@ -126,7 +126,7 @@ void cornell_box() {
         //         specular color
         new Phong( vec3( 1.0f ),
                    // ka,  kd,   ks,   ke
-                   0.0f, 0.8f, 0.0f, 0.0f );
+                   0.0f, 0.9f, 0.0f, 0.0f );
     plane_mat = new SolidMaterial( vec3( 0.8f, 0.1f, 0.1f ) );
     rect = new Rectangle( pt_a, pt_e, pt_h, pt_d, plane_imodel, plane_mat );
     world->add_object( rect );
@@ -139,7 +139,7 @@ void cornell_box() {
         //         specular color
         new Phong( vec3( 1.0f, 1.0f, 1.0f ),
                    // ka,  kd,   ks,   ke
-                   0.0f, 0.8f, 0.0f, 0.0f );
+                   0.0f, 0.9f, 0.0f, 0.0f );
     plane_mat = new SolidMaterial( vec3( 0.3f, 0.1f, 0.8f ) );
     rect = new Rectangle( pt_f, pt_b, pt_c, pt_g, plane_imodel, plane_mat );
     world->add_object( rect );

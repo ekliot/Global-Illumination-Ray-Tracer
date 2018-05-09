@@ -284,8 +284,8 @@ Object* World::get_intersected_obj( Ray* r, float* distance ) {
 vec3 World::get_intersect( Ray* ray, int depth, Object* last_intersect ) {
     float distance = 0;
 
-    Object* obj = this->get_intersect_kd_tree( ray, &distance );
-    // Object* obj = this->get_intersected_obj( ray, &distance );
+    // Object* obj = this->get_intersect_kd_tree( ray, &distance );
+    Object* obj = this->get_intersected_obj( ray, &distance );
 
     // std::cout << '\n';
     // std::cout << "given ray" << '\n';
@@ -917,23 +917,17 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
 
     PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
-    vec3 illum = obj->get_material()->get_color();
-
     size_t shadows = 0;
     size_t count   = 0;
-
-    float max_rad = 0.03f;
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        if ( p->distance <= max_rad ) {
-            radius = p->distance;
+        if ( dot( ( pt - p->position ), norm ) == 0 ) {
+            // radius = p->distance;
             if ( p->is_shadow ) {
                 shadows += 1;
             }
-        } else {
-            break;
         }
 
         count++;
@@ -950,27 +944,20 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
     delete heap;
     delete _heap;
 
-    // float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
-    // illum = illum * divisor;
+    float divisor = ( 1 / ( 2 * M_PI * pow( radius, 2 ) ) );
+    vec3 illum    = obj->get_material()->get_color() * divisor;
 
     if ( shadows == count ) {
         // this spot is completely shadowed
-        illum = vec3( 0.0f );  //, 0.0f, 1.0f );
+        illum = vec3( 0.0f );
     } else if ( shadows == 0 ) {
         // we good
-        // illum = vec3( 0.0f, 1.0f, 0.0f );
     } else {
         // this spot is partially shadowed
         float vis =
             static_cast<float>( count - shadows ) / static_cast<float>( count );
-        // illum = vec3( 0.0f, 1.0f, 0.0f );
         illum = illum * vis;
-        // illum = vec3( 0.0f, 0.0f, 1.0f );
     }
-
-    // float vis = static_cast<float>( max_photons - shadows ) /
-    //             static_cast<float>( max_photons );
-    // illum = obj_col * vis;
 
     // std::cout << "direct // " << glm::to_string( illum ) << '\n';
 
@@ -1008,19 +995,23 @@ vec3 World::caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons ) {
     vector<Photon*>* _heap    = new vector<Photon*>();
     IlluminationModel* imodel = obj->get_imodel();
 
-    vec3 caustic  = vec3( 0.0f );
-    float radius  = 0.0f;
-    float max_rad = 0.03f;
-    size_t count  = 0;
+    vec3 caustic = vec3( 0.0f );
+    float radius = 0.0f;
+    // float max_rad = 0.1f;
+    size_t count = 0;
 
     caustic_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
 
     PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
+    if ( _heap->size() < caustic_photons.size() ) {
+        std::cout << "0";
+    }
+
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        if ( p->distance <= max_rad ) {
+        if ( dot( ( pt - p->position ), normal ) == 0 ) {
             Ray* source  = new Ray( &p->position, &p->dir );
             Ray* reflect = source->reflect( &normal );
 
@@ -1031,11 +1022,9 @@ vec3 World::caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons ) {
 
             delete source;
             delete reflect;
-        } else {
-            break;
+            count++;
         }
 
-        count++;
         heap->pop();
         delete p;
     }
@@ -1049,7 +1038,7 @@ vec3 World::caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons ) {
     delete _heap;
     delete heap;
 
-    float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
+    float divisor = ( 1 / ( 2 * M_PI * pow( radius, 2 ) ) );
 
     caustic = caustic * divisor;
 

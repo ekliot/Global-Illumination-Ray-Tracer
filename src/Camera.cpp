@@ -84,7 +84,7 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
         std::cout << "row " << y << " // ";
 
         for ( size_t x = 0; x < negative->get_width(); ++x ) {
-            std::cout << '.';
+            // std::cout << '.';
 
             // if we have a default ss_rate, don't bother with it
             if ( !ss_rate ) {
