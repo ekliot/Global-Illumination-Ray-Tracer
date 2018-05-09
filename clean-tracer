@@ -1,5 +1,6 @@
 #!/bin/bash
 
-rm -rf src/*.o
-rm -rf src/*.gch
+rm *.o
+rm src/*.o
+rm src/*.gch
 # rm */out*.png

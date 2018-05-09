@@ -9,20 +9,18 @@
 using glm::vec3;
 
 class Material {
-
-protected:
+  protected:
     float kr;
     float kd;
     float ir;
 
-public:
-
-    Material( float _kr, float _kd, float _ir = 0 );
+  public:
+    Material( float kr = 0.0f, float kd = 0.0f, float ir = 0.0f );
     // Material( const Material& material );
-    virtual ~Material() = 0;
+    virtual ~Material();
     // virtual Material& operator=( const Material& model ) = 0;
 
-    virtual vec3 get_color( float u, float v ) = 0;
+    virtual vec3 get_color( float u = 0, float v = 0 ) = 0;
 
     float get_kr();
     float get_kd();
