@@ -33,7 +33,7 @@ class PhotonKDTreeNode {
 
     void get_photons_near_pt( vector<Photon*>* heap, vec3 position,
                               float range );
-    void get_n_photons_near_pt( vector<Photon*>* heap, vec3 position,
+    void get_n_photons_near_pt( vector<Photon*>* heap, vec3 position, vec3 norm,
                                 size_t size, float* range );
 };
 #endif

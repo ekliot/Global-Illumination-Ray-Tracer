@@ -913,7 +913,7 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
     float radius           = 0.0f;
     vector<Photon*>* _heap = new vector<Photon*>();
 
-    shadow_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
+    shadow_pmap->get_n_photons_near_pt( _heap, pt, norm, max_photons, &radius );
 
     PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
@@ -922,12 +922,9 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
-
-        if ( dot( ( pt - p->position ), norm ) == 0 ) {
-            // radius = p->distance;
-            if ( p->is_shadow ) {
-                shadows += 1;
-            }
+        // radius = p->distance;
+        if ( p->is_shadow ) {
+            shadows += 1;
         }
 
         count++;
@@ -946,6 +943,8 @@ vec3 World::direct_illumination( vec3 pt, Object* obj, vec3 norm,
 
     float divisor = ( 1 / ( 2 * M_PI * pow( radius, 2 ) ) );
     vec3 illum    = obj->get_material()->get_color() * divisor;
+
+    // std::cout << "shadow:count // " << shadows << ':' << count << '\n';
 
     if ( shadows == count ) {
         // this spot is completely shadowed
@@ -997,34 +996,28 @@ vec3 World::caustics( vec3 pt, Object* obj, vec3 normal, size_t max_photons ) {
 
     vec3 caustic = vec3( 0.0f );
     float radius = 0.0f;
-    // float max_rad = 0.1f;
     size_t count = 0;
 
-    caustic_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
+    caustic_pmap->get_n_photons_near_pt( _heap, pt, normal, max_photons,
+                                         &radius );
 
     PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
-
-    if ( _heap->size() < caustic_photons.size() ) {
-        std::cout << "0";
-    }
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        if ( dot( ( pt - p->position ), normal ) == 0 ) {
-            Ray* source  = new Ray( &p->position, &p->dir );
-            Ray* reflect = source->reflect( &normal );
+        Ray* source  = new Ray( &p->position, &p->dir );
+        Ray* reflect = source->reflect( &normal );
 
-            radius = p->distance;
+        radius = p->distance;
 
-            caustic +=
-                imodel->get_specular( p->power, *reflect->direction, p->dir );
+        caustic +=
+            imodel->get_specular( p->power, *reflect->direction, p->dir );
 
-            delete source;
-            delete reflect;
-            count++;
-        }
+        delete source;
+        delete reflect;
 
+        count++;
         heap->pop();
         delete p;
     }
@@ -1059,15 +1052,15 @@ vec3 World::multi_diffuse( vec3 pt, Object* obj, vec3 norm,
     size_t count = 0;
     float radius = 0.0f;
 
-    global_pmap->get_n_photons_near_pt( _heap, pt, max_photons, &radius );
+    global_pmap->get_n_photons_near_pt( _heap, pt, norm, max_photons, &radius );
 
     PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
 
     while ( !heap->empty() && count < max_photons ) {
         Photon* p = heap->top();
 
-        diffuse +=
-            imodel->get_diffuse( p->power, obj_col, norm, p->dir ) + p->power;
+        diffuse += imodel->get_diffuse( p->power, obj_col, norm, p->dir ) +
+                   p->power + p->power;
         radius = p->distance;
 
         count++;
@@ -1084,7 +1077,7 @@ vec3 World::multi_diffuse( vec3 pt, Object* obj, vec3 norm,
     delete heap;
     delete _heap;
 
-    float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
+    float divisor = ( 1 / ( 2 * M_PI * pow( radius, 2 ) ) );
 
     diffuse = diffuse * divisor;
 
@@ -1095,40 +1088,40 @@ vec3 World::multi_diffuse( vec3 pt, Object* obj, vec3 norm,
 
 vec3 World::get_volumetric_light( Ray* r, float max_distance,
                                   float current_distance ) {
-    float step   = 0.1f;
-    size_t count = 0;
-
-    if ( current_distance < max_distance ) {
-        float radius;
-        vector<Photon*>* _heap = new vector<Photon*>();
-
-        vec3 point = *r->origin + *r->direction * current_distance;
-        volume_pmap->get_n_photons_near_pt( _heap, point, RAD_EST, &radius );
-
-        PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
-
-        vec3 illum = vec3( 0.0f );
-
-        while ( !heap->empty() ) {
-            Photon* p = heap->top();
-
-            if ( count++ < RAD_EST ) {
-                illum += vec3( p->power );
-            }
-
-            delete p;
-        }
-
-        float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
-
-        illum = illum * divisor;
-
-        delete _heap;
-        delete heap;
-
-        return illum +
-               get_volumetric_light( r, max_distance, current_distance + step );
-    } else {
-        return vec3( 0.0f );
-    }
+    // float step   = 0.1f;
+    // size_t count = 0;
+    //
+    // if ( current_distance < max_distance ) {
+    //     float radius;
+    //     vector<Photon*>* _heap = new vector<Photon*>();
+    //
+    //     vec3 point = *r->origin + *r->direction * current_distance;
+    //     volume_pmap->get_n_photons_near_pt( _heap, point, RAD_EST, &radius );
+    //
+    //     PhotonHeap* heap = new PhotonHeap( _heap->begin(), _heap->end() );
+    //
+    //     vec3 illum = vec3( 0.0f );
+    //
+    //     while ( !heap->empty() ) {
+    //         Photon* p = heap->top();
+    //
+    //         if ( count++ < RAD_EST ) {
+    //             illum += vec3( p->power );
+    //         }
+    //
+    //         delete p;
+    //     }
+    //
+    //     float divisor = ( 1 / ( 4 / 3 * M_PI * pow( radius, 3 ) ) );
+    //
+    //     illum = illum * divisor;
+    //
+    //     delete _heap;
+    //     delete heap;
+    //
+    //     return illum +
+    //            get_volumetric_light( r, max_distance, current_distance + step );
+    // } else {
+    return vec3( 0.0f );
+    // }
 }

@@ -155,8 +155,8 @@ void PhotonKDTreeNode::get_photons_near_pt( vector<Photon*>* heap,
 }
 
 void PhotonKDTreeNode::get_n_photons_near_pt( vector<Photon*>* heap,
-                                              vec3 position, size_t size,
-                                              float* range ) {
+                                              vec3 position, vec3 norm,
+                                              size_t size, float* range ) {
     if ( left != NULL ) {  //&& heap->size() <= size ) {
         float delta = FLT_MIN;
 
@@ -173,66 +173,78 @@ void PhotonKDTreeNode::get_n_photons_near_pt( vector<Photon*>* heap,
         // std::cout << "right: " << right->photons.size() << '\n' << endl;
 
         if ( delta < 0 ) {
-            left->get_n_photons_near_pt( heap, position, size, range );
+            left->get_n_photons_near_pt( heap, position, norm, size, range );
             if ( pow( delta, 2.0f ) < pow( *range, 2.0f ) ||
                  abs( *range ) == 0.0f ) {
                 for ( Photon* _p : photons ) {
-                    float distance = glm::distance( _p->position, position );
-                    Photon* p      = new Photon();
-                    p->position    = _p->position;
-                    p->power       = _p->power;
-                    p->dir         = _p->dir;
-                    p->src         = _p->src;
-                    p->distance    = distance;
-                    p->is_shadow   = _p->is_shadow;
+                    if ( abs( dot( ( position - _p->position ), norm ) ) <=
+                         0.01f ) {
+                        float distance =
+                            glm::distance( _p->position, position );
+                        Photon* p    = new Photon();
+                        p->position  = _p->position;
+                        p->power     = _p->power;
+                        p->dir       = _p->dir;
+                        p->src       = _p->src;
+                        p->distance  = distance;
+                        p->is_shadow = _p->is_shadow;
 
-                    heap->push_back( p );
+                        heap->push_back( p );
 
-                    if ( *range < p->distance ) {
-                        *range = p->distance;
+                        if ( *range < p->distance ) {
+                            *range = p->distance;
+                        }
                     }
                 }
-                right->get_n_photons_near_pt( heap, position, size, range );
+                right->get_n_photons_near_pt( heap, position, norm, size,
+                                              range );
             }
         } else {
-            right->get_n_photons_near_pt( heap, position, size, range );
+            right->get_n_photons_near_pt( heap, position, norm, size, range );
             if ( pow( delta, 2.0f ) < pow( *range, 2.0f ) ||
                  abs( *range ) == 0.0f ) {
                 for ( Photon* _p : photons ) {
-                    float distance = glm::distance( _p->position, position );
-                    Photon* p      = new Photon();
-                    p->position    = _p->position;
-                    p->power       = _p->power;
-                    p->dir         = _p->dir;
-                    p->src         = _p->src;
-                    p->distance    = distance;
-                    p->is_shadow   = _p->is_shadow;
+                    if ( abs( dot( ( position - _p->position ), norm ) ) <=
+                         0.01f ) {
+                        float distance =
+                            glm::distance( _p->position, position );
+                        Photon* p    = new Photon();
+                        p->position  = _p->position;
+                        p->power     = _p->power;
+                        p->dir       = _p->dir;
+                        p->src       = _p->src;
+                        p->distance  = distance;
+                        p->is_shadow = _p->is_shadow;
 
-                    heap->push_back( p );
+                        heap->push_back( p );
 
-                    if ( *range < p->distance ) {
-                        *range = p->distance;
+                        if ( *range < p->distance ) {
+                            *range = p->distance;
+                        }
                     }
                 }
-                left->get_n_photons_near_pt( heap, position, size, range );
+                left->get_n_photons_near_pt( heap, position, norm, size,
+                                             range );
             }
         }
 
     } else {
         for ( Photon* _p : photons ) {
-            float distance = glm::distance( _p->position, position );
-            Photon* p      = new Photon();
-            p->position    = _p->position;
-            p->power       = _p->power;
-            p->dir         = _p->dir;
-            p->src         = _p->src;
-            p->distance    = distance;
-            p->is_shadow   = _p->is_shadow;
+            if ( abs( dot( ( position - _p->position ), norm ) ) <= 0.01f ) {
+                float distance = glm::distance( _p->position, position );
+                Photon* p      = new Photon();
+                p->position    = _p->position;
+                p->power       = _p->power;
+                p->dir         = _p->dir;
+                p->src         = _p->src;
+                p->distance    = distance;
+                p->is_shadow   = _p->is_shadow;
 
-            heap->push_back( p );
+                heap->push_back( p );
 
-            if ( *range < p->distance ) {
-                *range = p->distance;
+                if ( *range < p->distance ) {
+                    *range = p->distance;
+                }
             }
         }
     }
