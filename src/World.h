@@ -48,7 +48,7 @@ class World {
     float ir;
 
     // const size_t MAX_DEPTH = 25;
-    const size_t RAD_EST = 100;
+    const size_t RAD_EST = 200;
     const vec3 DCAM      = vec3( 0.0f, 0.0f, 2.4 );
 
     std::vector<Object*> get_intersecting_objs( Ray* r, float dist );

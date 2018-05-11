@@ -8,6 +8,7 @@
 
 #include "Camera.h"
 
+#include <ctime>
 #include <iostream>
 
 #include "Ray.h"
@@ -79,6 +80,10 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
 
     float dir_x, dir_y, dir_z;
 
+    std::clock_t start;
+    double duration = 0.0;
+    size_t count    = 0;
+
     // trace and put stuff into the pixel buffer
     for ( size_t y = 0; y < negative->get_height(); ++y ) {
         std::cout << "row " << y << " // ";
@@ -95,9 +100,12 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                 ray_dir = vec3( dir_x, dir_y, dir_z );
                 ray     = new Ray( &ray_ori, &ray_dir );
 
+                start = std::clock();
                 color = world->get_intersect( ray );
-                color = clamp( color, 0.0f, 1.0f ) * 255.0f;
+                duration += ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+                count++;
 
+                color = clamp( color, 0.0f, 1.0f ) * 255.0f;
                 negative->get_row( y )[x] =
                     rgb_pixel( int( color.x ), int( color.y ), int( color.z ) );
 
@@ -125,9 +133,13 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
                         ray_dir = vec3( dir_x, dir_y, dir_z );
                         ray     = new Ray( &ray_ori, &ray_dir );
 
+                        start = std::clock();
                         color = world->get_intersect( ray );
-                        color = clamp( color, 0.0f, 1.0f );
+                        duration +=
+                            ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+                        count++;
 
+                        color = clamp( color, 0.0f, 1.0f );
                         r += color.x;
                         g += color.y;
                         b += color.z;
@@ -147,4 +159,6 @@ void Camera::render( image<rgb_pixel>* negative, uint ss_rate ) {
 
         std::cout << '\n';
     }
+
+    std::cout << "avg pixel time: " << duration / count << '\n';
 }
